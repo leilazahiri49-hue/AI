@@ -652,7 +652,7 @@
       min-width: 134px;
     }
 
-    .topbar-actions {
+     .topbar-actions {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -675,25 +675,21 @@
       width: 220px;
       border-radius: 20px;
     }
-
-    .search-container .icon-button {
+.search-container .icon-button,
+.close-search {
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
 
-  display: flex;              /* change this */
-  align-items: center;        /* vertical center */
-  justify-content: center;    /* horizontal center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   padding: 0;
   margin: 0;
-
-  
   line-height: 1;
-
-
 }
     .search-input {
       flex: 1;
@@ -736,6 +732,10 @@
         background 0.18s ease,
         box-shadow 0.18s ease,
         transform 0.18s ease;
+      
+      /* --- NEW: Wraps the curved edges cleanly across multiple lines --- */
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
     }
 
     .search-highlight.active-match {
@@ -789,21 +789,134 @@
         visibility 0.22s ease,
         transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    @keyframes navigatorShake {
+      0% { transform: translateX(-50%) translateY(0); }
+      16% { transform: translateX(calc(-50% - 6px)) translateY(0); }
+      32% { transform: translateX(calc(-50% + 6px)) translateY(0); }
+      48% { transform: translateX(calc(-50% - 4px)) translateY(0); }
+      64% { transform: translateX(calc(-50% + 4px)) translateY(0); }
+      82% { transform: translateX(calc(-50% - 2px)) translateY(0); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
 
- @keyframes navigatorShake {
-  0%   { transform: translateX(-50%) translateX(0); }
-  15%  { transform: translateX(-50%) translateX(-6px); }
-  30%  { transform: translateX(-50%) translateX(6px); }
-  45%  { transform: translateX(-50%) translateX(-5px); }
-  60%  { transform: translateX(-50%) translateX(5px); }
-  75%  { transform: translateX(-50%) translateX(-3px); }
-  90%  { transform: translateX(-50%) translateX(3px); }
-  100% { transform: translateX(-50%) translateX(0); }
-}
+    .search-navigator.shake {
+      animation: navigatorShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
 
-.search-navigator.shake {
-  animation: navigatorShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
+    .search-navigator.morph-from-jump {
+      /* Shorter, snappier duration with an Apple-like fluid spring curve */
+      animation: searchIslandMorph 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      transform-origin: center;
+      will-change: transform, opacity, clip-path;
+    }
+
+    .search-navigator.morph-to-jump {
+      pointer-events: none;
+      animation: searchIslandCollapse 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+      transform-origin: center;
+      will-change: transform, opacity, clip-path;
+    }
+
+    .search-navigator.morph-from-jump .nav-btn:first-child {
+      animation: searchButtonSplitLeft 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .search-navigator.morph-from-jump .nav-btn:last-child {
+      animation: searchButtonSplitRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .search-navigator.morph-to-jump .nav-btn:first-child {
+      animation: searchButtonFoldLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .search-navigator.morph-to-jump .nav-btn:last-child {
+      animation: searchButtonFoldRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .search-navigator.morph-from-jump .search-count {
+      animation: searchCountBloom 0.4s ease-out both;
+      animation-delay: 0.05s; /* Slight delay to let the island expand first */
+    }
+
+    .search-navigator.morph-to-jump .search-count {
+      animation: searchCountFold 0.3s ease-in both;
+    }
+
+    .jump-bottom.morph-to-search {
+      animation: jumpButtonIntoSearch 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .jump-bottom.morph-from-search {
+      animation: jumpButtonFromSearch 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    /* --- The Cleaned-Up, GPU-Accelerated Keyframes --- */
+    
+    @keyframes searchIslandMorph {
+      0% {
+        opacity: 0;
+        clip-path: inset(0 38% 0 38% round 999px);
+        transform: translateX(-50%) translateY(12px) scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        clip-path: inset(0 0 0 0 round 999px);
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+    }
+
+    @keyframes searchIslandCollapse {
+      0% {
+        opacity: 1;
+        clip-path: inset(0 0 0 0 round 999px);
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        clip-path: inset(0 38% 0 38% round 999px);
+        transform: translateX(-50%) translateY(12px) scale(0.8);
+      }
+    }
+
+    @keyframes searchButtonSplitLeft {
+      0% { opacity: 0; transform: translateX(30px) scale(0.8); }
+      100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    @keyframes searchButtonSplitRight {
+      0% { opacity: 0; transform: translateX(-30px) scale(0.8); }
+      100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    @keyframes searchButtonFoldLeft {
+      0% { opacity: 1; transform: translateX(0) scale(1); }
+      100% { opacity: 0; transform: translateX(30px) scale(0.8); }
+    }
+
+    @keyframes searchButtonFoldRight {
+      0% { opacity: 1; transform: translateX(0) scale(1); }
+      100% { opacity: 0; transform: translateX(-30px) scale(0.8); }
+    }
+
+    @keyframes searchCountBloom {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes searchCountFold {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.8); }
+    }
+
+    @keyframes jumpButtonIntoSearch {
+      0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.8); }
+    }
+
+    @keyframes jumpButtonFromSearch {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.8); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
 
     .search-navigator.visible {
       opacity: 1;
@@ -811,19 +924,6 @@
       pointer-events: auto;
       transform: translateX(-50%) translateY(0) scale(1);
     }
-
-    .search-count {
-      min-width: 68px;
-      padding: 0 8px;
-      color: #c9dcff;
-      font-size: 0.88rem;
-      font-weight: 650;
-      letter-spacing: 0.02em;
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-
     .search-navigator .nav-btn,
     .search-navigator .nav-btn:hover,
     .search-navigator .nav-btn:focus-visible {
@@ -953,7 +1053,7 @@
       transform: translateX(-50%) translateY(0) scale(1);
     }
 
-    .search-navigator.visible ~ .jump-bottom,
+    .search-navigator.visible:not(.morph-from-jump):not(.morph-to-jump) ~ .jump-bottom,
     .messages.start-mode + .jump-bottom {
       opacity: 0;
       visibility: hidden;
@@ -2120,6 +2220,405 @@ input.slider-value-display[type=number] {
       }
     }
 
+/* --- Light Mode Variables & Overrides (Warm Beige Style) --- */
+    :root.light-mode {
+      --bg: #eee6dc;
+      --surface: #f6efe6;
+      --surface-2: #e9dfd2;
+      --line: rgba(83, 63, 42, 0.11);
+      --line-strong: rgba(83, 63, 42, 0.18);
+      --text: #221f1b;
+      --muted: #786d61;
+      --accent: #347fca;
+      --accent-soft: rgba(52, 127, 202, 0.11);
+      --user: linear-gradient(135deg, #8fd3ff, #68b9f2);
+      --shadow: 0 12px 36px rgba(65, 48, 31, 0.08);
+    }
+
+    /* ── Body & App Shell ── */
+    :root.light-mode body {
+      background:
+        radial-gradient(circle at top left, rgba(52, 127, 202, 0.045), transparent 24%),
+        linear-gradient(180deg, #e9dfd2 0%, #f1e9df 100%);
+    }
+    :root.light-mode .sidebar {
+      background: rgba(246, 239, 230, 0.96);
+    }
+    :root.light-mode .main {
+      background: rgba(250, 244, 236, 0.96);
+    }
+    :root.light-mode .mobile-overlay {
+      background: rgba(176, 165, 151, 0.44);
+      backdrop-filter: blur(8px);
+    }
+    :root.light-mode .modal-overlay {
+      background: rgba(174, 161, 145, 0.6);
+    }
+
+    /* ── Sidebar Controls ── */
+    :root.light-mode .toggle-button {
+      background: rgba(83, 63, 42, 0.05);
+      border-color: rgba(83, 63, 42, 0.12);
+      color: var(--text);
+    }
+    
+    :root.light-mode .new-chat {
+      background: rgba(83, 63, 42, 0.04);
+      border-color: rgba(83, 63, 42, 0.11);
+    }
+    :root.light-mode .new-chat:hover {
+      background: rgba(52, 127, 202, 0.08);
+      border-color: rgba(52, 127, 202, 0.24);
+    }
+    :root.light-mode .chat-item:hover,
+    :root.light-mode .chat-item.active {
+      background: rgba(83, 63, 42, 0.055);
+      border-color: rgba(83, 63, 42, 0.12);
+    }
+
+    /* ── Icon & Mode Buttons ── */
+    :root.light-mode .icon-button {
+      background: rgba(83, 63, 42, 0.05);
+      border-color: rgba(83, 63, 42, 0.12);
+      color: var(--muted);
+    }
+    :root.light-mode .mode-trigger {
+      background: linear-gradient(180deg, rgba(83, 63, 42, 0.045), rgba(83, 63, 42, 0.02));
+      box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.58);
+    }
+    :root.light-mode .mode-trigger:hover,
+    :root.light-mode .mode-trigger:focus,
+    :root.light-mode .mode-dropdown.open .mode-trigger {
+      background: linear-gradient(180deg, rgba(52, 127, 202, 0.1), rgba(52, 127, 202, 0.04));
+      border-color: rgba(52, 127, 202, 0.26);
+    }
+    :root.light-mode .topbar-mode .mode-trigger:hover,
+    :root.light-mode .topbar-mode .mode-trigger:focus,
+    :root.light-mode .topbar-mode.open .mode-trigger {
+      background: rgba(83, 63, 42, 0.05);
+      border-color: rgba(83, 63, 42, 0.14);
+    }
+    :root.light-mode .mode-menu,
+    :root.light-mode .modal-box {
+      background: rgba(250, 244, 236, 0.98);
+      border-color: var(--line-strong);
+      box-shadow: 0 18px 40px rgba(65, 48, 31, 0.1);
+    }
+    :root.light-mode .mode-option {
+      color: var(--muted);
+    }
+    :root.light-mode .mode-option:hover,
+    :root.light-mode .mode-option.active {
+      color: var(--text);
+    }
+    :root.light-mode .mode-option.active {
+      background: rgba(52, 127, 202, 0.08);
+    }
+
+    /* ── Chat Bubbles ── */
+    :root.light-mode .bubble {
+      background: rgba(83, 63, 42, 0.04);
+      border-color: rgba(83, 63, 42, 0.09);
+      color: var(--text);
+    }
+    :root.light-mode .avatar.user {
+      background: rgba(83, 63, 42, 0.07);
+      border-color: rgba(83, 63, 42, 0.13);
+      color: var(--text);
+    }
+
+    /* ── Composer ── */
+    :root.light-mode .composer {
+      background: rgba(238, 230, 220, 0.94);
+    }
+    :root.light-mode .composer-shell {
+      background: rgba(83, 63, 42, 0.05);
+      border-color: rgba(83, 63, 42, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.58);
+    }
+
+    /* ── Start Screen Prompts ── */
+    :root.light-mode .starter-prompt {
+      background: rgba(83, 63, 42, 0.04);
+      border-color: rgba(83, 63, 42, 0.1);
+      color: var(--text);
+    }
+    :root.light-mode .starter-prompt:hover {
+      background: rgba(52, 127, 202, 0.07);
+      border-color: rgba(52, 127, 202, 0.22);
+    }
+
+   /* ── Search ── */
+    :root.light-mode .search-container {
+      background: rgba(83, 63, 42, 0.05); /* Matches the theme toggle button */
+      border-color: rgba(83, 63, 42, 0.12);
+    }
+    :root.light-mode .search-navigator,
+:root.light-mode .jump-bottom {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.42),
+      rgba(255,255,255,0.18)
+    );
+
+  border: 1px solid rgba(255,255,255,0.45);
+
+  backdrop-filter: blur(28px) saturate(220%);
+  -webkit-backdrop-filter: blur(28px) saturate(220%);
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.08),
+    inset 0 1px 1px rgba(255,255,255,0.95),
+    inset 0 -1px 1px rgba(255,255,255,0.25);
+}
+    :root.light-mode .search-navigator .nav-btn,
+:root.light-mode .search-navigator .nav-btn:hover {
+  background: rgba(255,255,255,0.22);
+
+  border-color: rgba(255,255,255,0.4);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  color: var(--text);
+}
+    :root.light-mode .jump-bottom:hover,
+:root.light-mode .jump-bottom:focus-visible {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.58),
+      rgba(255,255,255,0.28)
+    );
+
+  border-color: rgba(255,255,255,0.65);
+
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+    :root.light-mode .search-highlight {
+      color: #1c4b7d;
+      background: linear-gradient(180deg, rgba(52, 127, 202, 0.17), rgba(52, 127, 202, 0.08));
+      box-shadow: inset 0 0 0 1px rgba(52, 127, 202, 0.2);
+    }
+    :root.light-mode .search-highlight.active-match {
+      color: #ffffff;
+      background: linear-gradient(135deg, #347fca, #2369ad);
+      box-shadow: 0 0 0 1px rgba(52, 127, 202, 0.46), 0 0 18px rgba(52, 127, 202, 0.24);
+    }
+    :root.light-mode .messages {
+      scrollbar-color: rgba(83, 63, 42, 0.2) transparent;
+    }
+    :root.light-mode .chat-list {
+      scrollbar-color: rgba(83, 63, 42, 0.2) transparent;
+    }
+    /* WebKit scrollbar thumbs - dark-mode rgba(143,160,189,0.42) is invisible on cream */
+    :root.light-mode .messages::-webkit-scrollbar-thumb {
+      background: rgba(83, 63, 42, 0.2);
+      background-clip: padding-box;
+    }
+    :root.light-mode .messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(83, 63, 42, 0.3);
+      background-clip: padding-box;
+    }
+    :root.light-mode .chat-list::-webkit-scrollbar-thumb {
+      background: rgba(83, 63, 42, 0.2);
+    }
+    :root.light-mode .question-container::-webkit-scrollbar-thumb {
+      background: rgba(83, 63, 42, 0.2);
+    }
+    :root.light-mode .question-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(83, 63, 42, 0.3);
+    }
+
+    /* ── Onboarding Modal ── */
+    :root.light-mode .mcq-option {
+      background: rgba(83, 63, 42, 0.04);
+      border-color: rgba(83, 63, 42, 0.11);
+      color: var(--text);
+    }
+    :root.light-mode .mcq-option:hover {
+      background: rgba(52, 127, 202, 0.07);
+      border-color: rgba(52, 127, 202, 0.24);
+    }
+    :root.light-mode .mcq-option.selected {
+      background: rgba(52, 127, 202, 0.1);
+      border-color: var(--accent);
+    }
+    :root.light-mode .custom-slider {
+      background: rgba(83, 63, 42, 0.14);
+    }
+    :root.light-mode .custom-slider::-webkit-slider-thumb {
+      background: var(--text);
+      box-shadow: 0 0 10px rgba(52, 127, 202, 0.36);
+    }
+    :root.light-mode input.slider-value-display {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    /* result-badge border and glow were hardcoded to dark-mode cyan (#54d2ff).
+       Override to match the light-mode blue accent. */
+    :root.light-mode .result-badge {
+      border-color: rgba(52, 127, 202, 0.28);
+      box-shadow: 0 10px 30px rgba(52, 127, 202, 0.1);
+    }
+
+    /* ── Text Contrast Fixes ── */
+    /* These elements use light cyan/blue gradients (#7ae6ff→#4aa8ff).
+       Dark text (#08111a) was correct in the base CSS.
+       Forcing #ffffff here dropped contrast to ~1.38:1 on the lighter end — invisible. */
+    :root.light-mode .avatar.bot,
+    :root.light-mode .mcq-continue-btn,
+    :root.light-mode .next-btn {
+      color: #08111a;
+    }
+    /* Keep the light-mode user bubble blue but less saturated so dark text reads across it. */
+    :root.light-mode .message-row.user .bubble {
+      color: #062033;
+      border-color: transparent;
+      background: var(--user);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.26);
+      box-shadow: 0 10px 20px rgba(52, 127, 202, 0.14);
+    }
+    :root.light-mode .message-row.user .search-highlight {
+      color: #07111b;
+      background: rgba(255, 255, 255, 0.55);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+    }
+    :root.light-mode .message-row.user .search-highlight.active-match {
+      color: #07111b;
+      background: #ffffff;
+      box-shadow:
+        0 0 0 1px rgba(8, 17, 26, 0.12),
+        0 0 18px rgba(255, 255, 255, 0.52);
+    }
+
+:root.light-mode .search-navigator {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.72),
+      rgba(255,255,255,0.52)
+    );
+
+  border: 1px solid rgba(120,109,97,0.15);
+
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+:root.light-mode .jump-bottom {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.75),
+      rgba(255,255,255,0.55)
+    );
+
+  border: 1px solid rgba(120,109,97,0.15);
+
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+:root.light-mode .jump-bottom:hover,
+:root.light-mode .jump-bottom:focus-visible {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.88),
+      rgba(255,255,255,0.68)
+    );
+
+  border-color: rgba(52,127,202,0.2);
+}
+
+    /* ── Theme Toggle Animation (Telegram-style icon swap) ── */
+    html.theme-transition,
+    html.theme-transition *,
+    html.theme-transition *:before,
+    html.theme-transition *:after {
+      transition: background 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease !important;
+      transition-delay: 0s !important;
+    }
+    html.theme-transition .theme-toggle-btn svg {
+      transition: transform 0.56s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+    }
+
+    .theme-toggle-btn {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      overflow: hidden;
+      margin-right: 4px;
+    }
+    .theme-toggle-btn::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      opacity: 0;
+      transform: scale(0.4);
+      pointer-events: none;
+    }
+    .theme-toggle-btn.theme-swapping::before {
+      animation: themeIconPulse 0.56s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .theme-toggle-btn svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      transform-origin: center;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+    }
+
+    /* Dark mode state → shows Sun (click to go light) */
+    .theme-toggle-btn .moon-icon {
+      opacity: 0;
+      transform: translate(-50%, calc(-50% + 18px)) rotate(55deg) scale(0.62);
+    }
+    .theme-toggle-btn .sun-icon {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    }
+
+    /* Light mode state → shows Moon (click to go dark) */
+    :root.light-mode .theme-toggle-btn .sun-icon {
+      opacity: 0;
+      transform: translate(-50%, calc(-50% - 18px)) rotate(-70deg) scale(0.62);
+    }
+    :root.light-mode .theme-toggle-btn .moon-icon {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    }
+
+    @keyframes themeIconPulse {
+      0% {
+        opacity: 0;
+        transform: scale(0.35);
+      }
+      42% {
+        opacity: 1;
+        transform: scale(1.18);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.65);
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2199,29 +2698,13 @@ input.slider-value-display[type=number] {
               <span>Main conversation</span>
             </span>
           </button>
-
-          <button class="chat-item" type="button" data-chat-index="1" aria-pressed="false">
-            <span class="chat-icon">◌</span>
-            <span class="chat-copy">
-              <strong>Prompt Draft</strong>
-              <span>Quick ideas</span>
-            </span>
-          </button>
-
-          <button class="chat-item" type="button" data-chat-index="2" aria-pressed="false">
-            <span class="chat-icon">◎</span>
-            <span class="chat-copy">
-              <strong>Notes</strong>
-              <span>Saved replies</span>
-            </span>
-          </button>
         </div>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <div class="topbar-title-row">
+         <div class="topbar-title-row">
           <button class="toggle-button topbar-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
           <div class="title-stack">
             <h1 id="conversationTitle">New chat</h1>
@@ -2240,7 +2723,24 @@ input.slider-value-display[type=number] {
           </div>
         </div>
 
-        <div class="topbar-actions">
+         <div class="topbar-actions">
+          <button class="icon-button theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle Theme">
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+          
           <div class="search-container" id="searchContainer">
             <button class="icon-button" type="button" id="searchToggleBtn" aria-label="Search">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -2291,6 +2791,39 @@ input.slider-value-display[type=number] {
   </div>
 
   <script>
+    // --- 1. Theme Initialization & Toggle Logic ---
+    // Run immediately to prevent flashing
+    const savedTheme = localStorage.getItem('spark-theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light-mode');
+    }
+
+    function toggleTheme() {
+      const toggleButton = document.getElementById('themeToggleBtn');
+      if (toggleButton) {
+        toggleButton.classList.remove('theme-swapping');
+        void toggleButton.offsetWidth;
+        toggleButton.classList.add('theme-swapping');
+      }
+
+      // Temporarily add a transition class to animate all colors smoothly
+      document.documentElement.classList.add('theme-transition');
+
+      // Swap the mode
+      const isLight = document.documentElement.classList.toggle('light-mode');
+      
+      // Save preference to memory
+      localStorage.setItem('spark-theme', isLight ? 'light' : 'dark');
+
+      // Remove the transition class after the icon and color animations finish
+      // so regular hover states don't feel laggy later
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transition');
+        if (toggleButton) {
+          toggleButton.classList.remove('theme-swapping');
+        }
+      }, 560);
+    }
    function toggleSidebar() {
       closeModeDropdowns();
       sidebar.classList.toggle("collapsed");
@@ -2301,77 +2834,109 @@ input.slider-value-display[type=number] {
 
     const conversations = [
       {
-        title: "AI Interface Discussion",
+        title: "Long Testing Chat",
         messages: [
           {
             who: "bot",
             name: "AI",
-            text: "I can help you refine the interface. We can make it calmer, cleaner, and more focused.",
-            meta: "AI • 8:41 PM"
+            text: "This is the single long test conversation. It gives the interface enough content for scrolling, searching, switching themes, and checking the collapsed sidebar behavior.",
+            meta: "AI • 7:00 PM"
           },
           {
             who: "user",
             name: "You",
-            text: "I want the sidebar cleaner, the layout more minimal, and the overall interface less cluttered.",
-            meta: "You • 8:42 PM"
+            text: "Perfect. I want to use this one thread to test the interface without having three separate sample conversations in the sidebar.",
+            meta: "You • 7:01 PM"
           },
           {
             who: "bot",
             name: "AI",
-            text: "Then we should soften the borders, reduce extra controls, simplify the sidebar, and keep the motion smooth when it collapses.",
-            meta: "AI • 8:43 PM"
+            text: "Got it. The history list should feel quiet: one clear item, one title, and enough messages inside the thread to make the scroll controls meaningful.",
+            meta: "AI • 7:02 PM"
           },
           {
             who: "user",
             name: "You",
-            text: "Yes, that is exactly what I want.",
-            meta: "You • 8:43 PM"
-          }
-        ]
-      },
-      {
-        title: "Prompt Draft",
-        messages: [
+            text: "I also want the start screen to stay clean. Before I send anything, no sidebar menu button should be visible at all.",
+            meta: "You • 7:03 PM"
+          },
           {
             who: "bot",
             name: "AI",
-            text: "Send me the rough idea and I will turn it into a cleaner prompt.",
-            meta: "AI • 7:18 PM"
+            text: "That means the first screen can behave like a calm blank slate. The sidebar stays tucked away, and the three-line control only appears after a real chat is active.",
+            meta: "AI • 7:04 PM"
           },
           {
             who: "user",
             name: "You",
-            text: "Make it direct, useful, and not too dramatic.",
-            meta: "You • 7:19 PM"
+            text: "When it appears, it should not open the sidebar by itself. It should just pop in at the top right so I can choose to open the sidebar.",
+            meta: "You • 7:05 PM"
           },
           {
             who: "bot",
             name: "AI",
-            text: "Try this: Build a minimal AI chat interface with a collapsible tray, calm spacing, and clear switching between recent chats.",
-            meta: "AI • 7:20 PM"
-          }
-        ]
-      },
-      {
-        title: "Notes",
-        messages: [
-          {
-            who: "bot",
-            name: "AI",
-            text: "Saved note: keep the sidebar compact, keep hover states smooth, and avoid clutter in the main chat area.",
-            meta: "AI • 6:05 PM"
+            text: "Exactly. A small glass button with a soft entrance animation will make the menu feel available without making the layout suddenly jump open.",
+            meta: "AI • 7:06 PM"
           },
           {
             who: "user",
             name: "You",
-            text: "Also keep the current chat obvious when the sidebar is closed.",
-            meta: "You • 6:06 PM"
+            text: "Make the button match the search island and the scroll-to-bottom button. It should feel like the same design family.",
+            meta: "You • 7:07 PM"
           },
           {
             who: "bot",
             name: "AI",
-            text: "Marked. The active chat should match the hover size so it feels selected without looking uneven.",
-            meta: "AI • 6:07 PM"
+            text: "The shared language is translucent glass, a thin border, subtle blur, and a shadow that is visible but not loud. In light mode, the same control should become warmer and softer.",
+            meta: "AI • 7:08 PM"
+          },
+          {
+            who: "user",
+            name: "You",
+            text: "This long chat also helps test the jump-to-bottom control. If I scroll away, the button should show up without covering the messages too aggressively.",
+            meta: "You • 7:09 PM"
+          },
+          {
+            who: "bot",
+            name: "AI",
+            text: "Right. The scroll button can stay centered near the composer, while the menu button lives in the top-right action cluster next to theme and search.",
+            meta: "AI • 7:10 PM"
+          },
+          {
+            who: "user",
+            name: "You",
+            text: "I also want to check that user bubbles stay readable in light mode and that the blue does not overpower the beige background.",
+            meta: "You • 7:11 PM"
+          },
+          {
+            who: "bot",
+            name: "AI",
+            text: "The user bubble should keep its distinct blue identity, but the gradient can stay gentle enough that dark text remains readable from beginning to end.",
+            meta: "AI • 7:12 PM"
+          },
+          {
+            who: "user",
+            name: "You",
+            text: "Search should still find words in this conversation, including sidebar, glass, scroll, theme, and bubble.",
+            meta: "You • 7:13 PM"
+          },
+          {
+            who: "bot",
+            name: "AI",
+            text: "That gives you a reliable test set: enough repeated UI terms for search, enough height for scrolling, and enough alternating messages to compare user and AI bubbles.",
+            meta: "AI • 7:14 PM"
+          },
+          {
+            who: "user",
+            name: "You",
+            text: "One more detail: the sidebar can still exist as history, but it should not be the first thing the user sees on the clean start screen.",
+            meta: "You • 7:15 PM"
+          },
+          {
+            who: "bot",
+            name: "AI",
+            text: "That is a good product feel. Start with the conversation, then reveal navigation only when it becomes useful.",
+            meta: "AI • 7:16 PM"
           }
         ]
       }
@@ -2381,14 +2946,14 @@ input.slider-value-display[type=number] {
     const newChatButton = document.querySelector(".new-chat");
     const conversationTitle = document.getElementById("conversationTitle");
     const messages = document.getElementById("messages");
-    const jumpBottomButton = document.getElementById("jumpBottomButton");
+   const jumpBottomButton = document.getElementById("jumpBottomButton");
     const sidebar = document.getElementById("sidebar");
     const mobileOverlay = document.getElementById("mobileOverlay");
     const mobileQuery = window.matchMedia("(max-width: 900px)");
     const modeDropdowns = document.querySelectorAll("[data-mode-dropdown]");
     const modeLabels = document.querySelectorAll("[data-mode-label]");
     const modeOptions = document.querySelectorAll("[data-mode-option]");
-   let currentChatIndex = -1;
+    let currentChatIndex = -1;
     let isSwitching = false;
     let currentMode = "Minimal AI";
     let startScreenDraft = "";
@@ -2429,7 +2994,7 @@ input.slider-value-display[type=number] {
             <div class="meta"${metaId}>${escapeHTML(message.meta)}</div>
           </div>
         </div>
-      `;
+       `;
     }
 
     function setActiveChat(nextIndex) {
@@ -2520,7 +3085,7 @@ input.slider-value-display[type=number] {
         mobileOverlay.classList.remove("active");
       }
 
-      fitConversationTitle();
+    fitConversationTitle();
     }
 
     function isMessagesNearBottom() {
@@ -2529,6 +3094,14 @@ input.slider-value-display[type=number] {
 
     function updateJumpBottomButton() {
       const searchNavigator = document.getElementById("searchNavigator");
+
+      if (searchNavigator && (
+        searchNavigator.classList.contains("morph-from-jump") ||
+        searchNavigator.classList.contains("morph-to-jump")
+      )) {
+        return;
+      }
+
       const searchIsOpen = searchNavigator && searchNavigator.classList.contains("visible");
       const canScroll = messages.scrollHeight > messages.clientHeight + 24;
       const shouldShow = canScroll && !messages.classList.contains("start-mode") && !isMessagesNearBottom() && !searchIsOpen;
@@ -2536,7 +3109,6 @@ input.slider-value-display[type=number] {
       jumpBottomButton.classList.toggle("visible", shouldShow);
       jumpBottomButton.setAttribute("aria-hidden", String(!shouldShow));
     }
-
     function scrollMessagesToBottom(behavior = "smooth") {
       messages.scrollTo({
         top: messages.scrollHeight,
@@ -2723,8 +3295,12 @@ input.slider-value-display[type=number] {
 // --- Search Functionality Logic ---
     let searchMatches = [];
     let currentMatchIndex = -1;
+    let navigatorMorphTimer = null;
+    const navigatorMorphDuration = 640;
 
     const searchToggleBtn = document.getElementById('searchToggleBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    themeToggleBtn.addEventListener('click', toggleTheme);
     const searchInput = document.getElementById('searchInput');
     const searchCloseBtn = document.getElementById('searchCloseBtn');
     const searchContainer = document.getElementById('searchContainer');
@@ -2776,7 +3352,17 @@ input.slider-value-display[type=number] {
 
       if (!keyword || keyword.length === 0) return;
 
-      const regex = new RegExp(`\\b${escapeRegExp(keyword)}\\b`, 'gi');
+      // --- NEW FUZZY SEARCH LOGIC ---
+      // 1. Strip punctuation from the user's input
+      const cleanTerm = keyword.replace(/[^\w\s]/g, '');
+      if (!cleanTerm.trim()) return; // Stop if they only typed punctuation
+
+      // 2. Build a pattern that allows spaces/punctuation between words
+      const fuzzyPattern = cleanTerm.trim().split(/\s+/).join('[\\s\\W]*');
+
+      // 3. Create the Regex (using \b to match full words)
+      const regex = new RegExp(`\\b(${fuzzyPattern})\\b`, 'gi');
+      // ------------------------------
 
       const walker = document.createTreeWalker(
         messagesContainer,
@@ -2798,7 +3384,7 @@ input.slider-value-display[type=number] {
       while ((node = walker.nextNode())) {
         if (regex.test(node.nodeValue)) {
           nodesToReplace.push(node);
-          regex.lastIndex = 0;
+          regex.lastIndex = 0; // Reset state for next iteration
         }
       }
 
@@ -2806,7 +3392,9 @@ input.slider-value-display[type=number] {
 
       nodesToReplace.forEach(textNode => {
         const text = textNode.nodeValue;
-        const localRegex = new RegExp(`\\b${escapeRegExp(keyword)}\\b`, 'gi');
+        
+        // Re-create the regex for the replacement loop
+        const localRegex = new RegExp(`\\b(${fuzzyPattern})\\b`, 'gi');
         const fragment = document.createDocumentFragment();
 
         let lastIndex = 0;
@@ -2815,7 +3403,7 @@ input.slider-value-display[type=number] {
           fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
           const mark = document.createElement('mark');
           mark.className = 'search-highlight';
-          mark.textContent = match[0];
+          mark.textContent = match[0]; // match[0] contains the actual text found, punctuation included!
           fragment.appendChild(mark);
           searchMatches.push(mark);
           lastIndex = match.index + match[0].length;
@@ -2851,17 +3439,83 @@ input.slider-value-display[type=number] {
       currentMatchIndex = -1;
     }
 
+    function canShowJumpBottomButton() {
+      return messages.scrollHeight > messages.clientHeight + 24 &&
+        !messages.classList.contains("start-mode") &&
+        !isMessagesNearBottom();
+    }
+
+    function clearNavigatorMorphTimer() {
+      if (navigatorMorphTimer) {
+        window.clearTimeout(navigatorMorphTimer);
+        navigatorMorphTimer = null;
+      }
+    }
+
     function updateSearchNavigator() {
       if (searchMatches.length > 0) {
-        searchNavigator.classList.add('visible');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const wasVisible = searchNavigator.classList.contains('visible');
+        const shouldMorphFromJump =
+          jumpBottomButton.classList.contains('visible') &&
+          !wasVisible &&
+          !reducedMotion;
+
+        clearNavigatorMorphTimer();
+        searchNavigator.classList.remove('morph-to-jump', 'shake');
+        jumpBottomButton.classList.remove('morph-from-search');
+
         searchCount.textContent = `${currentMatchIndex + 1} / ${searchMatches.length}`;
+        searchNavigator.classList.add('visible');
+
+        if (shouldMorphFromJump) {
+          searchNavigator.classList.add('morph-from-jump');
+          jumpBottomButton.classList.add('visible', 'morph-to-search');
+          jumpBottomButton.setAttribute('aria-hidden', 'false');
+
+          navigatorMorphTimer = window.setTimeout(() => {
+            searchNavigator.classList.remove('morph-from-jump');
+            jumpBottomButton.classList.remove('morph-to-search');
+            navigatorMorphTimer = null;
+            updateJumpBottomButton();
+          }, navigatorMorphDuration);
+        } else {
+          searchNavigator.classList.remove('morph-from-jump');
+          jumpBottomButton.classList.remove('morph-to-search');
+        }
       } else {
         hideNavigator();
       }
     }
 
     function hideNavigator() {
-      searchNavigator.classList.remove('visible');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const shouldCollapseToJump =
+        searchNavigator.classList.contains('visible') &&
+        canShowJumpBottomButton() &&
+        !reducedMotion;
+
+      clearNavigatorMorphTimer();
+      searchNavigator.classList.remove('morph-from-jump', 'shake');
+      jumpBottomButton.classList.remove('morph-to-search');
+
+      if (shouldCollapseToJump) {
+        searchNavigator.classList.add('morph-to-jump');
+        jumpBottomButton.classList.add('visible', 'morph-from-search');
+        jumpBottomButton.setAttribute('aria-hidden', 'false');
+
+        navigatorMorphTimer = window.setTimeout(() => {
+          searchNavigator.classList.remove('visible', 'morph-to-jump', 'shake');
+          jumpBottomButton.classList.remove('morph-from-search');
+          navigatorMorphTimer = null;
+          updateJumpBottomButton();
+        }, navigatorMorphDuration);
+
+        return;
+      }
+
+      searchNavigator.classList.remove('visible', 'morph-to-jump', 'shake');
+      jumpBottomButton.classList.remove('morph-from-search');
       requestAnimationFrame(updateJumpBottomButton);
     }
 
@@ -2874,31 +3528,57 @@ input.slider-value-display[type=number] {
       }
     }
 
+    function isCurrentMatchSettled() {
+      const currentMark = searchMatches[currentMatchIndex];
+      if (!currentMark) return false;
+
+      const markRect = currentMark.getBoundingClientRect();
+      const messagesRect = messages.getBoundingClientRect();
+      const markCenter = markRect.top + (markRect.height / 2);
+      const messagesCenter = messagesRect.top + (messagesRect.height / 2);
+      const centerDistance = Math.abs(markCenter - messagesCenter);
+      const isFullyVisible = markRect.top >= messagesRect.top + 40 && markRect.bottom <= messagesRect.bottom - 40;
+
+      return isFullyVisible && centerDistance < messagesRect.height * 0.24;
+    }
+
     function shakeNavigator() {
-  searchNavigator.classList.remove('shake');
-  void searchNavigator.offsetWidth;
-  searchNavigator.classList.add('shake');
-  searchNavigator.addEventListener('animationend', () => {
-    searchNavigator.classList.remove('shake');
-  }, { once: true });
+      searchNavigator.classList.remove('shake');
+      void searchNavigator.offsetWidth;
+      searchNavigator.classList.add('shake');
+      searchNavigator.addEventListener('animationend', () => {
+        searchNavigator.classList.remove('shake');
+      }, { once: true });
+    }
+
+    function handleBlockedSearchEdge() {
+  updateSearchNavigator();
+  shakeNavigator();
 }
 
-searchPrevBtn.addEventListener('click', () => {
-  if (searchMatches.length === 0) return;
-  if (currentMatchIndex <= 0) { shakeNavigator(); return; }
-  currentMatchIndex -= 1;
-  updateSearchNavigator();
-  highlightCurrentMatch();
-});
+    searchPrevBtn.addEventListener('click', () => {
+      if (searchMatches.length === 0) return;
+      if (currentMatchIndex <= 0) {
+        currentMatchIndex = 0;
+        handleBlockedSearchEdge();
+        return;
+      }
+      currentMatchIndex -= 1;
+      updateSearchNavigator();
+      highlightCurrentMatch();
+    });
 
-searchNextBtn.addEventListener('click', () => {
-  if (searchMatches.length === 0) return;
-  if (currentMatchIndex >= searchMatches.length - 1) { shakeNavigator(); return; }
-  currentMatchIndex += 1;
-  updateSearchNavigator();
-  highlightCurrentMatch();
-});
-
+    searchNextBtn.addEventListener('click', () => {
+      if (searchMatches.length === 0) return;
+      if (currentMatchIndex >= searchMatches.length - 1) {
+        currentMatchIndex = searchMatches.length - 1;
+        handleBlockedSearchEdge();
+        return;
+      }
+      currentMatchIndex += 1;
+      updateSearchNavigator();
+      highlightCurrentMatch();
+    });
     // Initialize the app down here so all search variables exist first!
     setActiveChat(-1);
     syncMode(currentMode, false);
