@@ -3735,7 +3735,12 @@ input.slider-value-display[type=number] {
       </div>
     `;
     function escapeHTML(value) {
-      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      // NOTE: intentionally not using the "??" (nullish coalescing) operator here.
+      // Safari only supports it from iOS 13.4 onward; on older devices (e.g. iPhone 6,
+      // capped at iOS 12.5.7) it's a hard SyntaxError that fails to parse this entire
+      // inline <script> block, silently disabling every button/listener on the page.
+      var safeValue = (value === null || value === undefined) ? "" : value;
+      return String(safeValue).replace(/[&<>"']/g, (char) => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
