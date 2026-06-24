@@ -9,6 +9,35 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <title>Spark</title>
+  <script>
+    // Detect real flex "gap" support (not just whether the browser parses the
+    // property — Safari recognized "gap" for CSS Grid years before it worked for
+    // Flexbox, so a syntax-validity check like @supports would give a false
+    // positive on exactly the old-iOS-Safari devices we need to catch here).
+    // Runs synchronously before <body> paints, so there's no flash of wrong spacing.
+    (function () {
+      try {
+        var probe = document.createElement('div');
+        probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;' +
+          'top:-9999px;left:-9999px;display:flex;width:100px;gap:10px;';
+        var a = document.createElement('div');
+        a.style.cssText = 'width:10px;height:10px;';
+        var b = a.cloneNode(false);
+        probe.appendChild(a);
+        probe.appendChild(b);
+        document.documentElement.appendChild(probe);
+        var actualGap = b.getBoundingClientRect().left - a.getBoundingClientRect().right;
+        document.documentElement.removeChild(probe);
+        if (actualGap < 9) {
+          document.documentElement.classList.add('no-flex-gap');
+        }
+      } catch (e) {
+        // If the probe itself fails for any reason, fail safe: assume the
+        // worst and apply the (harmless, additive) margin fallback.
+        document.documentElement.classList.add('no-flex-gap');
+      }
+    })();
+  </script>
   <style>
     :root {
       --bg: #0a0f1a;
@@ -1037,6 +1066,7 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
+      scrollbar-gutter: stable both-edges;
       scrollbar-width: thin;
       scrollbar-color: rgba(143, 160, 189, 0.45) transparent;
       transform-origin: center;
@@ -1212,6 +1242,7 @@
       align-self: center;
       color: var(--muted);
       font-size: 0.78rem;
+      flex-shrink: 0;
     }
 
     .start-screen {
@@ -1274,6 +1305,12 @@
       display: flex;
       gap: 12px;
       max-width: 760px;
+      /* Older WebKit (pre-iOS 15ish) can incorrectly shrink flex items that contain
+         wrapping text below their content height when the flex container scrolls
+         (overflow-y:auto) and total content exceeds the visible area — the text then
+         paints outside its collapsed box, making messages appear to overlap each other.
+         flex-shrink:0 stops the browser from ever attempting that shrink. */
+      flex-shrink: 0;
     }
 
     .message-row.user {
@@ -1309,6 +1346,7 @@
       align-items: flex-start;
       gap: 6px;
       min-width: 0;
+      flex-shrink: 0; /* same collapse-prevention as .message-row, see comment above */
     }
 
     .message-row.user .bubble-wrap {
@@ -1963,7 +2001,14 @@
 /* --- Modal Questionnaire Styles --- */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; left: 0; right: 0;
+  /* Explicit height tied to the JS-corrected viewport, same mechanism already used
+     for html/body/.app. Plain "fixed; inset:0" sizes against the browser's LARGEST
+     possible viewport on older iOS Safari (chrome retracted), even while the address
+     bar is actually showing — which pushes the vertically-centered modal up far enough
+     that its top edge ends up hidden behind the address bar. */
+  height: 100vh; /* fallback for ancient browsers */
+  height: var(--app-height, 100dvh);
   background: rgba(10, 15, 26, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -3529,6 +3574,61 @@ input.slider-value-display[type=number] {
       }
     }
 
+    /* ════════════════════════════════════════════════════════════════════
+       FLEX-GAP FALLBACK — for browsers where flexbox "gap" silently has no
+       effect (Safari only supports it from 14.1 / iOS 14.5 onward; CSS Grid
+       "gap" has been fine since Safari 10.1, so grid-based layouts like
+       .start-panel / .starter-grid are NOT affected and are left alone).
+
+       The "no-flex-gap" class is added by a tiny runtime probe in <head>
+       that measures actual rendered spacing rather than guessing from
+       @supports (which would give a false "supported" reading here, since
+       Safari recognizes "gap" as valid syntax long before it works for flex).
+
+       Each rule below uses the child-combinator "> * + *" pattern (margin on
+       every child except the first), which is the universally-supported
+       equivalent of gap and has been valid CSS since CSS2.1. These rules are
+       scoped strictly under html.no-flex-gap, so modern browsers (where the
+       native gap property already works) never see them — zero risk of
+       doubling up spacing.
+       ════════════════════════════════════════════════════════════════════ */
+
+    /* Sidebar */
+    html.no-flex-gap .sidebar-header > * + * { margin-left: 12px; }
+    html.no-flex-gap .brand > * + * { margin-left: 10px; }
+    html.no-flex-gap .mode-trigger > * + * { margin-left: 10px; }
+    html.no-flex-gap .mode-option > * + * { margin-left: 10px; }
+    html.no-flex-gap .new-chat > * + * { margin-left: 12px; }
+    html.no-flex-gap .sidebar-section > * + * { margin-top: 10px; }
+    html.no-flex-gap .chat-list > * + * { margin-top: 6px; }
+    html.no-flex-gap .chat-item > * + * { margin-left: 12px; }
+
+    /* Topbar */
+    html.no-flex-gap .topbar > * + * { margin-left: 6px; }
+    html.no-flex-gap .topbar-title-row > * + * { margin-left: 8px; }
+    html.no-flex-gap .title-stack > * + * { margin-top: 2px; }
+    html.no-flex-gap .topbar-actions > * + * { margin-left: 3px; }
+    html.no-flex-gap .search-navigator > * + * { margin-left: 6px; }
+
+    /* Messages */
+    html.no-flex-gap .messages > * + * { margin-top: 12px; }
+    html.no-flex-gap .message-row > * + * { margin-left: 10px; }
+    html.no-flex-gap .message-row.user > * + * { margin-left: 0; margin-right: 10px; }
+    html.no-flex-gap .bubble-wrap > * + * { margin-top: 6px; }
+    html.no-flex-gap .thinking-row > * + * { margin-left: 10px; }
+    html.no-flex-gap .thinking-card > * + * { margin-left: 6px; }
+
+    /* Composer */
+    html.no-flex-gap .composer-row > * + * { margin-left: 8px; }
+
+    /* Onboarding modal / questionnaire */
+    html.no-flex-gap .options-grid > * + * { margin-top: 8px; }
+    html.no-flex-gap .slider-container > * + * { margin-top: 20px; }
+    html.no-flex-gap .result-container > * + * { margin-top: 14px; }
+    html.no-flex-gap .start-container > * + * { margin-top: 16px; }
+    html.no-flex-gap .start-actions > * + * { margin-top: 14px; }
+    html.no-flex-gap .safety-row > * + * { margin-left: 6px; }
+
   </style>
 </head>
 <body>
@@ -3964,7 +4064,12 @@ input.slider-value-display[type=number] {
       </div>
     `;
     function escapeHTML(value) {
-      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      // NOTE: intentionally not using the "??" (nullish coalescing) operator here.
+      // Safari only supports it from iOS 13.4 onward; on older devices (e.g. iPhone 6,
+      // capped at iOS 12.5.7) it's a hard SyntaxError that fails to parse this entire
+      // inline <script> block, silently disabling every button/listener on the page.
+      var safeValue = (value === null || value === undefined) ? "" : value;
+      return String(safeValue).replace(/[&<>"']/g, (char) => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
