@@ -3378,6 +3378,33 @@ input.slider-value-display[type=number] {
     html.no-flex-gap .start-actions > * + * { margin-top: 14px; }
     html.no-flex-gap .safety-row > * + * { margin-left: 6px; }
 
+    @media (max-width: 900px) {
+      /* 1. Shrink Theme Toggle icons back to 18px */
+      .theme-toggle-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+      
+      /* Restore original slide-up/down animation distances */
+      .theme-toggle-btn .moon-icon {
+        transform: translate(-50%, calc(-50% + 18px)) rotate(55deg) scale(0.62) !important;
+      }
+      :root.light-mode .theme-toggle-btn .sun-icon {
+        transform: translate(-50%, calc(-50% - 18px)) rotate(-70deg) scale(0.62) !important;
+      }
+
+      /* 2. Shrink Search icons back to 16px and 12px 
+         (This CSS safely overrides the width="20" in your HTML) */
+      #searchToggleBtn svg {
+        width: 16px !important;
+        height: 16px !important;
+      }
+      #searchCloseBtn svg {
+        width: 12px !important;
+        height: 12px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
