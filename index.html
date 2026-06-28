@@ -1065,6 +1065,14 @@
       width: 0;
       height: 0;
     }
+    .messages::-webkit-scrollbar-button:start:decrement,
+    .messages::-webkit-scrollbar-button:end:increment,
+    .messages::-webkit-scrollbar-button:start:increment,
+    .messages::-webkit-scrollbar-button:end:decrement {
+      display: none;
+      width: 0;
+      height: 0;
+    }
 
     .messages::-webkit-scrollbar-track {
       background: transparent;
@@ -1511,6 +1519,17 @@
       /* Slim scrollbar on touch screens — wide desktop one is invasive on mobile */
       .messages::-webkit-scrollbar {
         width: 4px;
+      }
+      /* Suppress scroll arrows — re-stated here so WebKit doesn't re-enable them
+         when the scrollbar width is overridden in this media query */
+      .messages::-webkit-scrollbar-button,
+      .messages::-webkit-scrollbar-button:start:decrement,
+      .messages::-webkit-scrollbar-button:end:increment,
+      .messages::-webkit-scrollbar-button:start:increment,
+      .messages::-webkit-scrollbar-button:end:decrement {
+        display: none;
+        width: 0;
+        height: 0;
       }
       .messages::-webkit-scrollbar-thumb {
         border: none;
@@ -2803,8 +2822,7 @@ input.slider-value-display[type=number] {
 
       /* Core: all topbar-side icon buttons become clean circles */
       .topbar-actions .icon-button,
-      .topbar-actions .search-container,
-      .topbar-actions .theme-toggle-btn {
+      .topbar-actions .search-container {
         width: var(--mobile-control);
         height: var(--mobile-control);
         min-width: var(--mobile-control);
@@ -2818,8 +2836,7 @@ input.slider-value-display[type=number] {
       }
 
       .topbar-actions .icon-button:active,
-      .topbar-actions .search-container:active,
-      .topbar-actions .theme-toggle-btn:active {
+      .topbar-actions .search-container:active {
         background: rgba(255, 255, 255, 0.1);
         transform: scale(0.94);
         box-shadow: none;
@@ -3047,8 +3064,7 @@ input.slider-value-display[type=number] {
 
       /* Slightly smaller circles on narrow screens */
       .topbar-actions .icon-button,
-      .topbar-actions .search-container,
-      .topbar-actions .theme-toggle-btn {
+      .topbar-actions .search-container {
         width: var(--mobile-control);
         height: var(--mobile-control);
         min-width: var(--mobile-control);
@@ -3380,65 +3396,6 @@ input.slider-value-display[type=number] {
     html.no-flex-gap .start-container > * + * { margin-top: 16px; }
     html.no-flex-gap .start-actions > * + * { margin-top: 14px; }
     html.no-flex-gap .safety-row > * + * { margin-left: 6px; }
-
-    @media (max-width: 900px) {
-      /* 1. Shrink Theme Toggle icons back to 18px */
-      .theme-toggle-btn svg {
-        width: 18px !important;
-        height: 18px !important;
-      }
-      
-      /* Restore original slide-up/down animation distances */
-      .theme-toggle-btn .moon-icon {
-        transform: translate(-50%, calc(-50% + 18px)) rotate(55deg) scale(0.62) !important;
-      }
-      :root.light-mode .theme-toggle-btn .sun-icon {
-        transform: translate(-50%, calc(-50% - 18px)) rotate(-70deg) scale(0.62) !important;
-      }
-
-      /* 2. Shrink Search icons back to 16px and 12px 
-         (This CSS safely overrides the width="20" in your HTML) */
-      #searchToggleBtn svg {
-        width: 16px !important;
-        height: 16px !important;
-      }
-      #searchCloseBtn svg {
-        width: 12px !important;
-        height: 12px !important;
-      }
-    }
-
-/* --- MOBILE THEME BUTTON BRUTE-FORCE FIX --- */
-@media screen and (max-width: 900px) {
-  /* Targeting standard class names based on your layout */
-  .theme-toggle-btn,
-  .theme-changer,
-  .topbar-actions button {
-    display: flex !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    flex-shrink: 0 !important; /* CRITICAL: Stops the search bar from squishing it */
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    padding: 0 !important;
-  }
-
-  /* Ensure the icon inside stays the right size and doesn't stretch */
-  .theme-toggle-btn svg,
-  .theme-changer svg,
-  .theme-toggle-btn img,
-  .theme-changer img {
-    width: 20px !important;
-    height: 20px !important;
-    flex-shrink: 0 !important;
-    display: block !important;
-  }
-}
 
   </style>
 </head>
