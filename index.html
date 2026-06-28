@@ -3408,6 +3408,38 @@ input.slider-value-display[type=number] {
       }
     }
 
+/* --- MOBILE THEME BUTTON BRUTE-FORCE FIX --- */
+@media screen and (max-width: 900px) {
+  /* Targeting standard class names based on your layout */
+  .theme-toggle-btn,
+  .theme-changer,
+  .topbar-actions button {
+    display: flex !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    flex-shrink: 0 !important; /* CRITICAL: Stops the search bar from squishing it */
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure the icon inside stays the right size and doesn't stretch */
+  .theme-toggle-btn svg,
+  .theme-changer svg,
+  .theme-toggle-btn img,
+  .theme-changer img {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+  }
+}
+
   </style>
 </head>
 <body>
