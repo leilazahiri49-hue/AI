@@ -204,152 +204,6 @@
       overflow: hidden;
     }
 
-    .mode-dropdown {
-      position: relative;
-      display: inline-grid;
-      align-items: center;
-      z-index: 10;
-    }
-
-    .mode-dropdown.open {
-      z-index: 60;
-    }
-
-    .mode-trigger,
-    .mode-option {
-      border: 0;
-      outline: 0;
-      font: inherit;
-      cursor: pointer;
-    }
-
-    .mode-trigger {
-      min-width: 124px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      color: var(--text);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
-      padding: 8px 10px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
-      transition:
-        color 0.18s ease,
-        border-color 0.18s ease,
-        background 0.18s ease,
-        transform 0.18s ease;
-    }
-
-    .mode-trigger:hover,
-    .mode-trigger:focus,
-    .mode-dropdown.open .mode-trigger {
-      border-color: rgba(84, 210, 255, 0.32);
-      background:
-        linear-gradient(180deg, rgba(84, 210, 255, 0.14), rgba(84, 210, 255, 0.045));
-      transform: translateY(-1px);
-    }
-
-    .mode-label {
-      display: inline-block;
-      white-space: nowrap;
-    }
-
-    .mode-label.is-changing {
-      animation: modeLabelChange 0.34s ease both;
-    }
-
-    .mode-chevron {
-      width: 10px;
-      height: 10px;
-      display: inline-block;
-      border-right: 2px solid var(--muted);
-      border-bottom: 2px solid var(--muted);
-      margin-left: 6px;
-      transform: translateY(-2px) rotate(45deg);
-      transition: transform 0.25s ease, border-color 0.2s ease;
-    }
-
-    .mode-dropdown.open .mode-chevron {
-      border-color: var(--accent);
-      transform: translateY(2px) rotate(-135deg);
-    }
-
-    .mode-menu {
-      position: absolute;
-      left: 0;
-      top: calc(100% + 8px);
-      min-width: 100%;
-      padding: 6px;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 14px;
-      background:
-        linear-gradient(180deg, rgba(18, 27, 43, 0.98), rgba(10, 15, 26, 0.98));
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-8px) scale(0.96);
-      transform-origin: top left;
-      transition:
-        opacity 0.2s ease,
-        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .mode-dropdown.open .mode-menu {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-
-    .mode-option {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 8px 9px;
-      border-radius: 10px;
-      color: var(--muted);
-      background: transparent;
-      font-size: 0.8rem;
-      text-align: left;
-      white-space: nowrap;
-      cursor: pointer;
-      transform-origin: left center;
-      transition:
-        color 0.16s ease,
-        transform 0.2s ease,
-        background 0.16s ease,
-        padding 0.16s ease;
-    }
-
-    .mode-option.active {
-      color: var(--text);
-      background: rgba(84, 210, 255, 0.08);
-      padding: 6px 8px;
-      border-radius: 8px;
-    }
-
-    .mode-option:hover {
-      background: transparent;
-      color: var(--text);
-      transform: scale(1.06);
-    }
-
-    .mode-option.active::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      flex: 0 0 auto;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 12px rgba(84, 210, 255, 0.8);
-    }
-
     @keyframes modeLabelChange {
       0% {
         opacity: 0;
@@ -387,8 +241,8 @@
       place-items: center;
       border-radius: var(--compact-radius);
       color: var(--text);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--line);
+      background: transparent;
+      border: 1px solid transparent;
     }
 
     .new-chat {
@@ -399,8 +253,8 @@
       padding: 0 14px;
       border-radius: 14px;
       color: var(--text);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--line);
+      background: transparent;
+      border: 1px solid transparent;
       cursor: pointer;
       transform-origin: center;
       transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
@@ -656,8 +510,14 @@
       gap: 16px;
       padding: 22px 24px 18px;
       border-bottom: 1px solid var(--line);
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 20;
+      background: rgba(15, 22, 36, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .topbar-toggle {
@@ -680,7 +540,6 @@
       gap: 2px;
       min-width: 0;
       flex: 1 1 auto;
-      overflow: visible; /* h1 below handles its own ellipsis truncation; this must stay visible or it clips the mode-menu dropdown */
     }
 
     .topbar h1 {
@@ -693,35 +552,6 @@
       letter-spacing: -0.03em;
     }
 
-    .topbar-mode {
-      margin-top: 0;
-      flex: 0 0 auto;
-    }
-
-    .topbar-mode .mode-trigger {
-      min-width: 122px;
-      padding: 5px 9px;
-      color: var(--muted);
-      font-size: 0.74rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      background: transparent;
-      border-color: transparent;
-      box-shadow: none;
-    }
-
-    .topbar-mode .mode-trigger:hover,
-    .topbar-mode .mode-trigger:focus,
-    .topbar-mode.open .mode-trigger {
-      color: var(--text);
-      border-color: var(--line);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .topbar-mode .mode-menu {
-      min-width: 134px;
-    }
-
      .topbar-actions {
       display: flex;
       align-items: center;
@@ -732,8 +562,8 @@
     .search-container {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--line);
+      background: transparent;
+      border: 1px solid transparent;
       border-radius: 12px;
       height: 40px;
       width: 40px;
@@ -744,6 +574,8 @@
     .search-container.active {
       width: 220px;
       border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--line);
     }
 .search-container .icon-button,
 .close-search {
@@ -1050,8 +882,8 @@
       place-items: center;
       border-radius: 12px;
       color: var(--muted);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--line);
+      background: transparent;
+      border: 1px solid transparent;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -1061,8 +893,9 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
+      overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      padding: 24px;
+      padding: 90px 24px 82px;
       display: flex;
       flex-direction: column;
       gap: 18px;
@@ -1075,8 +908,8 @@
 
     .messages.start-mode {
       overflow: hidden;
-      padding-top: 16px;
-      padding-bottom: 16px;
+      padding-top: 90px;
+      padding-bottom: 80px;
       scrollbar-gutter: auto;
     }
 
@@ -1345,8 +1178,7 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 6px;
-      min-width: 0;
-      flex-shrink: 0; /* same collapse-prevention as .message-row, see comment above */
+      min-width: 0; /* allows the bubble to shrink below its text's natural width so it wraps instead of overflowing */
     }
 
     .message-row.user .bubble-wrap {
@@ -1360,6 +1192,8 @@
       background: rgba(255, 255, 255, 0.03);
       line-height: 1.65;
       color: #e6efff;
+      word-break: break-word;
+      overflow-wrap: break-word; /* handles URLs and unbreakable strings */
     }
 
     .message-row.user .bubble {
@@ -1450,14 +1284,19 @@
 
     .composer {
       padding: 10px 24px 16px;
-      border-top: 1px solid var(--line);
-      background: rgba(10, 15, 26, 0.9);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: transparent;
     }
 
     .composer-shell {
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.035);
+      background: rgba(15, 22, 36, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 0 8px 0 0; /* Moved the top/bottom/left padding to the input */
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
       cursor: text; /* Makes the cursor an I-beam over the whole pill */
@@ -1671,7 +1510,7 @@
       }
 
       .messages {
-        padding: 12px;
+        padding: 70px 12px 72px;
         gap: 12px;
         scrollbar-gutter: auto;
       }
@@ -1690,7 +1529,7 @@
       }
 
       .messages.start-mode {
-        padding: 8px;
+        padding: 70px 8px 72px;
       }
 
       .jump-bottom {
@@ -1827,16 +1666,6 @@
         border-radius: 13px;
       }
 
-      .mode-trigger {
-        min-width: 112px;
-        padding: 7px 9px;
-        font-size: 0.78rem;
-      }
-
-      .mode-menu {
-        min-width: 128px;
-      }
-
       .topbar {
         align-items: center; /* Fixed: was flex-start — caused topbar button misalignment */
         gap: 8px;
@@ -1859,10 +1688,6 @@
         gap: 10px;
       }
 
-      .topbar-mode .mode-trigger {
-        min-width: 112px;
-      }
-
       .topbar-actions {
         gap: 4px;
         flex-shrink: 0; /* Prevent action buttons from getting squeezed by title */
@@ -1882,11 +1707,11 @@
       }
 
       .messages {
-        padding: 10px 12px; /* Horizontal slightly more than vertical for breathing room */
+        padding: 64px 12px 68px; /* top clears topbar, bottom clears composer */
       }
 
       .messages.start-mode {
-        padding: 6px;
+        padding: 64px 6px 68px;
       }
 
       .jump-bottom {
@@ -2576,6 +2401,9 @@ input.slider-value-display[type=number] {
     :root.light-mode .main {
       background: rgba(250, 244, 236, 0.96);
     }
+    :root.light-mode .topbar {
+      background: rgba(250, 244, 236, 0.6);
+    }
     :root.light-mode .mobile-overlay {
       background: rgba(176, 165, 151, 0.44);
       backdrop-filter: blur(8px);
@@ -2586,14 +2414,14 @@ input.slider-value-display[type=number] {
 
     /* ── Sidebar Controls ── */
     :root.light-mode .toggle-button {
-      background: rgba(83, 63, 42, 0.05);
-      border-color: rgba(83, 63, 42, 0.12);
+      background: transparent;
+      border-color: transparent;
       color: var(--text);
     }
     
     :root.light-mode .new-chat {
-      background: rgba(83, 63, 42, 0.04);
-      border-color: rgba(83, 63, 42, 0.11);
+      background: transparent;
+      border-color: transparent;
     }
     :root.light-mode .new-chat:hover,
     :root.light-mode .new-chat.active {
@@ -2608,8 +2436,8 @@ input.slider-value-display[type=number] {
 
     /* ── Icon & Mode Buttons ── */
     :root.light-mode .icon-button {
-      background: rgba(83, 63, 42, 0.05);
-      border-color: rgba(83, 63, 42, 0.12);
+      background: transparent;
+      border-color: transparent;
       color: var(--muted);
     }
 
@@ -2617,52 +2445,23 @@ input.slider-value-display[type=number] {
     @media (max-width: 900px) {
       :root.light-mode .topbar-actions .icon-button,
       :root.light-mode .topbar-actions .search-container {
-        background: rgba(83, 63, 42, 0.07);
-        border-color: rgba(83, 63, 42, 0.16);
-        box-shadow:
-          0 1px 3px rgba(83, 63, 42, 0.10),
-          inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
       }
       :root.light-mode .topbar-actions .icon-button:active,
       :root.light-mode .topbar-actions .search-container:active {
-        background: rgba(83, 63, 42, 0.12);
+        background: rgba(83, 63, 42, 0.08);
       }
       :root.light-mode .topbar-toggle.toggle-button {
-        background: rgba(83, 63, 42, 0.06);
-        border-color: rgba(83, 63, 42, 0.14);
+        background: transparent;
+        border-color: transparent;
       }
     }
-    :root.light-mode .mode-trigger {
-      background: linear-gradient(180deg, rgba(83, 63, 42, 0.045), rgba(83, 63, 42, 0.02));
-      box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.58);
-    }
-    :root.light-mode .mode-trigger:hover,
-    :root.light-mode .mode-trigger:focus,
-    :root.light-mode .mode-dropdown.open .mode-trigger {
-      background: linear-gradient(180deg, rgba(52, 127, 202, 0.1), rgba(52, 127, 202, 0.04));
-      border-color: rgba(52, 127, 202, 0.26);
-    }
-    :root.light-mode .topbar-mode .mode-trigger:hover,
-    :root.light-mode .topbar-mode .mode-trigger:focus,
-    :root.light-mode .topbar-mode.open .mode-trigger {
-      background: rgba(83, 63, 42, 0.05);
-      border-color: rgba(83, 63, 42, 0.14);
-    }
-    :root.light-mode .mode-menu,
     :root.light-mode .modal-box {
       background: rgba(250, 244, 236, 0.98);
       border-color: var(--line-strong);
       box-shadow: 0 18px 40px rgba(65, 48, 31, 0.1);
-    }
-    :root.light-mode .mode-option {
-      color: var(--muted);
-    }
-    :root.light-mode .mode-option:hover,
-    :root.light-mode .mode-option.active {
-      color: var(--text);
-    }
-    :root.light-mode .mode-option.active {
-      background: rgba(52, 127, 202, 0.08);
     }
 
     /* ── Chat Bubbles ── */
@@ -2679,10 +2478,12 @@ input.slider-value-display[type=number] {
 
     /* ── Composer ── */
     :root.light-mode .composer {
-      background: rgba(238, 230, 220, 0.94);
+      background: transparent;
     }
     :root.light-mode .composer-shell {
-      background: rgba(83, 63, 42, 0.05);
+      background: rgba(250, 244, 236, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-color: rgba(83, 63, 42, 0.12);
       box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.58);
     }
@@ -2700,7 +2501,12 @@ input.slider-value-display[type=number] {
 
    /* ── Search ── */
     :root.light-mode .search-container {
-      background: rgba(83, 63, 42, 0.05); /* Matches the theme toggle button */
+      background: transparent;
+      border-color: transparent;
+    }
+
+    :root.light-mode .search-container.active {
+      background: rgba(83, 63, 42, 0.05);
       border-color: rgba(83, 63, 42, 0.12);
     }
     
@@ -2992,20 +2798,6 @@ input.slider-value-display[type=number] {
         font-size: clamp(1rem, 4vw, 1.18rem);
       }
 
-      /* ── Mode dropdown: ghost pill, no border on mobile ── */
-      .topbar-mode .mode-trigger {
-        border-color: transparent !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 3px 2px;
-        min-width: auto;
-        opacity: 0.78;
-      }
-
-      .topbar-mode .mode-trigger:active {
-        opacity: 1;
-      }
-
       /* ── Action buttons: circular, polished, elevated ── */
       .topbar-actions {
         gap: 5px;
@@ -3026,20 +2818,18 @@ input.slider-value-display[type=number] {
         min-width: var(--mobile-control);
         min-height: var(--mobile-control);
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        box-shadow:
-          0 1px 3px rgba(0, 0, 0, 0.18),
-          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        background: transparent;
+        border: 1px solid transparent;
+        box-shadow: none;
         transition: background 0.18s ease, border-color 0.18s ease,
                     transform 0.12s ease, box-shadow 0.18s ease;
       }
 
       .topbar-actions .icon-button:active,
       .topbar-actions .search-container:active {
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.1);
         transform: scale(0.94);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+        box-shadow: none;
       }
 
       /* Hamburger/toggle button — distinct from action buttons */
@@ -3049,12 +2839,12 @@ input.slider-value-display[type=number] {
         min-width: var(--mobile-control);
         min-height: var(--mobile-control);
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(148, 163, 184, 0.15);
+        background: transparent;
+        border: 1px solid transparent;
       }
 
       .topbar-toggle.toggle-button:active {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
         transform: scale(0.94);
       }
 
@@ -3098,7 +2888,7 @@ input.slider-value-display[type=number] {
       }
 
       .messages {
-        padding: 12px;
+        padding: 70px 12px 72px;
         gap: 12px;
       }
 
@@ -3264,14 +3054,6 @@ input.slider-value-display[type=number] {
         letter-spacing: -0.01em;
       }
 
-      /* Mode dropdown even more minimal at 640px */
-      .topbar-mode .mode-trigger {
-        min-width: 90px;
-        max-width: 108px;
-        padding: 3px 4px 3px 2px;
-        font-size: 0.72rem;
-      }
-
       .topbar-actions {
         gap: 4px;
       }
@@ -3290,7 +3072,7 @@ input.slider-value-display[type=number] {
       }
 
       .messages {
-        padding: 10px 12px;
+        padding: 64px 12px 68px;
       }
 
       .bubble {
@@ -3347,10 +3129,6 @@ input.slider-value-display[type=number] {
         flex: 0 0 auto;
       }
 
-      html.search-open .topbar-mode {
-        display: none;
-      }
-
       html.search-open .topbar h1 {
         max-width: 100%;
       }
@@ -3385,10 +3163,6 @@ input.slider-value-display[type=number] {
 
       .topbar-title-row {
         gap: 8px;
-      }
-
-      .topbar-mode {
-        display: none;
       }
 
       .topbar h1,
@@ -3488,8 +3262,8 @@ input.slider-value-display[type=number] {
       }
 
       .messages {
-        padding-top: 8px;
-        padding-bottom: 8px;
+        padding-top: 56px;
+        padding-bottom: 62px;
       }
 
       .composer-shell {
@@ -3548,8 +3322,6 @@ input.slider-value-display[type=number] {
       button:not(.bubble *),
       .icon-button,
       .toggle-button,
-      .mode-trigger,
-      .mode-option,
       .send-button,
       .nav-btn,
       .chat-item,
@@ -3596,8 +3368,6 @@ input.slider-value-display[type=number] {
     /* Sidebar */
     html.no-flex-gap .sidebar-header > * + * { margin-left: 12px; }
     html.no-flex-gap .brand > * + * { margin-left: 10px; }
-    html.no-flex-gap .mode-trigger > * + * { margin-left: 10px; }
-    html.no-flex-gap .mode-option > * + * { margin-left: 10px; }
     html.no-flex-gap .new-chat > * + * { margin-left: 12px; }
     html.no-flex-gap .sidebar-section > * + * { margin-top: 10px; }
     html.no-flex-gap .chat-list > * + * { margin-top: 6px; }
@@ -3675,20 +3445,7 @@ input.slider-value-display[type=number] {
       <div class="sidebar-header">
         <div class="brand">
           <div class="brand-mark">AI</div>
-          <div class="brand-text">
-            <div class="mode-dropdown" data-mode-dropdown>
-              <button class="mode-trigger" type="button" data-mode-trigger aria-haspopup="listbox" aria-expanded="false">
-                <span class="mode-label" data-mode-label>Minimal AI</span>
-                <span class="mode-chevron"></span>
-              </button>
-              <div class="mode-menu" role="listbox">
-                <button class="mode-option active" type="button" data-mode-option data-value="Minimal AI" role="option" aria-selected="true">Minimal AI</button>
-                <button class="mode-option" type="button" data-mode-option data-value="Creative AI" role="option" aria-selected="false">Creative AI</button>
-                <button class="mode-option" type="button" data-mode-option data-value="Coding AI" role="option" aria-selected="false">Coding AI</button>
-                <button class="mode-option" type="button" data-mode-option data-value="Study AI" role="option" aria-selected="false">Study AI</button>
-              </div>
-            </div>
-          </div>
+          <div class="brand-text">Spark</div>
         </div>
         <button class="toggle-button" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar">
           <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
@@ -3738,18 +3495,6 @@ input.slider-value-display[type=number] {
           </button>
           <div class="title-stack">
             <h1 id="conversationTitle">New chat</h1>
-            <div class="mode-dropdown topbar-mode" data-mode-dropdown>
-              <button class="mode-trigger" type="button" data-mode-trigger aria-haspopup="listbox" aria-expanded="false">
-                <span class="mode-label" data-mode-label>Minimal AI</span>
-                <span class="mode-chevron"></span>
-              </button>
-              <div class="mode-menu" role="listbox">
-                 <button class="mode-option active" type="button" data-mode-option data-value="Minimal AI" role="option" aria-selected="true">Minimal AI</button>
-                <button class="mode-option" type="button" data-mode-option data-value="Creative AI" role="option" aria-selected="false">Creative AI</button>
-                <button class="mode-option" type="button" data-mode-option data-value="Coding AI" role="option" aria-selected="false">Coding AI</button>
-                <button class="mode-option" type="button" data-mode-option data-value="Study AI" role="option" aria-selected="false">Study AI</button>
-              </div>
-            </div>
           </div>
         </div>
 
