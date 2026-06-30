@@ -9,9 +9,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <title>Spark</title>
+
   <script>
     // Detect real flex "gap" support (not just whether the browser parses the
-    // property — Safari recognized "gap" for CSS Grid years before it worked for
+    // property â€” Safari recognized "gap" for CSS Grid years before it worked for
     // Flexbox, so a syntax-validity check like @supports would give a false
     // positive on exactly the old-iOS-Safari devices we need to catch here).
     // Runs synchronously before <body> paints, so there's no flash of wrong spacing.
@@ -74,7 +75,7 @@
     body {
       height: 100%; /* Fallback for ancient browsers */
       height: 100vh; /* Fallback for iOS 12 and older Androids */
-      height: -webkit-fill-available; /* Older iOS (12–14) precise fill */
+      height: -webkit-fill-available; /* Older iOS (12â€“14) precise fill */
       height: var(--app-height, 100dvh); /* Modern browsers and JS-corrected mobile fallback */
       overscroll-behavior: none;
       -webkit-text-size-adjust: 100%;
@@ -563,6 +564,176 @@
       justify-content: center;
       flex: 0 0 auto;
     }
+    .share-chat-button {
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+    }
+
+    .share-chat-button:hover,
+    .share-chat-button:focus-visible {
+      background: rgba(84, 210, 255, 0.09);
+      border-color: rgba(84, 210, 255, 0.26);
+      transform: translateY(-1px);
+    }
+
+    .share-chat-button.is-copied {
+      color: #08111a;
+      background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
+      border-color: transparent;
+    }
+
+    .shared-readonly-badge {
+      display: none;
+      margin-top: 8px;
+      padding: 5px 10px;
+      border: 1px solid rgba(84, 210, 255, 0.22);
+      border-radius: 999px;
+      color: #a9cfff;
+      background: rgba(84, 210, 255, 0.08);
+      font-size: 0.72rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .share-popover {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      background: rgba(3, 8, 16, 0.48);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: opacity 0.22s ease, visibility 0.22s ease;
+    }
+
+    .share-popover.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .share-card {
+      width: min(520px, 100%);
+      border: 1px solid var(--line-strong);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)), rgba(15, 22, 36, 0.96);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+      padding: 18px;
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .share-popover.open .share-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .share-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .share-card h2 {
+      margin: 0;
+      font-size: 1.08rem;
+      letter-spacing: -0.02em;
+    }
+
+    .share-card p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .share-close-button {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+    }
+
+    .share-link-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 8px;
+      background: rgba(8, 13, 23, 0.48);
+    }
+
+    .share-link-box input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font-size: 0.84rem;
+    }
+
+    .share-copy-button {
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #08111a;
+      background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .share-status {
+      min-height: 20px;
+      margin-top: 10px;
+      color: #a9cfff;
+      font-size: 0.78rem;
+    }
+
+    html.shared-chat-mode .app {
+      grid-template-columns: 1fr;
+    }
+
+    html.shared-chat-mode .sidebar,
+    html.shared-chat-mode .topbar-toggle,
+    html.shared-chat-mode .topbar-actions,
+    html.shared-chat-mode .composer,
+    html.shared-chat-mode .jump-bottom,
+    html.shared-chat-mode .search-navigator,
+    html.shared-chat-mode .mobile-overlay {
+      display: none !important;
+    }
+
+    html.shared-chat-mode .main {
+      width: 100%;
+      flex: 1 1 auto;
+    }
+
+    html.shared-chat-mode .shared-readonly-badge {
+      display: inline-flex;
+    }
+
+    html.shared-chat-mode .messages {
+      padding-bottom: 24px;
+    }
 
     .search-container {
       display: flex;
@@ -621,7 +792,7 @@
 
     @media (max-width: 640px) {
       .search-container.active {
-        width: clamp(136px, 40vw, 170px); /* Responsive — avoids overflow on 375px screens */
+        width: clamp(136px, 40vw, 170px); /* Responsive â€” avoids overflow on 375px screens */
       }
     }
 
@@ -1159,7 +1330,7 @@
       max-width: 760px;
       /* Older WebKit (pre-iOS 15ish) can incorrectly shrink flex items that contain
          wrapping text below their content height when the flex container scrolls
-         (overflow-y:auto) and total content exceeds the visible area — the text then
+         (overflow-y:auto) and total content exceeds the visible area â€” the text then
          paints outside its collapsed box, making messages appear to overlap each other.
          flex-shrink:0 stops the browser from ever attempting that shrink. */
       flex-shrink: 0;
@@ -1450,11 +1621,11 @@
       }
 
       .topbar-toggle {
-        display: grid; /* Show the ☰ button in the main chat on mobile */
+        display: grid; /* Show the â˜° button in the main chat on mobile */
       }
 
       .topbar-title-row {
-        gap: 12px; /* Tightened from 20px — proportional to icon size */
+        gap: 12px; /* Tightened from 20px â€” proportional to icon size */
       }
 
       .new-chat:hover {
@@ -1516,11 +1687,11 @@
         scrollbar-gutter: auto;
       }
 
-      /* Slim scrollbar on touch screens — wide desktop one is invasive on mobile */
+      /* Slim scrollbar on touch screens â€” wide desktop one is invasive on mobile */
       .messages::-webkit-scrollbar {
         width: 4px;
       }
-      /* Suppress scroll arrows — re-stated here so WebKit doesn't re-enable them
+      /* Suppress scroll arrows â€” re-stated here so WebKit doesn't re-enable them
          when the scrollbar width is overridden in this media query */
       .messages::-webkit-scrollbar-button,
       .messages::-webkit-scrollbar-button:start:decrement,
@@ -1545,7 +1716,7 @@
       }
 
       .jump-bottom {
-        bottom: 78px; /* composer ≈60px + 18px breathing room */
+        bottom: 78px; /* composer â‰ˆ60px + 18px breathing room */
         width: 40px;
         height: 40px;
       }
@@ -1672,7 +1843,7 @@
       }
 
       .topbar {
-        align-items: center; /* Fixed: was flex-start — caused topbar button misalignment */
+        align-items: center; /* Fixed: was flex-start â€” caused topbar button misalignment */
         gap: 8px;
         padding: 10px 12px;
       }
@@ -1720,7 +1891,7 @@
       }
 
       .jump-bottom {
-        bottom: 72px; /* composer ≈57px + 15px gap */
+        bottom: 72px; /* composer â‰ˆ57px + 15px gap */
         width: 38px;
         height: 38px;
       }
@@ -1738,7 +1909,7 @@
       }
 
       .bubble {
-        max-width: calc(100vw - 44px); /* msgs pad(12×2) + margin(20) — avatar removed */
+        max-width: calc(100vw - 44px); /* msgs pad(12Ã—2) + margin(20) â€” avatar removed */
         word-break: break-word;
         overflow-wrap: break-word; /* handles URLs and unbreakable strings */
       }
@@ -1749,7 +1920,7 @@
       }
 
       .start-panel h2 {
-        font-size: clamp(1.45rem, 7vw, 2rem); /* Responsive — no nowrap overflow risk */
+        font-size: clamp(1.45rem, 7vw, 2rem); /* Responsive â€” no nowrap overflow risk */
       }
 
       .starter-prompt {
@@ -1759,7 +1930,7 @@
       }
     } /* End @media (max-width: 640px) */
 
-    /* ── Very small phones (≤390px) — micro-adjustments only ── */
+    /* â”€â”€ Very small phones (â‰¤390px) â€” micro-adjustments only â”€â”€ */
     @media (max-width: 390px) {
       .topbar h1 {
         font-size: 1.1rem;
@@ -1775,7 +1946,7 @@
       }
 
       .bubble {
-        max-width: calc(100vw - 30px); /* Slightly more generous on very narrow screens — avatar removed */
+        max-width: calc(100vw - 30px); /* Slightly more generous on very narrow screens â€” avatar removed */
       }
 
       .starter-prompt {
@@ -1784,8 +1955,8 @@
       }
     }
 
-    /* ── Safe-area insets for notched iPhones and Android home-bar ── */
-    /* env(safe-area-inset-bottom) is 0 on non-notched devices — max() is a no-op there */
+    /* â”€â”€ Safe-area insets for notched iPhones and Android home-bar â”€â”€ */
+    /* env(safe-area-inset-bottom) is 0 on non-notched devices â€” max() is a no-op there */
     @supports (padding: max(0px)) {
       @media (max-width: 900px) {
         .composer {
@@ -1835,7 +2006,7 @@
   /* Explicit height tied to the JS-corrected viewport, same mechanism already used
      for html/body/.app. Plain "fixed; inset:0" sizes against the browser's LARGEST
      possible viewport on older iOS Safari (chrome retracted), even while the address
-     bar is actually showing — which pushes the vertically-centered modal up far enough
+     bar is actually showing â€” which pushes the vertically-centered modal up far enough
      that its top edge ends up hidden behind the address bar. */
   height: 100vh; /* fallback for ancient browsers */
   height: var(--app-height, 100dvh);
@@ -2272,10 +2443,10 @@ input.slider-value-display[type=number] {
   }
 }
 
-/* ── Short-viewport fix (landscape phones, compact windows) ──
+/* â”€â”€ Short-viewport fix (landscape phones, compact windows) â”€â”€
    Height, not width, is the constraint here: a modal tuned for tall
    portrait screens can push its primary action below the fold on a
-   667×375 landscape phone even though there's plenty of horizontal
+   667Ã—375 landscape phone even though there's plenty of horizontal
    room. This tightens vertical rhythm so the action stays reachable
    without relying on a scroll the person may not notice. */
 @media (max-height: 500px) {
@@ -2355,7 +2526,7 @@ input.slider-value-display[type=number] {
     margin-top: 6px;
   }
 
-  /* Description length is dynamic (generated from quiz answers) — tightened
+  /* Description length is dynamic (generated from quiz answers) â€” tightened
      spacing above narrows the gap but can't guarantee a fit every time, so
      restore a thin scrollbar here as a visible cue that the Enter Chat
      button is reachable below the fold. */
@@ -2405,7 +2576,7 @@ input.slider-value-display[type=number] {
       --shadow: 0 12px 36px rgba(65, 48, 31, 0.08);
     }
 
-    /* ── Body & App Shell ── */
+    /* â”€â”€ Body & App Shell â”€â”€ */
     :root.light-mode body {
       background:
         radial-gradient(circle at top left, rgba(52, 127, 202, 0.045), transparent 24%),
@@ -2428,7 +2599,7 @@ input.slider-value-display[type=number] {
       background: rgba(174, 161, 145, 0.6);
     }
 
-    /* ── Sidebar Controls ── */
+    /* â”€â”€ Sidebar Controls â”€â”€ */
     :root.light-mode .toggle-button {
       background: transparent;
       border-color: transparent;
@@ -2450,7 +2621,7 @@ input.slider-value-display[type=number] {
       border-color: rgba(83, 63, 42, 0.12);
     }
 
-    /* ── Icon & Mode Buttons ── */
+    /* â”€â”€ Icon & Mode Buttons â”€â”€ */
     :root.light-mode .icon-button {
       background: transparent;
       border-color: transparent;
@@ -2480,14 +2651,14 @@ input.slider-value-display[type=number] {
       box-shadow: 0 18px 40px rgba(65, 48, 31, 0.1);
     }
 
-    /* ── Chat Bubbles ── */
+    /* â”€â”€ Chat Bubbles â”€â”€ */
     :root.light-mode .bubble {
       background: rgba(83, 63, 42, 0.04);
       border-color: rgba(83, 63, 42, 0.09);
       color: var(--text);
     }
 
-    /* ── Composer ── */
+    /* â”€â”€ Composer â”€â”€ */
     :root.light-mode .composer {
       background: transparent;
     }
@@ -2499,7 +2670,7 @@ input.slider-value-display[type=number] {
       box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.58);
     }
 
-    /* ── Start Screen Prompts ── */
+    /* â”€â”€ Start Screen Prompts â”€â”€ */
     :root.light-mode .starter-prompt {
       background: rgba(83, 63, 42, 0.04);
       border-color: rgba(83, 63, 42, 0.1);
@@ -2510,7 +2681,7 @@ input.slider-value-display[type=number] {
       border-color: rgba(52, 127, 202, 0.22);
     }
 
-   /* ── Search ── */
+   /* â”€â”€ Search â”€â”€ */
     :root.light-mode .search-container {
       background: transparent;
       border-color: transparent;
@@ -2572,7 +2743,7 @@ input.slider-value-display[type=number] {
       background: rgba(83, 63, 42, 0.3);
     }
 
-    /* ── Onboarding Modal ── */
+    /* â”€â”€ Onboarding Modal â”€â”€ */
     :root.light-mode .mcq-option {
       background: rgba(83, 63, 42, 0.04);
       border-color: rgba(83, 63, 42, 0.11);
@@ -2604,10 +2775,10 @@ input.slider-value-display[type=number] {
       box-shadow: 0 10px 30px rgba(52, 127, 202, 0.1);
     }
 
-    /* ── Text Contrast Fixes ── */
-    /* These elements use light cyan/blue gradients (#7ae6ff→#4aa8ff).
+    /* â”€â”€ Text Contrast Fixes â”€â”€ */
+    /* These elements use light cyan/blue gradients (#7ae6ffâ†’#4aa8ff).
        Dark text (#08111a) was correct in the base CSS.
-       Forcing #ffffff here dropped contrast to ~1.38:1 on the lighter end — invisible. */
+       Forcing #ffffff here dropped contrast to ~1.38:1 on the lighter end â€” invisible. */
     :root.light-mode .mcq-continue-btn,
     :root.light-mode .next-btn {
       color: #08111a;
@@ -2657,7 +2828,7 @@ input.slider-value-display[type=number] {
   border-color: rgba(255, 255, 255, 0.70);
 }
 
-    /* ── Theme Toggle Animation (Telegram-style icon swap) ── */
+    /* â”€â”€ Theme Toggle Animation (Telegram-style icon swap) â”€â”€ */
     html.theme-transition,
     html.theme-transition *,
     html.theme-transition *:before,
@@ -2700,7 +2871,7 @@ input.slider-value-display[type=number] {
       transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
     }
 
-    /* Dark mode state → shows Sun (click to go light) */
+    /* Dark mode state â†’ shows Sun (click to go light) */
     .theme-toggle-btn .moon-icon {
       opacity: 0;
       transform: translate(-50%, calc(-50% + 22px)) rotate(55deg) scale(0.62);
@@ -2710,7 +2881,7 @@ input.slider-value-display[type=number] {
       transform: translate(-50%, -50%) rotate(0deg) scale(1);
     }
 
-    /* Light mode state → shows Moon (click to go dark) */
+    /* Light mode state â†’ shows Moon (click to go dark) */
     :root.light-mode .theme-toggle-btn .sun-icon {
       opacity: 0;
       transform: translate(-50%, calc(-50% - 22px)) rotate(-70deg) scale(0.62);
@@ -2776,7 +2947,7 @@ input.slider-value-display[type=number] {
         inset: 0;
       }
 
-      /* ── Topbar: tighter grid, slimmer height ── */
+      /* â”€â”€ Topbar: tighter grid, slimmer height â”€â”€ */
       .topbar {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
@@ -2808,7 +2979,7 @@ input.slider-value-display[type=number] {
         font-size: clamp(1rem, 4vw, 1.18rem);
       }
 
-      /* ── Action buttons: circular, polished, elevated ── */
+      /* â”€â”€ Action buttons: circular, polished, elevated â”€â”€ */
       .topbar-actions {
         gap: 5px;
         min-width: 0;
@@ -2842,7 +3013,7 @@ input.slider-value-display[type=number] {
         box-shadow: none;
       }
 
-      /* Hamburger/toggle button — distinct from action buttons */
+      /* Hamburger/toggle button â€” distinct from action buttons */
       .topbar-toggle.toggle-button {
         width: var(--mobile-control);
         height: var(--mobile-control);
@@ -3042,7 +3213,7 @@ input.slider-value-display[type=number] {
         border-radius: 16px;
       }
 
-      /* ── Topbar slim on small phones ── */
+      /* â”€â”€ Topbar slim on small phones â”€â”€ */
       .topbar {
         min-height: 56px;
         padding: 8px 10px;
@@ -3297,7 +3468,7 @@ input.slider-value-display[type=number] {
       }
     }
 
-    /* ── iOS-specific overrides ─────────────────────────────────────────── */
+    /* â”€â”€ iOS-specific overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     /* These target -webkit-fill-available capable browsers (iOS Safari 9+) */
     @supports (-webkit-touch-callout: none) {
       html, body {
@@ -3344,8 +3515,8 @@ input.slider-value-display[type=number] {
       }
     }
 
-    /* ════════════════════════════════════════════════════════════════════
-       FLEX-GAP FALLBACK — for browsers where flexbox "gap" silently has no
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       FLEX-GAP FALLBACK â€” for browsers where flexbox "gap" silently has no
        effect (Safari only supports it from 14.1 / iOS 14.5 onward; CSS Grid
        "gap" has been fine since Safari 10.1, so grid-based layouts like
        .start-panel / .starter-grid are NOT affected and are left alone).
@@ -3359,9 +3530,9 @@ input.slider-value-display[type=number] {
        every child except the first), which is the universally-supported
        equivalent of gap and has been valid CSS since CSS2.1. These rules are
        scoped strictly under html.no-flex-gap, so modern browsers (where the
-       native gap property already works) never see them — zero risk of
+       native gap property already works) never see them â€” zero risk of
        doubling up spacing.
-       ════════════════════════════════════════════════════════════════════ */
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
     /* Sidebar */
     html.no-flex-gap .sidebar-header > * + * { margin-left: 12px; }
@@ -3397,12 +3568,22 @@ input.slider-value-display[type=number] {
     html.no-flex-gap .start-actions > * + * { margin-top: 14px; }
     html.no-flex-gap .safety-row > * + * { margin-left: 6px; }
 
-  </style>
+  
+    @media (max-width: 900px) {
+      .topbar-actions .share-chat-button {
+        width: var(--mobile-control);
+        min-width: var(--mobile-control);
+        height: var(--mobile-control);
+        padding: 0;
+        border-radius: 50%;
+      }
+    }
+</style>
 </head>
 <body>
   <div id="onboardingModal" class="modal-overlay active">
     <div class="modal-box">
-      <button id="backBtn" class="back-btn" type="button" style="display: none;">← Back</button>
+      <button id="backBtn" class="back-btn" type="button" style="display: none;">â† Back</button>
       <button id="skipBtn" class="skip-btn" type="button">Skip straight to chat</button>
       
       <div id="startContainer" class="start-container">
@@ -3493,10 +3674,20 @@ input.slider-value-display[type=number] {
           </button>
           <div class="title-stack">
             <h1 id="conversationTitle">New chat</h1>
+            <span class="shared-readonly-badge" id="sharedReadonlyBadge">Read-only shared chat</span>
           </div>
         </div>
 
          <div class="topbar-actions">
+          <button class="icon-button share-chat-button" id="shareChatBtn" type="button" aria-label="Share this chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              <circle cx="18" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+              <circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+
           <button class="icon-button theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle Theme">
             <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
@@ -3569,6 +3760,27 @@ input.slider-value-display[type=number] {
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="share-popover" id="sharePopover" aria-hidden="true">
+    <div class="share-card" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+      <div class="share-card-header">
+        <div>
+          <h2 id="shareTitle">Share chat</h2>
+          <p>Anyone with this link can view this conversation only. It is read-only and does not include your other chats or profile settings.</p>
+        </div>
+        <button class="share-close-button" id="shareCloseBtn" type="button" aria-label="Close share dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="share-link-box">
+        <input id="shareLinkInput" type="text" readonly aria-label="Shareable chat link">
+        <button class="share-copy-button" id="copyShareLinkBtn" type="button">Copy</button>
+      </div>
+      <div class="share-status" id="shareStatus" aria-live="polite"></div>
+    </div>
   </div>
 
   <script>
@@ -3675,103 +3887,103 @@ input.slider-value-display[type=number] {
             who: "bot",
             name: "AI",
             text: "This is the single long test conversation. It gives the interface enough content for scrolling, searching, switching themes, and checking the collapsed sidebar behavior.",
-            meta: "AI • 7:00 PM"
+            meta: "AI â€¢ 7:00 PM"
           },
           {
             who: "user",
             name: "You",
             text: "Perfect. I want to use this one thread to test the interface without having three separate sample conversations in the sidebar.",
-            meta: "You • 7:01 PM"
+            meta: "You â€¢ 7:01 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "Got it. The history list should feel quiet: one clear item, one title, and enough messages inside the thread to make the scroll controls meaningful.",
-            meta: "AI • 7:02 PM"
+            meta: "AI â€¢ 7:02 PM"
           },
           {
             who: "user",
             name: "You",
             text: "I also want the start screen to stay clean. Before I send anything, no sidebar menu button should be visible at all.",
-            meta: "You • 7:03 PM"
+            meta: "You â€¢ 7:03 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "That means the first screen can behave like a calm blank slate. The sidebar stays tucked away, and the three-line control only appears after a real chat is active.",
-            meta: "AI • 7:04 PM"
+            meta: "AI â€¢ 7:04 PM"
           },
           {
             who: "user",
             name: "You",
             text: "When it appears, it should not open the sidebar by itself. It should just pop in at the top right so I can choose to open the sidebar.",
-            meta: "You • 7:05 PM"
+            meta: "You â€¢ 7:05 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "Exactly. A small glass button with a soft entrance animation will make the menu feel available without making the layout suddenly jump open.",
-            meta: "AI • 7:06 PM"
+            meta: "AI â€¢ 7:06 PM"
           },
           {
             who: "user",
             name: "You",
             text: "Make the button match the search island and the scroll-to-bottom button. It should feel like the same design family.",
-            meta: "You • 7:07 PM"
+            meta: "You â€¢ 7:07 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "The shared language is translucent glass, a thin border, subtle blur, and a shadow that is visible but not loud. In light mode, the same control should become warmer and softer.",
-            meta: "AI • 7:08 PM"
+            meta: "AI â€¢ 7:08 PM"
           },
           {
             who: "user",
             name: "You",
             text: "This long chat also helps test the jump-to-bottom control. If I scroll away, the button should show up without covering the messages too aggressively.",
-            meta: "You • 7:09 PM"
+            meta: "You â€¢ 7:09 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "Right. The scroll button can stay centered near the composer, while the menu button lives in the top-right action cluster next to theme and search.",
-            meta: "AI • 7:10 PM"
+            meta: "AI â€¢ 7:10 PM"
           },
           {
             who: "user",
             name: "You",
             text: "I also want to check that user bubbles stay readable in light mode and that the blue does not overpower the beige background.",
-            meta: "You • 7:11 PM"
+            meta: "You â€¢ 7:11 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "The user bubble should keep its distinct blue identity, but the gradient can stay gentle enough that dark text remains readable from beginning to end.",
-            meta: "AI • 7:12 PM"
+            meta: "AI â€¢ 7:12 PM"
           },
           {
             who: "user",
             name: "You",
             text: "Search should still find words in this conversation, including sidebar, glass, scroll, theme, and bubble.",
-            meta: "You • 7:13 PM"
+            meta: "You â€¢ 7:13 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "That gives you a reliable test set: enough repeated UI terms for search, enough height for scrolling, and enough alternating messages to compare user and AI bubbles.",
-            meta: "AI • 7:14 PM"
+            meta: "AI â€¢ 7:14 PM"
           },
           {
             who: "user",
             name: "You",
             text: "One more detail: the sidebar can still exist as history, but it should not be the first thing the user sees on the clean start screen.",
-            meta: "You • 7:15 PM"
+            meta: "You â€¢ 7:15 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "That is a good product feel. Start with the conversation, then reveal navigation only when it becomes useful.",
-            meta: "AI • 7:16 PM"
+            meta: "AI â€¢ 7:16 PM"
           }
         ]
       }
@@ -3781,6 +3993,12 @@ input.slider-value-display[type=number] {
     const newChatButton = document.querySelector(".new-chat");
     const conversationTitle = document.getElementById("conversationTitle");
     const messages = document.getElementById("messages");
+    const shareChatButton = document.getElementById("shareChatBtn");
+    const sharePopover = document.getElementById("sharePopover");
+    const shareLinkInput = document.getElementById("shareLinkInput");
+    const copyShareLinkButton = document.getElementById("copyShareLinkBtn");
+    const shareCloseButton = document.getElementById("shareCloseBtn");
+    const shareStatus = document.getElementById("shareStatus");
    const jumpBottomButton = document.getElementById("jumpBottomButton");
     const sidebar = document.getElementById("sidebar");
     const mobileOverlay = document.getElementById("mobileOverlay");
@@ -3792,6 +4010,7 @@ input.slider-value-display[type=number] {
     let isSwitching = false;
     let currentMode = "Minimal AI";
     let startScreenDraft = "";
+    let isSharedChatView = false;
 
     const startScreenMarkup = `
       <div class="start-screen">
@@ -3836,7 +4055,222 @@ input.slider-value-display[type=number] {
        `;
     }
 
-    function setActiveChat(nextIndex) {
+
+    const SHARE_HASH_PREFIX = "#spark-share=";
+
+    function base64UrlEncode(value) {
+      const json = JSON.stringify(value);
+      let binary = "";
+
+      if (window.TextEncoder) {
+        const bytes = new TextEncoder().encode(json);
+        for (let i = 0; i < bytes.length; i += 1) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+      } else {
+        binary = unescape(encodeURIComponent(json));
+      }
+
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function base64UrlDecode(token) {
+      let normalized = String(token || "").replace(/-/g, "+").replace(/_/g, "/");
+      while (normalized.length % 4) normalized += "=";
+
+      const binary = atob(normalized);
+
+      if (window.TextDecoder) {
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return JSON.parse(new TextDecoder().decode(bytes));
+      }
+
+      return JSON.parse(decodeURIComponent(escape(binary)));
+    }
+
+    function createShareId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+
+      const randomPart = Math.random().toString(36).slice(2);
+      return `spark-${Date.now().toString(36)}-${randomPart}`;
+    }
+
+    function getShareableConversation() {
+      if (currentChatIndex < 0 || !conversations[currentChatIndex]) return null;
+
+      const conversation = conversations[currentChatIndex];
+      const shareMessages = conversation.messages
+        .filter((message) => message && typeof message.text !== "undefined" && String(message.text).trim())
+        .map((message) => ({
+          who: message.who === "user" ? "user" : "bot",
+          name: message.who === "user" ? "You" : "AI",
+          text: String(message.text),
+          meta: String(message.meta || message.realTime || "")
+        }));
+
+      if (!shareMessages.length) return null;
+
+      return {
+        v: 1,
+        id: createShareId(),
+        title: String(conversation.title || "Shared chat"),
+        createdAt: new Date().toISOString(),
+        messages: shareMessages
+      };
+    }
+
+    function buildShareLink(payload) {
+      const url = new URL(window.location.href);
+      url.hash = `spark-share=${base64UrlEncode(payload)}`;
+      return url.toString();
+    }
+
+    function normalizeSharedPayload(payload) {
+      if (!payload || payload.v !== 1 || !Array.isArray(payload.messages)) return null;
+
+      const cleanMessages = payload.messages
+        .filter((message) => message && typeof message.text !== "undefined")
+        .map((message) => ({
+          who: message.who === "user" ? "user" : "bot",
+          name: message.who === "user" ? "You" : "AI",
+          text: String(message.text),
+          meta: String(message.meta || "")
+        }));
+
+      if (!cleanMessages.length) return null;
+
+      return {
+        title: String(payload.title || "Shared chat").slice(0, 160),
+        messages: cleanMessages
+      };
+    }
+
+    function readSharedChatFromUrl() {
+      const hash = window.location.hash || "";
+      if (hash.indexOf(SHARE_HASH_PREFIX) !== 0) return null;
+
+      try {
+        return normalizeSharedPayload(base64UrlDecode(hash.slice(SHARE_HASH_PREFIX.length)));
+      } catch (error) {
+        console.warn("Could not read shared Spark chat:", error);
+        return null;
+      }
+    }
+
+    function showShareStatus(message, isError) {
+      if (!shareStatus) return;
+      shareStatus.textContent = message || "";
+      shareStatus.style.color = isError ? "#ffb4b4" : "#a9cfff";
+    }
+
+    function openSharePopover(link) {
+      if (!sharePopover || !shareLinkInput) return;
+
+      shareLinkInput.value = link || "";
+      sharePopover.classList.add("open");
+      sharePopover.setAttribute("aria-hidden", "false");
+
+      window.setTimeout(() => {
+        shareLinkInput.focus();
+        shareLinkInput.select();
+      }, 80);
+    }
+
+    function closeSharePopover() {
+      if (!sharePopover) return;
+
+      sharePopover.classList.remove("open");
+      sharePopover.setAttribute("aria-hidden", "true");
+      if (shareChatButton && !document.documentElement.classList.contains("shared-chat-mode")) {
+        shareChatButton.focus();
+      }
+    }
+
+    function copyShareLinkToClipboard() {
+      if (!shareLinkInput || !shareLinkInput.value) {
+        showShareStatus("Start a conversation before sharing.", true);
+        return Promise.resolve(false);
+      }
+
+      const link = shareLinkInput.value;
+
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(link).then(() => true).catch(() => false);
+      }
+
+      shareLinkInput.focus();
+      shareLinkInput.select();
+
+      try {
+        return Promise.resolve(document.execCommand("copy"));
+      } catch (error) {
+        return Promise.resolve(false);
+      }
+    }
+
+    function flashShareCopiedState() {
+      if (!shareChatButton) return;
+
+      shareChatButton.classList.add("is-copied");
+      window.setTimeout(() => {
+        shareChatButton.classList.remove("is-copied");
+      }, 1300);
+    }
+
+    function handleShareChat() {
+      const payload = getShareableConversation();
+
+      if (!payload) {
+        openSharePopover("");
+        showShareStatus("Start a conversation before sharing.", true);
+        return;
+      }
+
+      const link = buildShareLink(payload);
+      openSharePopover(link);
+      showShareStatus("Share link ready. Anyone with it can view only this conversation.", false);
+
+      copyShareLinkToClipboard().then((copied) => {
+        if (copied) {
+          showShareStatus("Copied. This link opens a read-only snapshot of this chat.", false);
+          flashShareCopiedState();
+        } else {
+          showShareStatus("Copy the link manually from the box above.", false);
+        }
+      });
+    }
+
+    function renderSharedChat(payload) {
+      isSharedChatView = true;
+      document.documentElement.classList.add("shared-chat-mode");
+
+      const onboardingModal = document.getElementById("onboardingModal");
+      if (onboardingModal) onboardingModal.style.display = "none";
+
+      conversationTitle.textContent = payload.title || "Shared chat";
+      fitConversationTitle();
+
+      messages.classList.remove("start-mode");
+      messages.innerHTML = `
+        <div class="date-label">Read-only shared conversation</div>
+        ${payload.messages.map(createMessage).join("")}
+      `;
+      messages.scrollTop = 0;
+
+      const input = document.getElementById("chatInput");
+      const sendButton = document.querySelector(".send-button");
+      if (input) {
+        input.disabled = true;
+        input.setAttribute("aria-readonly", "true");
+        input.placeholder = "This shared chat is read-only";
+      }
+      if (sendButton) sendButton.disabled = true;
+    }    function setActiveChat(nextIndex) {
       // Close search if it's open when changing chats
       if (typeof closeSearch === 'function') {
         closeSearch();
@@ -4097,6 +4531,7 @@ input.slider-value-display[type=number] {
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
         closeModeDropdowns();
+        closeSharePopover();
       }
     });
 
@@ -4421,16 +4856,23 @@ input.slider-value-display[type=number] {
       highlightCurrentMatch();
     });
     // Initialize the app down here so all search variables exist first!
-    setActiveChat(-1);
-    syncMode(currentMode, false);
-    syncSidebarToViewport();
-    renderStartScreen();
+    const sharedChatPayload = readSharedChatFromUrl();
+
+    if (sharedChatPayload) {
+      renderSharedChat(sharedChatPayload);
+    } else {
+      setActiveChat(-1);
+      syncMode(currentMode, false);
+      syncSidebarToViewport();
+      renderStartScreen();
+    }
+
 const rotatingMessages = [
   "when you feel like no one is there for you we always are",
   "you're not alone, even when it feels like it",
-  "someone will always listen — start typing",
-  "you don’t have to figure everything out by yourself",
-  "we’re here, whenever you need it"
+  "someone will always listen â€” start typing",
+  "you donâ€™t have to figure everything out by yourself",
+  "weâ€™re here, whenever you need it"
 ];
 
 let rotateIndex = 0;
@@ -4458,7 +4900,7 @@ function startRotatingText() {
       }, 600);
 
     }, 600); // matches animation
-  }, 8000); // 7–10 seconds vibe
+  }, 8000); // 7â€“10 seconds vibe
 
 } // <-- This closes your startRotatingText function!
 
@@ -4547,7 +4989,7 @@ const SEND_ICON_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="non
 function setSendingState(isSending) {
   sendBtn.classList.toggle("loading", isSending);
   sendBtn.disabled = isSending;
-  // Preserve the SVG icon — only clear innerHTML when loading (spinner via CSS ::after)
+  // Preserve the SVG icon â€” only clear innerHTML when loading (spinner via CSS ::after)
   if (!isSending) {
     sendBtn.innerHTML = SEND_ICON_SVG;
   } else {
@@ -4607,10 +5049,10 @@ function appendBotMessage(text, messageId, timeStr, targetConversation) {
     who: "bot",
     name: "AI",
     text: "",
-    meta: "AI • Just now",
+    meta: "AI â€¢ Just now",
     id: messageId,
     bubbleId: `bubble-${messageId}`,
-    realTime: `AI • ${timeStr}`
+    realTime: `AI â€¢ ${timeStr}`
   };
 
   targetConversation.messages.push(botMsg);
@@ -4655,6 +5097,7 @@ function resetSparkApiUrl() {
 }
 
 function handleSendMessage() {
+  if (isSharedChatView) return;
   const text = chatInput.value.trim();
   if (!text || chatInput.disabled) return;
 
@@ -4676,9 +5119,9 @@ function handleSendMessage() {
     who: "user", 
     name: "You", 
     text, 
-    meta: "You • Just now", 
+    meta: "You â€¢ Just now", 
     id: userMsgId,
-    realTime: `You • ${timeStr}`
+    realTime: `You â€¢ ${timeStr}`
   };
 
   if (currentChatIndex === -1) {
@@ -4774,6 +5217,30 @@ function handleSendMessage() {
 }
 
 // --- Event Listeners & Window Focus ---
+// --- Share Chat Logic ---
+if (shareChatButton) {
+  shareChatButton.addEventListener("click", handleShareChat);
+}
+
+if (copyShareLinkButton) {
+  copyShareLinkButton.addEventListener("click", () => {
+    copyShareLinkToClipboard().then((copied) => {
+      showShareStatus(copied ? "Copied." : "Copy the link manually from the box above.", !copied);
+      if (copied) flashShareCopiedState();
+    });
+  });
+}
+
+if (shareCloseButton) {
+  shareCloseButton.addEventListener("click", closeSharePopover);
+}
+
+if (sharePopover) {
+  sharePopover.addEventListener("click", (event) => {
+    if (event.target === sharePopover) closeSharePopover();
+  });
+}
+
 
 // 1. Send message when clicking the arrow button
 sendBtn.addEventListener("click", handleSendMessage);
@@ -5392,7 +5859,7 @@ function generateDynamicDescription(personaId, traits) {
   } else if (traits.includes("support_tough_love")) {
     desc += "Expect direct, honest feedback to keep you accountable, without any sugarcoating. ";
   } else if (traits.includes("support_validation") || traits.includes("needs_venting")) {
-    desc += "This will be a space to vent freely—focused on listening and validating your experience without rushing to 'fix' it. ";
+    desc += "This will be a space to vent freelyâ€”focused on listening and validating your experience without rushing to 'fix' it. ";
   } else {
     desc += "The tone will remain adaptable, acting as a sounding board whenever you need one. ";
   }
