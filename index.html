@@ -1972,11 +1972,36 @@
     }
 
 /* --- 3D Rotating Text Animation --- */
+
 .rotating-text {
   display: inline-block;
   transform-origin: 50% 50% -15px; 
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.5s ease;
   transform-style: preserve-3d;
+  font-weight: 500;
+}
+
+.rotating-text.magic-quote {
+  /* Base muted gray, sweeping into bright cyan and white, back to gray */
+  background: linear-gradient(
+    120deg, 
+    var(--muted) 20%, 
+    #54d2ff 40%, 
+    #ffffff 50%, 
+    #54d2ff 60%, 
+    var(--muted) 80%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shineLeftToRight 3s linear infinite;
+}
+
+@keyframes shineLeftToRight {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 
 .rotating-text.roll-out {
@@ -2670,6 +2695,22 @@ input.slider-value-display[type=number] {
       box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.58);
     }
 
+:root.light-mode .rotating-text.magic-quote {
+      background: linear-gradient(
+        120deg, 
+        var(--muted) 20%, 
+        #347fca 40%, 
+        #ffffff 50%, 
+        #347fca 60%, 
+        var(--muted) 80%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+
     /* â”€â”€ Start Screen Prompts â”€â”€ */
     :root.light-mode .starter-prompt {
       background: rgba(83, 63, 42, 0.04);
@@ -2836,7 +2877,7 @@ input.slider-value-display[type=number] {
       transition: background 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease !important;
       transition-delay: 0s !important;
     }
-    html.theme-transition .theme-toggle-btn svg {
+    html.theme-transition .theme-toggle-wrapper svg {
       transition: transform 0.56s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
     }
 
@@ -3578,6 +3619,202 @@ input.slider-value-display[type=number] {
         border-radius: 50%;
       }
     }
+
+/* =========================================
+   DROPDOWN MENU STYLES
+   ========================================= */
+.action-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.96);
+  transform-origin: top right;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+  z-index: 100;
+}
+
+.action-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.dropdown-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.dropdown-item:hover .dropdown-icon {
+  color: var(--accent);
+}
+
+/* Copied State for Dropdown Button */
+.dropdown-item.is-copied {
+  color: #08111a !important;
+  background: linear-gradient(135deg, #7ae6ff, #4aa8ff) !important;
+}
+.dropdown-item.is-copied .dropdown-icon {
+  color: #08111a !important;
+}
+
+/* Theme Icon Wrapper */
+.theme-toggle-wrapper {
+  position: relative;
+}
+.theme-toggle-wrapper svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  transform-origin: center;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+.theme-toggle-wrapper .moon-icon {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 10px)) rotate(55deg) scale(0.62);
+}
+.theme-toggle-wrapper .sun-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
+}
+.dropdown-item.theme-swapping .theme-toggle-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  animation: themeIconPulse 0.56s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================
+   SEARCH BEHAVIOR OVERRIDES
+   ========================================= */
+.search-container {
+  width: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  margin-right: 0;
+  border-color: transparent !important;
+  background: transparent !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.search-container.active {
+  width: 240px !important;
+  opacity: 1;
+  pointer-events: auto;
+  margin-right: 8px;
+}
+.search-container.active .search-input {
+  padding: 0 12px 0 16px;
+}
+@media (max-width: 900px) {
+  .search-container.active { width: clamp(150px, 42vw, 190px) !important; }
+}
+@media (max-width: 640px) {
+  .search-container.active {
+    width: clamp(136px, 40vw, 170px) !important;
+    margin-right: 4px;
+  }
+}
+
+/* =========================================
+   LIGHT MODE: SHARE UI & MENU ADJUSTMENTS
+   ========================================= */
+:root.light-mode .action-dropdown {
+  background: rgba(250, 244, 236, 0.98);
+  border-color: var(--line-strong);
+  box-shadow: 0 16px 40px rgba(65, 48, 31, 0.12);
+}
+:root.light-mode .dropdown-item:hover,
+:root.light-mode .dropdown-item:focus-visible {
+  background: rgba(83, 63, 42, 0.05);
+  border-color: rgba(83, 63, 42, 0.08);
+}
+:root.light-mode .dropdown-item.is-copied {
+  background: linear-gradient(135deg, #8fd3ff, #68b9f2) !important;
+  color: #062033 !important;
+}
+:root.light-mode .dropdown-item.is-copied .dropdown-icon {
+  color: #062033 !important;
+}
+:root.light-mode .theme-toggle-wrapper .sun-icon {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% - 10px)) rotate(-70deg) scale(0.62);
+}
+:root.light-mode .theme-toggle-wrapper .moon-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
+}
+:root.light-mode .share-popover { background: rgba(238, 230, 220, 0.5); }
+:root.light-mode .share-card {
+  background: #faf4ec;
+  border-color: var(--line-strong);
+  box-shadow: 0 24px 70px rgba(65, 48, 31, 0.15);
+  color: var(--text);
+}
+:root.light-mode .share-close-button {
+  background: rgba(83, 63, 42, 0.05);
+  border-color: rgba(83, 63, 42, 0.15);
+  color: var(--text);
+}
+:root.light-mode .share-close-button:hover { background: rgba(83, 63, 42, 0.1); }
+:root.light-mode .share-link-box {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(83, 63, 42, 0.2);
+}
+:root.light-mode .share-link-box input { color: var(--text); }
+:root.light-mode .share-status { color: var(--accent); }
+:root.light-mode .share-copy-button {
+  background: linear-gradient(135deg, #8fd3ff, #68b9f2);
+  color: #062033;
+}
+:root.light-mode .shared-readonly-badge {
+  border-color: rgba(52, 127, 202, 0.28);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 </style>
 </head>
 <body>
@@ -3679,47 +3916,69 @@ input.slider-value-display[type=number] {
         </div>
 
          <div class="topbar-actions">
-          <button class="icon-button share-chat-button" id="shareChatBtn" type="button" aria-label="Share this chat">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              <circle cx="18" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-              <circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </button>
+  <div class="search-container" id="searchContainer">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search chat..." autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="search">
+    <button class="icon-button close-search" type="button" id="searchCloseBtn" aria-label="Close search" style="display: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
 
-          <button class="icon-button theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle Theme">
-            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </button>
-          
-          <div class="search-container" id="searchContainer">
-            <button class="icon-button" type="button" id="searchToggleBtn" aria-label="Search">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>
-  </svg>
-</button>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search chat..." autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="search">
-            <button class="icon-button close-search" type="button" id="searchCloseBtn" aria-label="Close search" style="display: none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+  <div class="action-menu-wrapper" style="position: relative; display: flex; align-items: center;">
+    <button class="icon-button" id="kebabMenuBtn" type="button" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="5" r="2"></circle>
+        <circle cx="12" cy="12" r="2"></circle>
+        <circle cx="12" cy="19" r="2"></circle>
+      </svg>
+    </button>
+
+    <div class="action-dropdown" id="actionDropdown">
+      <button class="dropdown-item" id="shareChatBtn" type="button">
+        <span class="dropdown-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            <circle cx="18" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+            <circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span>Share chat</span>
+      </button>
+
+      <button class="dropdown-item" id="searchToggleBtn" type="button">
+        <span class="dropdown-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span>Search</span>
+      </button>
+
+      <button class="dropdown-item" id="themeToggleBtn" type="button">
+        <span class="dropdown-icon theme-toggle-wrapper">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </span>
+        <span class="theme-text">Toggle theme</span>
+      </button>
+    </div>
+  </div>
+</div>
       </header>
 
       <div class="search-navigator" id="searchNavigator">
@@ -4012,14 +4271,14 @@ input.slider-value-display[type=number] {
     let startScreenDraft = "";
     let isSharedChatView = false;
 
-    const startScreenMarkup = `
+   const startScreenMarkup = `
       <div class="start-screen">
         <div class="start-panel">
           <div>
             <h2>Start with a spark.</h2>
             <br>
-            <p id="rotatingText" class="rotating-text">
-              when you feel like no one is there for you we always are
+            <p id="rotatingText" class="rotating-text magic-quote">
+              Let the magic of SPARK light up the spark within yourself :)
             </p>
           </div>
         </div>
@@ -4587,8 +4846,12 @@ input.slider-value-display[type=number] {
     searchToggleBtn.addEventListener('click', () => {
       document.documentElement.classList.add('search-open');
       searchContainer.classList.add('active');
-      searchInput.focus();
-      searchToggleBtn.style.display = 'none';
+      
+      // Close dropdown when activating search
+      actionDropdown.classList.remove('open');
+      
+      // Short timeout guarantees the input is visible before focusing
+      setTimeout(() => searchInput.focus(), 50);
       searchCloseBtn.style.display = 'flex';
     });
 
@@ -4598,12 +4861,32 @@ input.slider-value-display[type=number] {
       document.documentElement.classList.remove('search-open');
       searchContainer.classList.remove('active');
       searchInput.value = '';
-      searchToggleBtn.style.display = 'flex';
       searchCloseBtn.style.display = 'none';
       clearHighlights();
       hideNavigator();
     }
 
+    // --- Kebab Dropdown Menu Logic ---
+    const kebabMenuBtn = document.getElementById('kebabMenuBtn');
+    const actionDropdown = document.getElementById('actionDropdown');
+
+    kebabMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      actionDropdown.classList.toggle('open');
+    });
+
+    // Close menu when clicking completely outside of it
+    document.addEventListener('click', (e) => {
+      if (actionDropdown && !actionDropdown.contains(e.target) && e.target !== kebabMenuBtn) {
+        actionDropdown.classList.remove('open');
+      }
+    });
+
+    // Close menu after executing specific actions
+    document.getElementById('shareChatBtn').addEventListener('click', () => {
+      actionDropdown.classList.remove('open');
+    });
+    
     searchInput.addEventListener('input', (e) => {
       const keyword = e.target.value.trim();
       if (keyword.length < 1) {
@@ -4868,6 +5151,7 @@ input.slider-value-display[type=number] {
     }
 
 const rotatingMessages = [
+  "Let the magic of SPARK light up the spark within yourself :)",
   "when you feel like no one is there for you we always are",
   "you're not alone, even when it feels like it",
   "someone will always listen â€” start typing",
@@ -4889,11 +5173,18 @@ function startRotatingText() {
     el.classList.add("roll-out");
 
     setTimeout(() => {
-      rotateIndex = (rotateIndex + 1) % rotatingMessages.length;
-      el.textContent = rotatingMessages[rotateIndex];
+        rotateIndex = (rotateIndex + 1) % rotatingMessages.length;
+        el.textContent = rotatingMessages[rotateIndex];
+        
+        // Turn the light shimmer ON for the first quote, OFF for the rest
+        if (rotateIndex === 0) {
+          el.classList.add("magic-quote");
+        } else {
+          el.classList.remove("magic-quote");
+        }
 
-      el.classList.remove("roll-out");
-      el.classList.add("roll-in");
+        el.classList.remove("roll-out");
+        el.classList.add("roll-in");
 
       setTimeout(() => {
         el.classList.remove("roll-in");
