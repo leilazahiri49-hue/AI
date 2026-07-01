@@ -12,7 +12,7 @@
 
   <script>
     // Detect real flex "gap" support (not just whether the browser parses the
-    // property â€” Safari recognized "gap" for CSS Grid years before it worked for
+    // property — Safari recognized "gap" for CSS Grid years before it worked for
     // Flexbox, so a syntax-validity check like @supports would give a false
     // positive on exactly the old-iOS-Safari devices we need to catch here).
     // Runs synchronously before <body> paints, so there's no flash of wrong spacing.
@@ -75,7 +75,7 @@
     body {
       height: 100%; /* Fallback for ancient browsers */
       height: 100vh; /* Fallback for iOS 12 and older Androids */
-      height: -webkit-fill-available; /* Older iOS (12â€“14) precise fill */
+      height: -webkit-fill-available; /* Older iOS (12–14) precise fill */
       height: var(--app-height, 100dvh); /* Modern browsers and JS-corrected mobile fallback */
       overscroll-behavior: none;
       -webkit-text-size-adjust: 100%;
@@ -792,7 +792,7 @@
 
     @media (max-width: 640px) {
       .search-container.active {
-        width: clamp(136px, 40vw, 170px); /* Responsive â€” avoids overflow on 375px screens */
+        width: clamp(136px, 40vw, 170px); /* Responsive — avoids overflow on 375px screens */
       }
     }
 
@@ -1330,7 +1330,7 @@
       max-width: 760px;
       /* Older WebKit (pre-iOS 15ish) can incorrectly shrink flex items that contain
          wrapping text below their content height when the flex container scrolls
-         (overflow-y:auto) and total content exceeds the visible area â€” the text then
+         (overflow-y:auto) and total content exceeds the visible area — the text then
          paints outside its collapsed box, making messages appear to overlap each other.
          flex-shrink:0 stops the browser from ever attempting that shrink. */
       flex-shrink: 0;
@@ -1621,11 +1621,11 @@
       }
 
       .topbar-toggle {
-        display: grid; /* Show the â˜° button in the main chat on mobile */
+        display: grid; /* Show the ☰ button in the main chat on mobile */
       }
 
       .topbar-title-row {
-        gap: 12px; /* Tightened from 20px â€” proportional to icon size */
+        gap: 12px; /* Tightened from 20px — proportional to icon size */
       }
 
       .new-chat:hover {
@@ -1687,11 +1687,11 @@
         scrollbar-gutter: auto;
       }
 
-      /* Slim scrollbar on touch screens â€” wide desktop one is invasive on mobile */
+      /* Slim scrollbar on touch screens — wide desktop one is invasive on mobile */
       .messages::-webkit-scrollbar {
         width: 4px;
       }
-      /* Suppress scroll arrows â€” re-stated here so WebKit doesn't re-enable them
+      /* Suppress scroll arrows — re-stated here so WebKit doesn't re-enable them
          when the scrollbar width is overridden in this media query */
       .messages::-webkit-scrollbar-button,
       .messages::-webkit-scrollbar-button:start:decrement,
@@ -1716,7 +1716,7 @@
       }
 
       .jump-bottom {
-        bottom: 78px; /* composer â‰ˆ60px + 18px breathing room */
+        bottom: 78px; /* composer ≈60px + 18px breathing room */
         width: 40px;
         height: 40px;
       }
@@ -1843,7 +1843,7 @@
       }
 
       .topbar {
-        align-items: center; /* Fixed: was flex-start â€” caused topbar button misalignment */
+        align-items: center; /* Fixed: was flex-start — caused topbar button misalignment */
         gap: 8px;
         padding: 10px 12px;
       }
@@ -1891,7 +1891,7 @@
       }
 
       .jump-bottom {
-        bottom: 72px; /* composer â‰ˆ57px + 15px gap */
+        bottom: 72px; /* composer ≈57px + 15px gap */
         width: 38px;
         height: 38px;
       }
@@ -1909,7 +1909,7 @@
       }
 
       .bubble {
-        max-width: calc(100vw - 44px); /* msgs pad(12Ã—2) + margin(20) â€” avatar removed */
+        max-width: calc(100vw - 44px); /* msgs pad(12×2) + margin(20) — avatar removed */
         word-break: break-word;
         overflow-wrap: break-word; /* handles URLs and unbreakable strings */
       }
@@ -1920,7 +1920,7 @@
       }
 
       .start-panel h2 {
-        font-size: clamp(1.45rem, 7vw, 2rem); /* Responsive â€” no nowrap overflow risk */
+        font-size: clamp(1.45rem, 7vw, 2rem); /* Responsive — no nowrap overflow risk */
       }
 
       .starter-prompt {
@@ -1930,7 +1930,7 @@
       }
     } /* End @media (max-width: 640px) */
 
-    /* â”€â”€ Very small phones (â‰¤390px) â€” micro-adjustments only â”€â”€ */
+    /* ── Very small phones (≤390px) — micro-adjustments only ── */
     @media (max-width: 390px) {
       .topbar h1 {
         font-size: 1.1rem;
@@ -1946,7 +1946,7 @@
       }
 
       .bubble {
-        max-width: calc(100vw - 30px); /* Slightly more generous on very narrow screens â€” avatar removed */
+        max-width: calc(100vw - 30px); /* Slightly more generous on very narrow screens — avatar removed */
       }
 
       .starter-prompt {
@@ -1955,8 +1955,8 @@
       }
     }
 
-    /* â”€â”€ Safe-area insets for notched iPhones and Android home-bar â”€â”€ */
-    /* env(safe-area-inset-bottom) is 0 on non-notched devices â€” max() is a no-op there */
+    /* ── Safe-area insets for notched iPhones and Android home-bar ── */
+    /* env(safe-area-inset-bottom) is 0 on non-notched devices — max() is a no-op there */
     @supports (padding: max(0px)) {
       @media (max-width: 900px) {
         .composer {
@@ -2031,7 +2031,7 @@
   /* Explicit height tied to the JS-corrected viewport, same mechanism already used
      for html/body/.app. Plain "fixed; inset:0" sizes against the browser's LARGEST
      possible viewport on older iOS Safari (chrome retracted), even while the address
-     bar is actually showing â€” which pushes the vertically-centered modal up far enough
+     bar is actually showing — which pushes the vertically-centered modal up far enough
      that its top edge ends up hidden behind the address bar. */
   height: 100vh; /* fallback for ancient browsers */
   height: var(--app-height, 100dvh);
@@ -2468,10 +2468,10 @@ input.slider-value-display[type=number] {
   }
 }
 
-/* â”€â”€ Short-viewport fix (landscape phones, compact windows) â”€â”€
+/* ── Short-viewport fix (landscape phones, compact windows) ──
    Height, not width, is the constraint here: a modal tuned for tall
    portrait screens can push its primary action below the fold on a
-   667Ã—375 landscape phone even though there's plenty of horizontal
+   667×375 landscape phone even though there's plenty of horizontal
    room. This tightens vertical rhythm so the action stays reachable
    without relying on a scroll the person may not notice. */
 @media (max-height: 500px) {
@@ -2551,7 +2551,7 @@ input.slider-value-display[type=number] {
     margin-top: 6px;
   }
 
-  /* Description length is dynamic (generated from quiz answers) â€” tightened
+  /* Description length is dynamic (generated from quiz answers) — tightened
      spacing above narrows the gap but can't guarantee a fit every time, so
      restore a thin scrollbar here as a visible cue that the Enter Chat
      button is reachable below the fold. */
@@ -2601,7 +2601,7 @@ input.slider-value-display[type=number] {
       --shadow: 0 12px 36px rgba(65, 48, 31, 0.08);
     }
 
-    /* â”€â”€ Body & App Shell â”€â”€ */
+    /* ── Body & App Shell ── */
     :root.light-mode body {
       background:
         radial-gradient(circle at top left, rgba(52, 127, 202, 0.045), transparent 24%),
@@ -2624,7 +2624,7 @@ input.slider-value-display[type=number] {
       background: rgba(174, 161, 145, 0.6);
     }
 
-    /* â”€â”€ Sidebar Controls â”€â”€ */
+    /* ── Sidebar Controls ── */
     :root.light-mode .toggle-button {
       background: transparent;
       border-color: transparent;
@@ -2646,7 +2646,7 @@ input.slider-value-display[type=number] {
       border-color: rgba(83, 63, 42, 0.12);
     }
 
-    /* â”€â”€ Icon & Mode Buttons â”€â”€ */
+    /* ── Icon & Mode Buttons ── */
     :root.light-mode .icon-button {
       background: transparent;
       border-color: transparent;
@@ -2676,14 +2676,14 @@ input.slider-value-display[type=number] {
       box-shadow: 0 18px 40px rgba(65, 48, 31, 0.1);
     }
 
-    /* â”€â”€ Chat Bubbles â”€â”€ */
+    /* ── Chat Bubbles ── */
     :root.light-mode .bubble {
       background: rgba(83, 63, 42, 0.04);
       border-color: rgba(83, 63, 42, 0.09);
       color: var(--text);
     }
 
-    /* â”€â”€ Composer â”€â”€ */
+    /* ── Composer ── */
     :root.light-mode .composer {
       background: transparent;
     }
@@ -2711,7 +2711,7 @@ input.slider-value-display[type=number] {
       color: transparent;
     }
 
-    /* â”€â”€ Start Screen Prompts â”€â”€ */
+    /* ── Start Screen Prompts ── */
     :root.light-mode .starter-prompt {
       background: rgba(83, 63, 42, 0.04);
       border-color: rgba(83, 63, 42, 0.1);
@@ -2722,7 +2722,7 @@ input.slider-value-display[type=number] {
       border-color: rgba(52, 127, 202, 0.22);
     }
 
-   /* â”€â”€ Search â”€â”€ */
+   /* ── Search ── */
     :root.light-mode .search-container {
       background: transparent;
       border-color: transparent;
@@ -2784,7 +2784,7 @@ input.slider-value-display[type=number] {
       background: rgba(83, 63, 42, 0.3);
     }
 
-    /* â”€â”€ Onboarding Modal â”€â”€ */
+    /* ── Onboarding Modal ── */
     :root.light-mode .mcq-option {
       background: rgba(83, 63, 42, 0.04);
       border-color: rgba(83, 63, 42, 0.11);
@@ -2816,10 +2816,10 @@ input.slider-value-display[type=number] {
       box-shadow: 0 10px 30px rgba(52, 127, 202, 0.1);
     }
 
-    /* â”€â”€ Text Contrast Fixes â”€â”€ */
-    /* These elements use light cyan/blue gradients (#7ae6ffâ†’#4aa8ff).
+    /* ── Text Contrast Fixes ── */
+    /* These elements use light cyan/blue gradients (#7ae6ff→#4aa8ff).
        Dark text (#08111a) was correct in the base CSS.
-       Forcing #ffffff here dropped contrast to ~1.38:1 on the lighter end â€” invisible. */
+       Forcing #ffffff here dropped contrast to ~1.38:1 on the lighter end — invisible. */
     :root.light-mode .mcq-continue-btn,
     :root.light-mode .next-btn {
       color: #08111a;
@@ -2869,7 +2869,7 @@ input.slider-value-display[type=number] {
   border-color: rgba(255, 255, 255, 0.70);
 }
 
-    /* â”€â”€ Theme Toggle Animation (Telegram-style icon swap) â”€â”€ */
+    /* ── Theme Toggle Animation (Telegram-style icon swap) ── */
     html.theme-transition,
     html.theme-transition *,
     html.theme-transition *:before,
@@ -2912,7 +2912,7 @@ input.slider-value-display[type=number] {
       transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
     }
 
-    /* Dark mode state â†’ shows Sun (click to go light) */
+    /* Dark mode state → shows Sun (click to go light) */
     .theme-toggle-btn .moon-icon {
       opacity: 0;
       transform: translate(-50%, calc(-50% + 22px)) rotate(55deg) scale(0.62);
@@ -2922,7 +2922,7 @@ input.slider-value-display[type=number] {
       transform: translate(-50%, -50%) rotate(0deg) scale(1);
     }
 
-    /* Light mode state â†’ shows Moon (click to go dark) */
+    /* Light mode state → shows Moon (click to go dark) */
     :root.light-mode .theme-toggle-btn .sun-icon {
       opacity: 0;
       transform: translate(-50%, calc(-50% - 22px)) rotate(-70deg) scale(0.62);
@@ -2988,7 +2988,7 @@ input.slider-value-display[type=number] {
         inset: 0;
       }
 
-      /* â”€â”€ Topbar: tighter grid, slimmer height â”€â”€ */
+      /* ── Topbar: tighter grid, slimmer height ── */
       .topbar {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
@@ -3020,7 +3020,7 @@ input.slider-value-display[type=number] {
         font-size: clamp(1rem, 4vw, 1.18rem);
       }
 
-      /* â”€â”€ Action buttons: circular, polished, elevated â”€â”€ */
+      /* ── Action buttons: circular, polished, elevated ── */
       .topbar-actions {
         gap: 5px;
         min-width: 0;
@@ -3054,7 +3054,7 @@ input.slider-value-display[type=number] {
         box-shadow: none;
       }
 
-      /* Hamburger/toggle button â€” distinct from action buttons */
+      /* Hamburger/toggle button — distinct from action buttons */
       .topbar-toggle.toggle-button {
         width: var(--mobile-control);
         height: var(--mobile-control);
@@ -3254,7 +3254,7 @@ input.slider-value-display[type=number] {
         border-radius: 16px;
       }
 
-      /* â”€â”€ Topbar slim on small phones â”€â”€ */
+      /* ── Topbar slim on small phones ── */
       .topbar {
         min-height: 56px;
         padding: 8px 10px;
@@ -3509,7 +3509,7 @@ input.slider-value-display[type=number] {
       }
     }
 
-    /* â”€â”€ iOS-specific overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── iOS-specific overrides ─────────────────────────────────────────── */
     /* These target -webkit-fill-available capable browsers (iOS Safari 9+) */
     @supports (-webkit-touch-callout: none) {
       html, body {
@@ -3556,8 +3556,8 @@ input.slider-value-display[type=number] {
       }
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       FLEX-GAP FALLBACK â€” for browsers where flexbox "gap" silently has no
+    /* ════════════════════════════════════════════════════════════════════
+       FLEX-GAP FALLBACK — for browsers where flexbox "gap" silently has no
        effect (Safari only supports it from 14.1 / iOS 14.5 onward; CSS Grid
        "gap" has been fine since Safari 10.1, so grid-based layouts like
        .start-panel / .starter-grid are NOT affected and are left alone).
@@ -3571,9 +3571,9 @@ input.slider-value-display[type=number] {
        every child except the first), which is the universally-supported
        equivalent of gap and has been valid CSS since CSS2.1. These rules are
        scoped strictly under html.no-flex-gap, so modern browsers (where the
-       native gap property already works) never see them â€” zero risk of
+       native gap property already works) never see them — zero risk of
        doubling up spacing.
-       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+       ════════════════════════════════════════════════════════════════════ */
 
     /* Sidebar */
     html.no-flex-gap .sidebar-header > * + * { margin-left: 12px; }
@@ -3826,7 +3826,7 @@ input.slider-value-display[type=number] {
 <body>
   <div id="onboardingModal" class="modal-overlay active">
     <div class="modal-box">
-      <button id="backBtn" class="back-btn" type="button" style="display: none;">â† Back</button>
+      <button id="backBtn" class="back-btn" type="button" style="display: none;">← Back</button>
       <button id="skipBtn" class="skip-btn" type="button">Skip straight to chat</button>
       
       <div id="startContainer" class="start-container">
@@ -3933,10 +3933,10 @@ input.slider-value-display[type=number] {
 
   <div class="action-menu-wrapper" style="position: relative; display: flex; align-items: center;">
     <button class="icon-button" id="kebabMenuBtn" type="button" aria-label="Menu">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="5" r="2"></circle>
-        <circle cx="12" cy="12" r="2"></circle>
-        <circle cx="12" cy="19" r="2"></circle>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="5" r="1"></circle>
+        <circle cx="12" cy="12" r="1"></circle>
+        <circle cx="12" cy="19" r="1"></circle>
       </svg>
     </button>
 
@@ -4152,103 +4152,103 @@ input.slider-value-display[type=number] {
             who: "bot",
             name: "AI",
             text: "This is the single long test conversation. It gives the interface enough content for scrolling, searching, switching themes, and checking the collapsed sidebar behavior.",
-            meta: "AI â€¢ 7:00 PM"
+            meta: "AI • 7:00 PM"
           },
           {
             who: "user",
             name: "You",
             text: "Perfect. I want to use this one thread to test the interface without having three separate sample conversations in the sidebar.",
-            meta: "You â€¢ 7:01 PM"
+            meta: "You • 7:01 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "Got it. The history list should feel quiet: one clear item, one title, and enough messages inside the thread to make the scroll controls meaningful.",
-            meta: "AI â€¢ 7:02 PM"
+            meta: "AI • 7:02 PM"
           },
           {
             who: "user",
             name: "You",
             text: "I also want the start screen to stay clean. Before I send anything, no sidebar menu button should be visible at all.",
-            meta: "You â€¢ 7:03 PM"
+            meta: "You • 7:03 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "That means the first screen can behave like a calm blank slate. The sidebar stays tucked away, and the three-line control only appears after a real chat is active.",
-            meta: "AI â€¢ 7:04 PM"
+            meta: "AI • 7:04 PM"
           },
           {
             who: "user",
             name: "You",
             text: "When it appears, it should not open the sidebar by itself. It should just pop in at the top right so I can choose to open the sidebar.",
-            meta: "You â€¢ 7:05 PM"
+            meta: "You • 7:05 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "Exactly. A small glass button with a soft entrance animation will make the menu feel available without making the layout suddenly jump open.",
-            meta: "AI â€¢ 7:06 PM"
+            meta: "AI • 7:06 PM"
           },
           {
             who: "user",
             name: "You",
             text: "Make the button match the search island and the scroll-to-bottom button. It should feel like the same design family.",
-            meta: "You â€¢ 7:07 PM"
+            meta: "You • 7:07 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "The shared language is translucent glass, a thin border, subtle blur, and a shadow that is visible but not loud. In light mode, the same control should become warmer and softer.",
-            meta: "AI â€¢ 7:08 PM"
+            meta: "AI • 7:08 PM"
           },
           {
             who: "user",
             name: "You",
             text: "This long chat also helps test the jump-to-bottom control. If I scroll away, the button should show up without covering the messages too aggressively.",
-            meta: "You â€¢ 7:09 PM"
+            meta: "You • 7:09 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "Right. The scroll button can stay centered near the composer, while the menu button lives in the top-right action cluster next to theme and search.",
-            meta: "AI â€¢ 7:10 PM"
+            meta: "AI • 7:10 PM"
           },
           {
             who: "user",
             name: "You",
             text: "I also want to check that user bubbles stay readable in light mode and that the blue does not overpower the beige background.",
-            meta: "You â€¢ 7:11 PM"
+            meta: "You • 7:11 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "The user bubble should keep its distinct blue identity, but the gradient can stay gentle enough that dark text remains readable from beginning to end.",
-            meta: "AI â€¢ 7:12 PM"
+            meta: "AI • 7:12 PM"
           },
           {
             who: "user",
             name: "You",
             text: "Search should still find words in this conversation, including sidebar, glass, scroll, theme, and bubble.",
-            meta: "You â€¢ 7:13 PM"
+            meta: "You • 7:13 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "That gives you a reliable test set: enough repeated UI terms for search, enough height for scrolling, and enough alternating messages to compare user and AI bubbles.",
-            meta: "AI â€¢ 7:14 PM"
+            meta: "AI • 7:14 PM"
           },
           {
             who: "user",
             name: "You",
             text: "One more detail: the sidebar can still exist as history, but it should not be the first thing the user sees on the clean start screen.",
-            meta: "You â€¢ 7:15 PM"
+            meta: "You • 7:15 PM"
           },
           {
             who: "bot",
             name: "AI",
             text: "That is a good product feel. Start with the conversation, then reveal navigation only when it becomes useful.",
-            meta: "AI â€¢ 7:16 PM"
+            meta: "AI • 7:16 PM"
           }
         ]
       }
@@ -5165,9 +5165,9 @@ const rotatingMessages = [
   "Let the magic of SPARK light up the spark within yourself :)",
   "when you feel like no one is there for you we always are",
   "you're not alone, even when it feels like it",
-  "someone will always listen â€” start typing",
-  "you donâ€™t have to figure everything out by yourself",
-  "weâ€™re here, whenever you need it"
+  "someone will always listen — start typing",
+  "you don’t have to figure everything out by yourself",
+  "we’re here, whenever you need it"
 ];
 
 let rotateIndex = 0;
@@ -5202,7 +5202,7 @@ function startRotatingText() {
       }, 600);
 
     }, 600); // matches animation
-  }, 8000); // 7â€“10 seconds vibe
+  }, 8000); // 7–10 seconds vibe
 
 } // <-- This closes your startRotatingText function!
 
@@ -5291,7 +5291,7 @@ const SEND_ICON_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="non
 function setSendingState(isSending) {
   sendBtn.classList.toggle("loading", isSending);
   sendBtn.disabled = isSending;
-  // Preserve the SVG icon â€” only clear innerHTML when loading (spinner via CSS ::after)
+  // Preserve the SVG icon — only clear innerHTML when loading (spinner via CSS ::after)
   if (!isSending) {
     sendBtn.innerHTML = SEND_ICON_SVG;
   } else {
@@ -5351,10 +5351,10 @@ function appendBotMessage(text, messageId, timeStr, targetConversation) {
     who: "bot",
     name: "AI",
     text: "",
-    meta: "AI â€¢ Just now",
+    meta: "AI • Just now",
     id: messageId,
     bubbleId: `bubble-${messageId}`,
-    realTime: `AI â€¢ ${timeStr}`
+    realTime: `AI • ${timeStr}`
   };
 
   targetConversation.messages.push(botMsg);
@@ -5421,9 +5421,9 @@ function handleSendMessage() {
     who: "user", 
     name: "You", 
     text, 
-    meta: "You â€¢ Just now", 
+    meta: "You • Just now", 
     id: userMsgId,
-    realTime: `You â€¢ ${timeStr}`
+    realTime: `You • ${timeStr}`
   };
 
   if (currentChatIndex === -1) {
@@ -6161,7 +6161,7 @@ function generateDynamicDescription(personaId, traits) {
   } else if (traits.includes("support_tough_love")) {
     desc += "Expect direct, honest feedback to keep you accountable, without any sugarcoating. ";
   } else if (traits.includes("support_validation") || traits.includes("needs_venting")) {
-    desc += "This will be a space to vent freelyâ€”focused on listening and validating your experience without rushing to 'fix' it. ";
+    desc += "This will be a space to vent freely—focused on listening and validating your experience without rushing to 'fix' it. ";
   } else {
     desc += "The tone will remain adaptable, acting as a sounding board whenever you need one. ";
   }
