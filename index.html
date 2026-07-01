@@ -3640,7 +3640,7 @@ input.slider-value-display[type=number] {
   visibility: hidden;
   transform: translateY(-8px) scale(0.96);
   transform-origin: top right;
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s;
   z-index: 100;
 }
 
@@ -3737,6 +3737,8 @@ input.slider-value-display[type=number] {
   margin-right: 0;
   border-color: transparent !important;
   background: transparent !important;
+  transform: scale(0.85); /* Added for pop effect */
+  transform-origin: right center; /* Added for pop effect */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .search-container.active {
@@ -3744,6 +3746,10 @@ input.slider-value-display[type=number] {
   opacity: 1;
   pointer-events: auto;
   margin-right: 8px;
+  transform: scale(1);
+  /* THESE TWO LINES FIX THE INVISIBLE BUBBLE: */
+  background: var(--surface, #ffffff) !important; 
+  border-color: var(--line-strong, #e5e5e5) !important; 
 }
 .search-container.active .search-input {
   padding: 0 12px 0 16px;
@@ -4843,16 +4849,21 @@ input.slider-value-display[type=number] {
     const searchNextBtn = document.getElementById('searchNextBtn');
     const messagesContainer = document.getElementById('messages');
 
-    searchToggleBtn.addEventListener('click', () => {
+   searchToggleBtn.addEventListener('click', () => {
       document.documentElement.classList.add('search-open');
       searchContainer.classList.add('active');
       
       // Close dropdown when activating search
       actionDropdown.classList.remove('open');
       
-      // Short timeout guarantees the input is visible before focusing
-      setTimeout(() => searchInput.focus(), 50);
       searchCloseBtn.style.display = 'flex';
+
+      // CRITICAL FOR MOBILE: .focus() must fire immediately inside the click event 
+      // without a delay so the mobile keyboard pops up automatically.
+      searchInput.focus();
+      
+      // Keep the timeout as a backup for slightly slower browser rendering engines
+      setTimeout(() => searchInput.focus(), 50);
     });
 
     searchCloseBtn.addEventListener('click', closeSearch);
