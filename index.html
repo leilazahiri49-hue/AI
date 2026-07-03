@@ -622,15 +622,22 @@
     }
 
     .share-card {
-      width: min(520px, 100%);
-      border: 1px solid var(--line-strong);
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)), rgba(15, 22, 36, 0.96);
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
-      padding: 18px;
-      transform: translateY(12px) scale(0.98);
-      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+  width: min(520px, 100%);
+  border: 1px solid var(--line-strong);
+  border-radius: 24px;
+  
+  /* 1. Adjusted the 0.96 at the end to 0.60 for translucency */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)), rgba(15, 22, 36, 0.60);
+  
+  /* 2. Added backdrop filters for a frosted glass effect */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+  padding: 18px;
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
     .share-popover.open .share-card {
       transform: translateY(0) scale(1);
@@ -2053,14 +2060,21 @@
 }
 
 .modal-box {
-  background: var(--surface);
+  /* 1. Replaced solid var(--surface) with a semi-transparent background */
+  background: rgba(15, 22, 36, 0.65); 
+  
+  /* 2. Added backdrop filters for the blurry frosted-glass effect */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  
+  /* 3. Kept all your existing structural properties exactly the same */
   border: 1px solid var(--line);
   border-radius: 24px;
-  padding: 56px 36px 24px 36px; /* Pushed the top padding down from 36 to 56 */
+  padding: 56px 36px 24px 36px;
   width: 90%;
   max-width: 520px;
   max-height: 85vh;
-  max-height: min(85dvh, calc(100dvh - 24px)); /* dvh respects browser chrome on mobile */
+  max-height: min(85dvh, calc(100dvh - 24px));
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -2671,10 +2685,17 @@ input.slider-value-display[type=number] {
       }
     }
     :root.light-mode .modal-box {
-      background: rgba(250, 244, 236, 0.98);
-      border-color: var(--line-strong);
-      box-shadow: 0 18px 40px rgba(65, 48, 31, 0.1);
-    }
+  /* Replaced mostly solid background with a translucent cream color */
+  background: rgba(250, 244, 236, 0.70);
+  
+  /* Added the blur effect for light mode */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  
+  /* Kept existing light-mode borders/shadows */
+  border-color: var(--line-strong);
+  box-shadow: 0 18px 40px rgba(65, 48, 31, 0.1);
+}
 
     /* ── Chat Bubbles ── */
     :root.light-mode .bubble {
@@ -3621,35 +3642,104 @@ input.slider-value-display[type=number] {
     }
 
 /* =========================================
-   DROPDOWN MENU STYLES
+   DROPDOWN MENU STYLES (THE TRUE MORPH)
    ========================================= */
+
+/* 1. The wrapper keeps the collapsed and expanded states on the same origin */
+.action-menu-wrapper {
+  --menu-button-size: 46px;
+  --menu-width: 210px;
+  --menu-closed-radius: 12px;
+  --menu-open-radius: 16px;
+  width: var(--menu-button-size);
+  height: var(--menu-button-size);
+  flex: 0 0 var(--menu-button-size);
+  justify-content: center;
+  isolation: isolate;
+}
+
+#kebabMenuBtn {
+  position: relative;
+  z-index: 3;
+  width: var(--menu-button-size);
+  height: var(--menu-button-size);
+  border-radius: var(--menu-closed-radius);
+  background: transparent;
+  border-color: transparent;
+  transition:
+    opacity 0.18s ease 0.16s,
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.18s ease;
+}
+
+#kebabMenuBtn svg {
+  transition: opacity 0.18s ease, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.action-menu-wrapper.menu-open #kebabMenuBtn {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.72);
+  transition-delay: 0s;
+}
+
+.action-menu-wrapper.menu-open #kebabMenuBtn svg {
+  opacity: 0;
+  transform: scale(0.35);
+}
+
+/* 2. The dropdown surface starts as the button-sized shape, then grows from it */
 .action-dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: 0;
   right: 0;
-  width: 200px;
-  background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: 16px;
-  padding: 8px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  width: var(--menu-width);
   display: flex;
   flex-direction: column;
   gap: 4px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-8px) scale(0.96);
+  padding: 8px;
+  z-index: 2;
+  overflow: hidden;
   transform-origin: top right;
-  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s;
-  z-index: 100;
+  /* Matches .topbar's frosted glass recipe exactly, so button + menu + topbar read as one glass surface */
+  background: rgba(15, 22, 36, 0.6);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--menu-closed-radius);
+  pointer-events: none;
+  clip-path: inset(0 0 calc(100% - var(--menu-button-size)) calc(100% - var(--menu-button-size)) round var(--menu-closed-radius));
+  will-change: clip-path, border-radius, background, box-shadow;
+  transition:
+    clip-path 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.24s ease 0.08s,
+    border-color 0.24s ease 0.08s,
+    box-shadow 0.24s ease 0.08s,
+    border-radius 0.38s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .action-dropdown.open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0) scale(1);
+  /* Hardcoded literal color + !important: guarantees a fully solid, opaque panel that nothing else in the cascade can override or leave unresolved, in either mode */
+  background: #0f1624 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  
+  /* EVERYTHING ELSE STAYS EXACTLY THE SAME */
+  border-color: rgba(180, 205, 235, 0.16);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+  border-radius: var(--menu-open-radius);
+  pointer-events: auto;
+  clip-path: inset(0 0 0 0 round var(--menu-open-radius));
+  transition:
+    clip-path 0.48s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.14s ease,
+    border-color 0.14s ease,
+    box-shadow 0.3s ease,
+    border-radius 0.48s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* 3. The Menu Items */
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -3664,7 +3754,6 @@ input.slider-value-display[type=number] {
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .dropdown-item:hover,
@@ -3672,6 +3761,22 @@ input.slider-value-display[type=number] {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.08);
   outline: none;
+}
+
+/* Reveal text/icons smoothly as the box expands */
+.action-dropdown.open .dropdown-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.action-dropdown.open .dropdown-item:nth-child(1) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.10s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.10s; }
+.action-dropdown.open .dropdown-item:nth-child(2) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s; }
+.action-dropdown.open .dropdown-item:nth-child(3) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s; }
+
+/* Hide text instantly so it does not clip outside the shrinking box */
+.action-dropdown:not(.open) .dropdown-item {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.1s ease, transform 0.1s ease;
 }
 
 .dropdown-icon {
@@ -3727,6 +3832,19 @@ input.slider-value-display[type=number] {
   animation: themeIconPulse 0.56s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Keeps the morph origin perfectly aligned with the responsive button sizes */
+@media (max-width: 900px) {
+  .action-menu-wrapper {
+    --menu-button-size: var(--mobile-control);
+    --menu-closed-radius: calc(var(--mobile-control) / 2);
+  }
+}
+@media (max-width: 360px) {
+  .action-menu-wrapper {
+    --menu-button-size: var(--mobile-control);
+  }
+}
+
 /* =========================================
    SEARCH BEHAVIOR OVERRIDES
    ========================================= */
@@ -3768,9 +3886,14 @@ input.slider-value-display[type=number] {
    LIGHT MODE: SHARE UI & MENU ADJUSTMENTS
    ========================================= */
 :root.light-mode .action-dropdown {
-  background: rgba(250, 244, 236, 0.98);
-  border-color: var(--line-strong);
-  box-shadow: 0 16px 40px rgba(65, 48, 31, 0.12);
+  background: rgba(250, 244, 236, 0.6);
+  border-color: rgba(83, 63, 42, 0.08);
+}
+:root.light-mode .action-dropdown.open {
+  /* Explicit hardcoded override + !important: this mode's solid color is guaranteed independently, no reliance on variable inheritance */
+  background: #f6efe6 !important;
+  border-color: rgba(83, 63, 42, 0.14);
+  box-shadow: 0 16px 40px rgba(65, 48, 31, 0.1);
 }
 :root.light-mode .dropdown-item:hover,
 :root.light-mode .dropdown-item:focus-visible {
@@ -3932,7 +4055,7 @@ input.slider-value-display[type=number] {
   </div>
 
   <div class="action-menu-wrapper" style="position: relative; display: flex; align-items: center;">
-    <button class="icon-button" id="kebabMenuBtn" type="button" aria-label="Menu">
+    <button class="icon-button" id="kebabMenuBtn" type="button" aria-label="Menu" aria-haspopup="menu" aria-expanded="false">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="5" r="1"></circle>
         <circle cx="12" cy="12" r="1"></circle>
@@ -3940,8 +4063,8 @@ input.slider-value-display[type=number] {
       </svg>
     </button>
 
-    <div class="action-dropdown" id="actionDropdown">
-      <button class="dropdown-item" id="shareChatBtn" type="button">
+    <div class="action-dropdown" id="actionDropdown" role="menu" aria-label="Chat actions">
+      <button class="dropdown-item" id="shareChatBtn" type="button" role="menuitem">
         <span class="dropdown-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -3953,7 +4076,7 @@ input.slider-value-display[type=number] {
         <span>Share chat</span>
       </button>
 
-      <button class="dropdown-item" id="searchToggleBtn" type="button">
+      <button class="dropdown-item" id="searchToggleBtn" type="button" role="menuitem">
         <span class="dropdown-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
@@ -3963,7 +4086,7 @@ input.slider-value-display[type=number] {
         <span>Search</span>
       </button>
 
-      <button class="dropdown-item" id="themeToggleBtn" type="button">
+      <button class="dropdown-item" id="themeToggleBtn" type="button" role="menuitem">
         <span class="dropdown-icon theme-toggle-wrapper">
           <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
@@ -4848,13 +4971,25 @@ input.slider-value-display[type=number] {
     const searchPrevBtn = document.getElementById('searchPrevBtn');
     const searchNextBtn = document.getElementById('searchNextBtn');
     const messagesContainer = document.getElementById('messages');
+    const actionMenuWrapper = document.querySelector('.action-menu-wrapper');
+    const kebabMenuBtn = document.getElementById('kebabMenuBtn');
+    const actionDropdown = document.getElementById('actionDropdown');
+
+    function setActionMenuOpen(isOpen) {
+      actionDropdown.classList.toggle('open', isOpen);
+      actionMenuWrapper.classList.toggle('menu-open', isOpen);
+      kebabMenuBtn.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    function closeActionMenu() {
+      setActionMenuOpen(false);
+    }
 
    searchToggleBtn.addEventListener('click', () => {
       document.documentElement.classList.add('search-open');
       searchContainer.classList.add('active');
       
-      // Close dropdown when activating search
-      actionDropdown.classList.remove('open');
+      closeActionMenu();
       
       searchCloseBtn.style.display = 'flex';
 
@@ -4878,24 +5013,25 @@ input.slider-value-display[type=number] {
     }
 
     // --- Kebab Dropdown Menu Logic ---
-    const kebabMenuBtn = document.getElementById('kebabMenuBtn');
-    const actionDropdown = document.getElementById('actionDropdown');
-
     kebabMenuBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      actionDropdown.classList.toggle('open');
+      setActionMenuOpen(!actionDropdown.classList.contains('open'));
+    });
+
+    actionDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
     });
 
     // Close menu when clicking completely outside of it
     document.addEventListener('click', (e) => {
-      if (actionDropdown && !actionDropdown.contains(e.target) && e.target !== kebabMenuBtn) {
-        actionDropdown.classList.remove('open');
+      if (actionMenuWrapper && !actionMenuWrapper.contains(e.target)) {
+        closeActionMenu();
       }
     });
 
     // Close menu after executing specific actions
-    document.getElementById('shareChatBtn').addEventListener('click', () => {
-      actionDropdown.classList.remove('open');
+    shareChatButton.addEventListener('click', () => {
+      closeActionMenu();
     });
     
     searchInput.addEventListener('input', (e) => {
