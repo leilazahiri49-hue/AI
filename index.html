@@ -3771,6 +3771,7 @@ input.slider-value-display[type=number] {
 .action-dropdown.open .dropdown-item:nth-child(1) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.10s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.10s; }
 .action-dropdown.open .dropdown-item:nth-child(2) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s; }
 .action-dropdown.open .dropdown-item:nth-child(3) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s; }
+.action-dropdown.open .dropdown-item:nth-child(4) { transition: background 0.15s, opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s; }
 
 /* Hide text instantly so it does not clip outside the shrinking box */
 .action-dropdown:not(.open) .dropdown-item {
@@ -3830,6 +3831,15 @@ input.slider-value-display[type=number] {
   border-radius: 50%;
   background: var(--accent-soft);
   animation: themeIconPulse 0.56s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Lock Chat icon — shackle swings open/closed on click (visual only; no privacy logic wired up) */
+.lock-shackle {
+  transform-origin: 16px 11px;
+  transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#lockChatBtn.is-unlocked .lock-shackle {
+  transform: rotate(32deg);
 }
 
 /* Keeps the morph origin perfectly aligned with the responsive button sizes */
@@ -3942,6 +3952,115 @@ input.slider-value-display[type=number] {
   border-color: rgba(52, 127, 202, 0.28);
   color: var(--accent);
   background: var(--accent-soft);
+}
+
+/* =========================================
+   CHAT LOCK — PRIVACY RESTRICTIONS
+   Everything below only ever applies to the specific conversation that is
+   currently in the locked state; unlocked chats are unaffected.
+   ========================================= */
+
+/* Share menu item, disabled while the active chat is locked */
+.dropdown-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.dropdown-item:disabled:hover,
+.dropdown-item:disabled:focus-visible {
+  background: transparent;
+  border-color: transparent;
+  transform: none;
+}
+.dropdown-item:disabled .dropdown-icon {
+  color: var(--muted);
+}
+
+/* "Chat is locked" placeholder shown when an old share link's source
+   conversation has since been locked */
+.locked-chat-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.locked-chat-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* Best-effort screenshot / screen-recording deterrents for the active chat
+   while it's locked. No browser API can truly detect or block a screenshot
+   or a screen recording — this only closes off the easy/casual capture
+   paths (select, copy, drag, print, long-press-save, dev tools) and blurs
+   the conversation for the moments a capture is most likely (the window or
+   tab loses focus, or a screenshot shortcut is pressed). */
+html.privacy-protected #messages,
+html.privacy-protected #messages * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+html.privacy-protected #messages img,
+html.privacy-protected #messages .bubble {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+html.privacy-shield-active #messages {
+  filter: blur(22px) brightness(0.55);
+  transition: filter 0.15s ease;
+  pointer-events: none;
+}
+
+@media print {
+  html.privacy-protected #messages {
+    display: none !important;
+  }
+  html.privacy-protected body::after {
+    content: "This chat is locked and can't be printed.";
+    display: block;
+    padding: 40px;
+    text-align: center;
+    color: #000;
+  }
+}
+
+.privacy-shield-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(26px, env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 12px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: rgba(15, 22, 36, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
+}
+.privacy-shield-toast.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+:root.light-mode .privacy-shield-toast {
+  background: rgba(246, 239, 230, 0.94);
 }
 
 </style>
@@ -4105,6 +4224,17 @@ input.slider-value-display[type=number] {
         </span>
         <span class="theme-text">Toggle theme</span>
       </button>
+
+      <button class="dropdown-item" id="lockChatBtn" type="button" role="menuitem" aria-pressed="false">
+        <span class="dropdown-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path class="lock-shackle" d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="4" y="11" width="16" height="10" rx="2.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span class="lock-chat-label">Lock chat</span>
+      </button>
     </div>
   </div>
 </div>
@@ -4169,6 +4299,10 @@ input.slider-value-display[type=number] {
       </div>
       <div class="share-status" id="shareStatus" aria-live="polite"></div>
     </div>
+  </div>
+
+  <div class="privacy-shield-toast" id="privacyShieldToast" role="status" aria-live="polite">
+    Screenshots and screen recording are restricted while this chat is locked.
   </div>
 
   <script>
@@ -4270,6 +4404,13 @@ input.slider-value-display[type=number] {
     const conversations = [
       {
         title: "Long Testing Chat",
+        id: "seed-long-testing-chat", // Stable id: ties this chat's persisted lock
+                                       // state (and any of its share links) back to it.
+        locked: true, // Drives the existing lock-button animation only. `true` is the
+                       // normal/default state (closed shackle, "Lock chat" label). The
+                       // chat is only actually locked for privacy purposes once this is
+                       // explicitly `false` (open shackle, "Unlock Chat" label) — see
+                       // isPrivacyLockOn(), the single source of truth for that check.
         messages: [
           {
             who: "bot",
@@ -4376,6 +4517,47 @@ input.slider-value-display[type=number] {
         ]
       }
     ];
+
+    // --- Chat Lock: persisted privacy-lock registry ---------------------
+    // A conversation's messages live only in memory (they don't survive a
+    // reload), but its *lock* state is deliberately persisted per stable
+    // conversation id so that:
+    //   1. Re-opening this chat later still remembers it was locked.
+    //   2. A share link can be checked against a chat's *current* lock
+    //      state (rather than whatever it was the moment the link was
+    //      made) — that's what lets a link that used to work start
+    //      showing "Chat is locked" the moment its source chat gets
+    //      locked, and go back to normal the moment it's unlocked again.
+    const PRIVACY_LOCK_STORAGE_KEY = "spark-privacy-locked-chat-ids";
+
+    function loadPrivacyLockedIds() {
+      try {
+        const raw = localStorage.getItem(PRIVACY_LOCK_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(parsed) ? parsed : []);
+      } catch (error) {
+        return new Set();
+      }
+    }
+
+    function savePrivacyLockedIds(idSet) {
+      try {
+        localStorage.setItem(PRIVACY_LOCK_STORAGE_KEY, JSON.stringify(Array.from(idSet)));
+      } catch (error) {
+        // localStorage may be unavailable (private browsing, quota, etc.) —
+        // the lock still works for the current tab, it just won't survive a reload.
+      }
+    }
+
+    let privacyLockedChatIds = loadPrivacyLockedIds();
+
+    // Bring every seeded conversation's `locked` flag in line with whatever
+    // was persisted from a previous visit, so a chat that was locked before
+    // a reload still comes back locked (and vice versa).
+    conversations.forEach((conv) => {
+      ensureConversationId(conv);
+      conv.locked = privacyLockedChatIds.has(conv.id) ? false : true;
+    });
 
     const chatButtons = document.querySelectorAll(".chat-item[data-chat-index]");
     const newChatButton = document.querySelector(".new-chat");
@@ -4488,10 +4670,24 @@ input.slider-value-display[type=number] {
       return `spark-${Date.now().toString(36)}-${randomPart}`;
     }
 
+    // Guarantees a conversation has a stable id (assigning one the first
+    // time it's needed) and returns it.
+    function ensureConversationId(conv) {
+      if (conv && !conv.id) {
+        conv.id = createShareId();
+      }
+      return conv ? conv.id : null;
+    }
+
     function getShareableConversation() {
       if (currentChatIndex < 0 || !conversations[currentChatIndex]) return null;
 
       const conversation = conversations[currentChatIndex];
+
+      // Locked chats can't be shared — no new share link gets created
+      // while the lock is on.
+      if (isPrivacyLockOn(currentChatIndex)) return null;
+
       const shareMessages = conversation.messages
         .filter((message) => message && typeof message.text !== "undefined" && String(message.text).trim())
         .map((message) => ({
@@ -4506,6 +4702,7 @@ input.slider-value-display[type=number] {
       return {
         v: 1,
         id: createShareId(),
+        convId: ensureConversationId(conversation),
         title: String(conversation.title || "Shared chat"),
         createdAt: new Date().toISOString(),
         messages: shareMessages
@@ -4533,6 +4730,7 @@ input.slider-value-display[type=number] {
       if (!cleanMessages.length) return null;
 
       return {
+        convId: payload.convId ? String(payload.convId) : null,
         title: String(payload.title || "Shared chat").slice(0, 160),
         messages: cleanMessages
       };
@@ -4611,6 +4809,12 @@ input.slider-value-display[type=number] {
     }
 
     function handleShareChat() {
+      if (isPrivacyLockOn(currentChatIndex)) {
+        openSharePopover("");
+        showShareStatus("This chat is locked. Unlock it to create a share link.", true);
+        return;
+      }
+
       const payload = getShareableConversation();
 
       if (!payload) {
@@ -4658,7 +4862,49 @@ input.slider-value-display[type=number] {
         input.placeholder = "This shared chat is read-only";
       }
       if (sendButton) sendButton.disabled = true;
-    }    function setActiveChat(nextIndex) {
+    }
+
+    // Shown instead of renderSharedChat() when the shared link's source
+    // conversation has since been locked. No message content is rendered.
+    function renderLockedSharedChat() {
+      isSharedChatView = true;
+      document.documentElement.classList.add("shared-chat-mode");
+
+      const onboardingModal = document.getElementById("onboardingModal");
+      if (onboardingModal) onboardingModal.style.display = "none";
+
+      conversationTitle.textContent = "Chat is locked";
+      fitConversationTitle();
+
+      messages.classList.add("start-mode");
+      messages.innerHTML = `
+        <div class="start-screen">
+          <div class="start-panel">
+            <div class="locked-chat-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="4" y="11" width="16" height="10" rx="2.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+            <h2>Chat is locked</h2>
+            <p>Whoever shared this conversation has locked it. Its contents aren't available through this link anymore.</p>
+          </div>
+        </div>
+      `;
+      messages.scrollTop = 0;
+
+      const input = document.getElementById("chatInput");
+      const sendButton = document.querySelector(".send-button");
+      if (input) {
+        input.disabled = true;
+        input.setAttribute("aria-readonly", "true");
+        input.placeholder = "This chat is locked";
+      }
+      if (sendButton) sendButton.disabled = true;
+    }
+
+    function setActiveChat(nextIndex) {
       // Close search if it's open when changing chats
       if (typeof closeSearch === 'function') {
         closeSearch();
@@ -4786,6 +5032,7 @@ input.slider-value-display[type=number] {
       messages.scrollTop = 0;
       updateJumpBottomButton();
       setTimeout(startRotatingText, 300);
+      syncLockButtonForChat(-1);
     }
 
     function renderConversation(nextIndex) {
@@ -4806,6 +5053,7 @@ input.slider-value-display[type=number] {
         }
         updateJumpBottomButton();
       });
+      syncLockButtonForChat(nextIndex);
     }
 
     // New function to save the current scroll position
@@ -5033,7 +5281,189 @@ input.slider-value-display[type=number] {
     shareChatButton.addEventListener('click', () => {
       closeActionMenu();
     });
-    
+
+    // Lock chat icon — lock/unlock animation, now with per-conversation memory
+    const lockChatBtn = document.getElementById('lockChatBtn');
+    const lockChatLabel = lockChatBtn ? lockChatBtn.querySelector('.lock-chat-label') : null;
+    const privacyShieldToast = document.getElementById('privacyShieldToast');
+
+    // A chat is locked unless its conversation object was explicitly unlocked.
+    // Missing/undefined `locked` (the seed chat, the -1 "no conversation yet"
+    // start screen, etc.) is treated as locked so the default always holds.
+    function isChatLocked(index) {
+      if (index === -1 || !conversations[index]) return true;
+      return conversations[index].locked !== false;
+    }
+
+    // Single source of truth for "is this chat currently in the locked /
+    // privacy-restricted state" — i.e. the lock icon's shackle is open and
+    // the menu label reads "Unlock Chat". That combination only happens
+    // when isChatLocked() is false (the conversation's `locked` flag was
+    // explicitly set to `false`).
+    function isPrivacyLockOn(index) {
+      if (index === -1 || !conversations[index]) return false;
+      return conversations[index].locked === false;
+    }
+
+    // Purely visual: syncs the shackle animation, aria state, and label text
+    // to a given locked/unlocked state. Does not read or write any data.
+    function applyLockButtonState(isLocked) {
+      if (!lockChatBtn) return;
+      lockChatBtn.classList.toggle('is-unlocked', !isLocked);
+      lockChatBtn.setAttribute('aria-pressed', String(!isLocked));
+      if (lockChatLabel) {
+        lockChatLabel.textContent = isLocked ? 'Lock chat' : 'Unlock Chat';
+      }
+    }
+
+    // Disables (or re-enables) the Share Chat menu item for whichever chat
+    // is currently on screen — this is what actually stops a locked chat
+    // from getting a new share link.
+    function refreshShareAvailability(index) {
+      if (!shareChatButton) return;
+      const locked = isPrivacyLockOn(index);
+      shareChatButton.disabled = locked;
+      shareChatButton.setAttribute('aria-disabled', String(locked));
+      shareChatButton.title = locked ? 'Unlock this chat to share it' : '';
+      if (locked) {
+        closeSharePopover();
+      }
+    }
+
+    // Turns the (best-effort) screenshot/recording protection on or off to
+    // match whichever chat is currently on screen.
+    function refreshScreenshotProtection(index) {
+      const shouldProtect = isPrivacyLockOn(index);
+      document.documentElement.classList.toggle('privacy-protected', shouldProtect);
+      if (!shouldProtect) {
+        document.documentElement.classList.remove('privacy-shield-active');
+      }
+    }
+
+    // Called whenever the visible chat changes (switch, new chat, start
+    // screen) so the button, the share option, and screenshot protection
+    // all match that specific chat's saved state.
+    function syncLockButtonForChat(index) {
+      applyLockButtonState(isChatLocked(index));
+      refreshShareAvailability(index);
+      refreshScreenshotProtection(index);
+    }
+
+    // Persists the lock for this conversation (keyed by its stable id) and
+    // applies/lifts the share-disable + screenshot protection for it.
+    function updatePrivacyLockForChat(index) {
+      const conv = conversations[index];
+      if (!conv) return;
+
+      const id = ensureConversationId(conv);
+      const locked = conv.locked === false;
+
+      if (locked) {
+        privacyLockedChatIds.add(id);
+      } else {
+        privacyLockedChatIds.delete(id);
+      }
+      savePrivacyLockedIds(privacyLockedChatIds);
+
+      refreshShareAvailability(index);
+      refreshScreenshotProtection(index);
+    }
+
+    if (lockChatBtn) {
+      lockChatBtn.addEventListener('click', () => {
+        // Reading .contains() before applyLockButtonState changes anything:
+        // if the shackle is currently open (is-unlocked), this click closes
+        // it, so the upcoming state is locked — and vice versa.
+        const nextLocked = lockChatBtn.classList.contains('is-unlocked');
+        applyLockButtonState(nextLocked);
+        if (currentChatIndex !== -1 && conversations[currentChatIndex]) {
+          conversations[currentChatIndex].locked = nextLocked;
+          updatePrivacyLockForChat(currentChatIndex);
+        }
+      });
+    }
+
+    // --- Chat Lock: best-effort screenshot / screen-recording deterrents ---
+    // No browser gives a web page a real way to detect or block a
+    // screenshot or a screen recording. This only raises the bar: it closes
+    // off the easy, casual capture paths (select/copy/drag/print/long-press
+    // -save/dev tools) and blurs the conversation for the moments a capture
+    // is most likely (the tab/window loses focus, or a screenshot shortcut
+    // is pressed). It is intentionally scoped to only ever act while a
+    // locked chat is the one on screen — unlocked chats never trigger any
+    // of this.
+    function isScreenshotProtectionActive() {
+      return document.documentElement.classList.contains('privacy-protected');
+    }
+
+    function engagePrivacyShield() {
+      if (!isScreenshotProtectionActive()) return;
+      document.documentElement.classList.add('privacy-shield-active');
+    }
+
+    function releasePrivacyShield() {
+      document.documentElement.classList.remove('privacy-shield-active');
+    }
+
+    function showScreenshotWarning() {
+      if (!privacyShieldToast) return;
+      privacyShieldToast.classList.add('visible');
+      window.clearTimeout(showScreenshotWarning._t);
+      showScreenshotWarning._t = window.setTimeout(() => {
+        privacyShieldToast.classList.remove('visible');
+      }, 2600);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        engagePrivacyShield();
+      } else {
+        releasePrivacyShield();
+      }
+    });
+
+    window.addEventListener('blur', engagePrivacyShield);
+    window.addEventListener('focus', releasePrivacyShield);
+
+    document.addEventListener('contextmenu', (event) => {
+      if (isScreenshotProtectionActive() && messages.contains(event.target)) {
+        event.preventDefault();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!isScreenshotProtectionActive()) return;
+      const key = event.key;
+      const isScreenshotShortcut =
+        key === 'PrintScreen' ||
+        (event.metaKey && event.shiftKey && ['3', '4', '5', '6'].includes(key)) ||
+        (event.metaKey && event.ctrlKey && event.shiftKey && key.toLowerCase() === 's');
+      const isDevToolsShortcut =
+        key === 'F12' ||
+        (event.ctrlKey && event.shiftKey && ['i', 'I', 'j', 'J', 'c', 'C'].includes(key)) ||
+        (event.metaKey && event.altKey && ['i', 'I', 'j', 'J'].includes(key));
+      const isPrintShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === 'p';
+
+      if (isScreenshotShortcut || isDevToolsShortcut || isPrintShortcut) {
+        if (event.cancelable) event.preventDefault();
+        engagePrivacyShield();
+        showScreenshotWarning();
+        window.setTimeout(releasePrivacyShield, 1200);
+      }
+    }, true);
+
+    document.addEventListener('keyup', (event) => {
+      if (!isScreenshotProtectionActive()) return;
+      if (event.key === 'PrintScreen') {
+        engagePrivacyShield();
+        showScreenshotWarning();
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText('').catch(() => {});
+        }
+        window.setTimeout(releasePrivacyShield, 1200);
+      }
+    });
+
     searchInput.addEventListener('input', (e) => {
       const keyword = e.target.value.trim();
       if (keyword.length < 1) {
@@ -5289,7 +5719,11 @@ input.slider-value-display[type=number] {
     const sharedChatPayload = readSharedChatFromUrl();
 
     if (sharedChatPayload) {
-      renderSharedChat(sharedChatPayload);
+      if (sharedChatPayload.convId && privacyLockedChatIds.has(sharedChatPayload.convId)) {
+        renderLockedSharedChat();
+      } else {
+        renderSharedChat(sharedChatPayload);
+      }
     } else {
       setActiveChat(-1);
       syncMode(currentMode, false);
@@ -5568,7 +6002,10 @@ function handleSendMessage() {
 
     conversations.unshift({
       title: generatedTitle,
-      messages: []
+      messages: [],
+      id: createShareId(), // Stable id — see the Chat Lock registry near the top of this script.
+      locked: true // Normal/default state: closed shackle, "Lock chat" label, shareable.
+                   // Not privacy-locked — see isPrivacyLockOn().
     });
 
     currentChatIndex = 0;
@@ -5576,6 +6013,7 @@ function handleSendMessage() {
     setActiveChat(currentChatIndex);
     conversationTitle.textContent = generatedTitle;
     fitConversationTitle();
+    syncLockButtonForChat(currentChatIndex);
   } else if (currentChatIndex > 0) {
     const activeConv = conversations.splice(currentChatIndex, 1)[0];
     conversations.unshift(activeConv);
