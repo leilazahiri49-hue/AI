@@ -4528,11 +4528,54 @@ html.privacy-shield-active #messages {
     //      made) — that's what lets a link that used to work start
     //      showing "Chat is locked" the moment its source chat gets
     //      locked, and go back to normal the moment it's unlocked again.
+    //
+    // Resilience note: `localStorage` alone isn't a safe single point of
+    // truth for this. Some browsers restrict or throw on localStorage
+    // writes in private/incognito tabs, and previously any such failure
+    // was silently swallowed with no fallback — so a chat could be locked,
+    // have that lock silently fail to persist, and then read back as
+    // *unlocked* the moment the tab reloaded or a new tab/share link was
+    // opened, even within the same browsing session. readPersistedValue /
+    // writePersistedValue below fall back through localStorage ->
+    // sessionStorage -> an in-memory copy so a lock/unlock action always
+    // sticks for at least the current session, instead of silently
+    // reverting. See isSharedPayloadLocked() further down for the other
+    // half of the fix: shared links no longer trust this local registry
+    // as their *only* signal.
+    const inMemoryPersistenceFallback = {};
+
+    function readPersistedValue(key) {
+      try {
+        const fromLocal = window.localStorage.getItem(key);
+        if (fromLocal !== null) return fromLocal;
+      } catch (error) {
+        // localStorage inaccessible (private mode restrictions, disabled
+        // storage, etc.) — fall through to the next layer.
+      }
+      try {
+        const fromSession = window.sessionStorage.getItem(key);
+        if (fromSession !== null) return fromSession;
+      } catch (error) {
+        // sessionStorage can also be blocked — fall through to memory.
+      }
+      return Object.prototype.hasOwnProperty.call(inMemoryPersistenceFallback, key)
+        ? inMemoryPersistenceFallback[key]
+        : null;
+    }
+
+    function writePersistedValue(key, value) {
+      // Always keep the in-memory copy current so this tab/session behaves
+      // consistently even if every storage layer below is unavailable.
+      inMemoryPersistenceFallback[key] = value;
+      try { window.localStorage.setItem(key, value); } catch (error) { /* try next layer */ }
+      try { window.sessionStorage.setItem(key, value); } catch (error) { /* in-memory copy above still covers this tab */ }
+    }
+
     const PRIVACY_LOCK_STORAGE_KEY = "spark-privacy-locked-chat-ids";
 
     function loadPrivacyLockedIds() {
       try {
-        const raw = localStorage.getItem(PRIVACY_LOCK_STORAGE_KEY);
+        const raw = readPersistedValue(PRIVACY_LOCK_STORAGE_KEY);
         const parsed = raw ? JSON.parse(raw) : [];
         return new Set(Array.isArray(parsed) ? parsed : []);
       } catch (error) {
@@ -4542,10 +4585,11 @@ html.privacy-shield-active #messages {
 
     function savePrivacyLockedIds(idSet) {
       try {
-        localStorage.setItem(PRIVACY_LOCK_STORAGE_KEY, JSON.stringify(Array.from(idSet)));
+        writePersistedValue(PRIVACY_LOCK_STORAGE_KEY, JSON.stringify(Array.from(idSet)));
       } catch (error) {
-        // localStorage may be unavailable (private browsing, quota, etc.) —
-        // the lock still works for the current tab, it just won't survive a reload.
+        // Every persistence layer failed — the lock still works for the
+        // current tab via privacyLockedChatIds in memory, it just won't
+        // survive a reload.
       }
     }
 
@@ -4705,6 +4749,14 @@ html.privacy-shield-active #messages {
         convId: ensureConversationId(conversation),
         title: String(conversation.title || "Shared chat"),
         createdAt: new Date().toISOString(),
+        // Lock status as of right now, baked directly into the shared
+        // chat data itself (it travels inside the link's payload, not in
+        // this browser's local storage). Always `false` here since a
+        // locked chat can't be shared in the first place (see the guard
+        // above), but recording it explicitly means the payload is
+        // self-describing and isn't the app's only signal for "is this
+        // link currently locked" — see isSharedPayloadLocked().
+        locked: isPrivacyLockOn(currentChatIndex),
         messages: shareMessages
       };
     }
@@ -4732,6 +4784,12 @@ html.privacy-shield-active #messages {
       return {
         convId: payload.convId ? String(payload.convId) : null,
         title: String(payload.title || "Shared chat").slice(0, 160),
+        // Carry the lock flag that was baked into the shared chat data at
+        // share time through to the rendering step. `=== true` so a
+        // missing/malformed field (e.g. an older link generated before
+        // this field existed) safely defaults to "not locked" rather than
+        // throwing or behaving unpredictably.
+        locked: payload.locked === true,
         messages: cleanMessages
       };
     }
@@ -4746,6 +4804,24 @@ html.privacy-shield-active #messages {
         console.warn("Could not read shared Spark chat:", error);
         return null;
       }
+    }
+
+    // Single source of truth for "should this shared link currently show
+    // as locked". This is the fix for locked chats staying reachable when
+    // a share link is opened somewhere with no access to this origin's
+    // local storage (a different browser, a different device, or an
+    // incognito/private tab) — the check no longer depends solely on
+    // `privacyLockedChatIds`. Instead it checks the lock flag carried
+    // inside the shared chat data itself first, so *anyone* opening the
+    // link — on any browser, device, or session — reads the same status
+    // from the data they were actually given. The local registry is
+    // layered on top only so that the person who owns the chat sees an
+    // up-to-date result if they reopen their own link in another tab of
+    // the *same* browser after locking it.
+    function isSharedPayloadLocked(payload) {
+      if (!payload) return false;
+      if (payload.locked === true) return true;
+      return Boolean(payload.convId) && privacyLockedChatIds.has(payload.convId);
     }
 
     function showShareStatus(message, isError) {
@@ -5719,7 +5795,7 @@ html.privacy-shield-active #messages {
     const sharedChatPayload = readSharedChatFromUrl();
 
     if (sharedChatPayload) {
-      if (sharedChatPayload.convId && privacyLockedChatIds.has(sharedChatPayload.convId)) {
+      if (isSharedPayloadLocked(sharedChatPayload)) {
         renderLockedSharedChat();
       } else {
         renderSharedChat(sharedChatPayload);
