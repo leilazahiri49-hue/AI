@@ -3994,10 +3994,22 @@ input.slider-value-display[type=number] {
 
 /* Best-effort screenshot / screen-recording deterrents for the active chat
    while it's locked. No browser API can truly detect or block a screenshot
-   or a screen recording — this only closes off the easy/casual capture
-   paths (select, copy, drag, print, long-press-save, dev tools) and blurs
-   the conversation for the moments a capture is most likely (the window or
-   tab loses focus, or a screenshot shortcut is pressed). */
+   or a screen recording, on mobile or on desktop — that stays true after
+   this pass too. What this closes off is (a) the easy/casual capture paths
+   (select, copy, drag, print, long-press-save, dev tools) and (b) the
+   window during which a capture is most *likely* (the tab/window loses
+   focus or visibility, or a screenshot/recording shortcut is pressed) — for
+   that window, the chat is fully covered rather than just blurred, and the
+   covering element is a plain always-on-top overlay rather than a CSS
+   filter on the live scrolling message list. That change is what makes it
+   render reliably on mobile Safari/Chrome (filter on a
+   -webkit-overflow-scrolling element is known to composite unreliably) and
+   keeps it correctly sized through resizes, orientation changes, and
+   split-screen/multitasking (it uses the same fixed + --app-height
+   technique as .modal-overlay below, so it tracks the real viewport
+   instead of a stale layout snapshot). See the matching JS section
+   ("Chat Lock: best-effort screenshot / screen-recording deterrents") for
+   how the shield is triggered. */
 html.privacy-protected #messages,
 html.privacy-protected #messages * {
   -webkit-user-select: none !important;
@@ -4010,6 +4022,8 @@ html.privacy-protected #messages .bubble {
   user-drag: none;
 }
 
+/* Kept as a harmless extra layer under the opaque overlay below — belt and
+   suspenders in case the overlay is ever missing for some reason. */
 html.privacy-shield-active #messages {
   filter: blur(22px) brightness(0.55);
   transition: filter 0.15s ease;
@@ -4029,12 +4043,64 @@ html.privacy-shield-active #messages {
   }
 }
 
+/* The actual shield: a solid, always-on-top cover for the whole viewport
+   (not just #messages), so nothing on screen — sidebar, topbar, composer
+   draft included — is left exposed while it's up. Uses the same
+   fixed + --app-height sizing as .modal-overlay so it stays correctly
+   sized across resizes, orientation changes, and split-screen/
+   multitasking without any extra JS measuring/syncing. rgba background is
+   intentionally near-opaque on its own (not just backdrop-filter) so the
+   content underneath stays fully hidden even in browsers without
+   backdrop-filter support. */
+.privacy-shield-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh; /* fallback for ancient browsers */
+  height: var(--app-height, 100dvh);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  background: rgba(8, 13, 22, 0.97);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+html.privacy-shield-active .privacy-shield-overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.privacy-shield-overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 280px;
+}
+.privacy-shield-overlay-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+:root.light-mode .privacy-shield-overlay {
+  background: rgba(238, 230, 220, 0.97);
+}
+
 .privacy-shield-toast {
   position: fixed;
   left: 50%;
   bottom: max(26px, env(safe-area-inset-bottom, 0px));
   transform: translate(-50%, 12px);
-  z-index: 1000;
+  z-index: 9999;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -4183,18 +4249,6 @@ html.privacy-shield-active #messages {
     </button>
 
     <div class="action-dropdown" id="actionDropdown" role="menu" aria-label="Chat actions">
-      <button class="dropdown-item" id="shareChatBtn" type="button" role="menuitem">
-        <span class="dropdown-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-            <circle cx="18" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-            <circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </span>
-        <span>Share chat</span>
-      </button>
-
       <button class="dropdown-item" id="searchToggleBtn" type="button" role="menuitem">
         <span class="dropdown-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -4223,6 +4277,18 @@ html.privacy-shield-active #messages {
           </svg>
         </span>
         <span class="theme-text">Toggle theme</span>
+      </button>
+
+      <button class="dropdown-item" id="shareChatBtn" type="button" role="menuitem">
+        <span class="dropdown-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            <circle cx="18" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+            <circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span>Share chat</span>
       </button>
 
       <button class="dropdown-item" id="lockChatBtn" type="button" role="menuitem" aria-pressed="false">
@@ -4298,6 +4364,19 @@ html.privacy-shield-active #messages {
         <button class="share-copy-button" id="copyShareLinkBtn" type="button">Copy</button>
       </div>
       <div class="share-status" id="shareStatus" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="privacy-shield-overlay" id="privacyShieldOverlay" aria-hidden="true">
+    <div class="privacy-shield-overlay-card">
+      <div class="locked-chat-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="4" y="11" width="16" height="10" rx="2.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <p>This chat is locked. Its contents stay hidden while the window isn't in focus.</p>
     </div>
   </div>
 
@@ -5413,6 +5492,11 @@ html.privacy-shield-active #messages {
       document.documentElement.classList.toggle('privacy-protected', shouldProtect);
       if (!shouldProtect) {
         document.documentElement.classList.remove('privacy-shield-active');
+      } else {
+        // Re-derive the shield from real focus/visibility rather than
+        // leaving it in whatever state it happened to be in — covers
+        // switching directly from one locked chat to another.
+        reconcilePrivacyShield();
       }
     }
 
@@ -5461,13 +5545,26 @@ html.privacy-shield-active #messages {
 
     // --- Chat Lock: best-effort screenshot / screen-recording deterrents ---
     // No browser gives a web page a real way to detect or block a
-    // screenshot or a screen recording. This only raises the bar: it closes
-    // off the easy, casual capture paths (select/copy/drag/print/long-press
-    // -save/dev tools) and blurs the conversation for the moments a capture
-    // is most likely (the tab/window loses focus, or a screenshot shortcut
-    // is pressed). It is intentionally scoped to only ever act while a
-    // locked chat is the one on screen — unlocked chats never trigger any
-    // of this.
+    // screenshot or a screen recording — that is true on desktop and on
+    // mobile, and nothing below changes that. A plain screenshot gesture
+    // (power+volume, a phone's screenshot swipe, a laptop's PrintScreen key
+    // read directly off the keyboard driver) never fires any DOM event at
+    // all, because the OS captures the frame without the page ever losing
+    // focus or visibility — there is no signal for a web page to listen for.
+    // What this section *can* do, and is scoped to:
+    //   1. Close off the easy/casual capture paths (select/copy/drag/print/
+    //      long-press-save/dev-tools-via-keyboard) — unchanged below.
+    //   2. Fully cover the screen for the moments a capture is most likely:
+    //      the tab/window loses focus or visibility, or a known screenshot/
+    //      recording/dev-tools keyboard shortcut is pressed. Desktop OS
+    //      screenshot hotkeys (macOS's Cmd+Shift+3/4/5/6, Windows' Win+Shift
+    //      +S) are usually consumed by the OS shell before any web page's
+    //      keydown handler ever runs, so shortcut interception below is a
+    //      catch-it-when-we-can layer, not the primary defense — the
+    //      focus/visibility cover in (2) is what actually matters, and it
+    //      does not depend on recognizing any particular shortcut.
+    // It is intentionally scoped to only ever act while a locked chat is the
+    // one on screen — unlocked chats never trigger any of this.
     function isScreenshotProtectionActive() {
       return document.documentElement.classList.contains('privacy-protected');
     }
@@ -5490,16 +5587,57 @@ html.privacy-shield-active #messages {
       }, 2600);
     }
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
+    // Single source of truth for "should the shield be up right now",
+    // driven by the two signals a browser actually gives us: page
+    // visibility and window focus. Every listener below — visibility,
+    // focus/blur, page lifecycle, resize/orientation, and the polling
+    // fallback — feeds into this one function instead of each deciding
+    // engage/release on its own, so they can't disagree with each other.
+    function reconcilePrivacyShield() {
+      if (!isScreenshotProtectionActive()) return;
+      if (document.hidden || !document.hasFocus()) {
         engagePrivacyShield();
       } else {
         releasePrivacyShield();
       }
-    });
+    }
 
-    window.addEventListener('blur', engagePrivacyShield);
-    window.addEventListener('focus', releasePrivacyShield);
+    // Primary signals: tab visibility and window focus. Covers switching
+    // tabs, switching apps, minimizing, and — on desktop — most split-
+    // screen/Snap/Split View cases, since moving keyboard focus to the
+    // other snapped window fires `blur` here even though this page is
+    // still partly visible on screen.
+    document.addEventListener('visibilitychange', reconcilePrivacyShield);
+    window.addEventListener('blur', reconcilePrivacyShield);
+    window.addEventListener('focus', reconcilePrivacyShield);
+
+    // Page lifecycle signals: bfcache navigation (swipe back/forward on
+    // mobile Safari in particular) fires pagehide/pageshow instead of, or
+    // in addition to, visibilitychange in some browsers. 'freeze' is the
+    // Chromium page-lifecycle event for a backgrounded tab about to be
+    // suspended; harmless to listen for even where it's unsupported.
+    window.addEventListener('pagehide', reconcilePrivacyShield);
+    window.addEventListener('pageshow', reconcilePrivacyShield);
+    document.addEventListener('freeze', reconcilePrivacyShield);
+
+    // Resize signals: re-check immediately (rather than waiting for the
+    // poll below) whenever the layout could have just changed because a
+    // window was snapped/resized into or out of split-screen, or the
+    // device was rotated.
+    window.addEventListener('resize', reconcilePrivacyShield, { passive: true });
+    window.addEventListener('orientationchange', () => {
+      window.setTimeout(reconcilePrivacyShield, 260);
+    }, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', reconcilePrivacyShield, { passive: true });
+    }
+
+    // Safety net: some split-screen/multi-window/embedded-browser (in-app
+    // browser) combinations are known to fire visibility/focus events
+    // inconsistently. Polling the same two signals directly closes that
+    // gap — this is a no-op read (not a DOM write) whenever no chat is
+    // currently locked, so it costs nothing the rest of the time.
+    window.setInterval(reconcilePrivacyShield, 400);
 
     document.addEventListener('contextmenu', (event) => {
       if (isScreenshotProtectionActive() && messages.contains(event.target)) {
@@ -5513,18 +5651,25 @@ html.privacy-shield-active #messages {
       const isScreenshotShortcut =
         key === 'PrintScreen' ||
         (event.metaKey && event.shiftKey && ['3', '4', '5', '6'].includes(key)) ||
-        (event.metaKey && event.ctrlKey && event.shiftKey && key.toLowerCase() === 's');
+        (event.metaKey && event.ctrlKey && event.shiftKey && key.toLowerCase() === 's') ||
+        // Windows Snip & Sketch (Win+Shift+S). Like the macOS combos above,
+        // Windows itself usually intercepts this before it ever reaches a
+        // browser's keydown handler — kept as a catch-it-when-we-can layer.
+        (event.metaKey && event.shiftKey && key.toLowerCase() === 's');
       const isDevToolsShortcut =
         key === 'F12' ||
         (event.ctrlKey && event.shiftKey && ['i', 'I', 'j', 'J', 'c', 'C'].includes(key)) ||
-        (event.metaKey && event.altKey && ['i', 'I', 'j', 'J'].includes(key));
+        (event.metaKey && event.altKey && ['i', 'I', 'j', 'J', 'c', 'C'].includes(key));
       const isPrintShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === 'p';
 
       if (isScreenshotShortcut || isDevToolsShortcut || isPrintShortcut) {
         if (event.cancelable) event.preventDefault();
         engagePrivacyShield();
         showScreenshotWarning();
-        window.setTimeout(releasePrivacyShield, 1200);
+        // Re-evaluate real focus/visibility instead of force-releasing —
+        // if the shortcut handed focus to another window (e.g. a snipping
+        // tool), the shield correctly stays up until that window is gone.
+        window.setTimeout(reconcilePrivacyShield, 1200);
       }
     }, true);
 
@@ -5536,7 +5681,7 @@ html.privacy-shield-active #messages {
         if (navigator.clipboard && window.isSecureContext) {
           navigator.clipboard.writeText('').catch(() => {});
         }
-        window.setTimeout(releasePrivacyShield, 1200);
+        window.setTimeout(reconcilePrivacyShield, 1200);
       }
     });
 
