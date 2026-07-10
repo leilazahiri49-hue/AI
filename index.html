@@ -4129,6 +4129,394 @@ html.privacy-shield-active .privacy-shield-overlay {
   background: rgba(246, 239, 230, 0.94);
 }
 
+/* =========================================
+   SIDEBAR CHAT OPTIONS
+   Desktop uses a compact anchored popover. On touch screens a held chat
+   lifts into focus while a native-feeling action sheet rises from below.
+   ========================================= */
+.chat-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  overflow: visible;
+  transform: none !important;
+}
+
+.chat-item:hover,
+.chat-item.active {
+  background: transparent;
+  border-color: transparent;
+}
+
+.chat-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 44px 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.chat-select:hover,
+.chat-item.active .chat-select {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--line);
+}
+
+.chat-select:active:not(.active) {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(148, 163, 184, 0.18);
+  transform: scale(0.98);
+}
+
+.chat-select:focus-visible,
+.chat-options-trigger:focus-visible,
+.chat-option-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.chat-options-trigger {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) scale(0.84);
+  transition: opacity 0.16s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.chat-item:hover .chat-options-trigger,
+.chat-item:focus-within .chat-options-trigger,
+.chat-options-trigger[aria-expanded="true"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1);
+}
+
+.chat-options-trigger:hover,
+.chat-options-trigger[aria-expanded="true"] {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--line);
+}
+
+.chat-options-trigger:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.chat-context-menu {
+  position: fixed;
+  z-index: 9002;
+  width: 212px;
+  padding: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 15px;
+  background: rgba(15, 22, 36, 0.96);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.96);
+  transform-origin: top right;
+  transition: opacity 0.16s ease, transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.16s ease;
+}
+
+.chat-context-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.chat-option-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 11px 10px 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text);
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 560;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.14s ease;
+}
+
+.chat-option-action svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--muted);
+  transition: color 0.16s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chat-option-action:hover,
+.chat-option-action:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--line);
+  outline: none;
+}
+
+.chat-option-action:hover svg {
+  color: var(--accent);
+  transform: scale(1.08);
+}
+
+.chat-option-action:active {
+  transform: scale(0.98);
+}
+
+.chat-option-action.is-delete,
+.chat-option-action.is-delete svg {
+  color: #ff7773;
+}
+
+.chat-option-action.is-delete:hover,
+.chat-option-action.is-delete:focus-visible {
+  background: rgba(255, 119, 115, 0.1);
+  border-color: rgba(255, 119, 115, 0.2);
+}
+
+.chat-options-backdrop,
+.mobile-chat-focus,
+.mobile-chat-options-sheet {
+  display: none;
+}
+
+:root.light-mode .chat-select:hover,
+:root.light-mode .chat-item.active .chat-select {
+  background: rgba(83, 63, 42, 0.055);
+  border-color: rgba(83, 63, 42, 0.12);
+}
+
+:root.light-mode .chat-options-trigger:hover,
+:root.light-mode .chat-options-trigger[aria-expanded="true"],
+:root.light-mode .chat-option-action:hover,
+:root.light-mode .chat-option-action:focus-visible {
+  background: rgba(83, 63, 42, 0.07);
+  border-color: rgba(83, 63, 42, 0.12);
+}
+
+:root.light-mode .chat-context-menu {
+  background: rgba(250, 244, 236, 0.97);
+  border-color: rgba(83, 63, 42, 0.15);
+  box-shadow: 0 18px 42px rgba(72, 53, 35, 0.18);
+}
+
+@media (max-width: 900px) {
+  .chat-item,
+  .sidebar.collapsed .chat-item {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .chat-select,
+  .sidebar.collapsed .chat-select {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    height: auto;
+    min-height: 52px;
+    padding: 9px 12px;
+    gap: 12px;
+    border-radius: 13px;
+  }
+
+  .sidebar.collapsed .chat-select .chat-copy {
+    width: auto;
+    margin: 0;
+    opacity: 1;
+    position: relative;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .sidebar.collapsed .chat-select .chat-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chat-options-trigger,
+  .chat-context-menu {
+    display: none;
+  }
+
+  .chat-options-backdrop,
+  .mobile-chat-focus,
+  .mobile-chat-options-sheet {
+    display: block;
+  }
+
+  .chat-options-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(4, 8, 15, 0.52);
+    backdrop-filter: blur(9px) saturate(0.88);
+    -webkit-backdrop-filter: blur(9px) saturate(0.88);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.26s ease, visibility 0.26s ease;
+  }
+
+  .chat-options-backdrop.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .mobile-chat-focus {
+    position: fixed;
+    z-index: 9001;
+    left: var(--chat-focus-left, 12px);
+    top: var(--chat-focus-top, 80px);
+    width: var(--chat-focus-width, calc(100vw - 24px));
+    min-height: var(--chat-focus-height, 52px);
+    padding: 9px 12px;
+    border: 1px solid rgba(180, 205, 235, 0.18);
+    border-radius: 14px;
+    color: var(--text);
+    background: rgba(18, 27, 43, 0.98);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0) scale(0.98);
+    transform-origin: center;
+    transition: opacity 0.16s ease, transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-chat-focus.is-visible {
+    opacity: 1;
+    transform: translateY(-12px) scale(1.035);
+  }
+
+  .mobile-chat-focus .chat-icon,
+  .mobile-chat-focus .chat-copy {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .mobile-chat-focus .chat-icon {
+    display: inline-grid;
+    margin-right: 12px;
+  }
+
+  .mobile-chat-focus .chat-copy {
+    width: calc(100% - 54px);
+  }
+
+  .mobile-chat-options-sheet {
+    position: fixed;
+    z-index: 9002;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 12px;
+    width: auto;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 6px;
+    border: 1px solid rgba(180, 205, 235, 0.17);
+    border-radius: 20px;
+    background: rgba(15, 22, 36, 0.97);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(calc(100% + 28px));
+    transition: opacity 0.2s ease, transform 0.44s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease;
+  }
+
+  .mobile-chat-options-sheet.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .mobile-chat-options-sheet .chat-option-action {
+    min-height: 52px;
+    padding: 13px 15px 13px 17px;
+    border-radius: 14px;
+    font-size: 1rem;
+  }
+
+  .mobile-chat-options-sheet .chat-option-action + .chat-option-action {
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+  }
+
+  .mobile-chat-options-sheet .chat-option-action:first-child {
+    border-radius: 14px 14px 0 0;
+  }
+
+  .mobile-chat-options-sheet .chat-option-action:last-child {
+    border-radius: 0 0 14px 14px;
+  }
+
+  :root.light-mode .chat-options-backdrop {
+    background: rgba(63, 48, 37, 0.38);
+  }
+
+  :root.light-mode .mobile-chat-focus,
+  :root.light-mode .mobile-chat-options-sheet {
+    background: rgba(250, 244, 236, 0.98);
+    border-color: rgba(83, 63, 42, 0.16);
+    box-shadow: 0 24px 64px rgba(72, 53, 35, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-options-trigger,
+  .chat-context-menu,
+  .chat-options-backdrop,
+  .mobile-chat-focus,
+  .mobile-chat-options-sheet,
+  .chat-option-action,
+  .chat-select {
+    transition-duration: 0.01ms !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4198,17 +4586,26 @@ html.privacy-shield-active .privacy-shield-overlay {
       <div class="sidebar-section">
         <div class="section-label">Recent</div>
         <div class="chat-list">
-          <button class="chat-item" type="button" data-chat-index="0" aria-pressed="false">
-            <span class="chat-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 1.5C4.015 1.5 1.5 3.574 1.5 6.25c0 1.13.45 2.168 1.2 2.988L2 12l3.13-1.04A6.1 6.1 0 0 0 7 11c2.985 0 5.5-2.074 5.5-4.75S9.985 1.5 7 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          <div class="chat-item" data-chat-index="0">
+            <button class="chat-select" type="button" data-chat-select aria-pressed="false">
+              <span class="chat-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 1.5C4.015 1.5 1.5 3.574 1.5 6.25c0 1.13.45 2.168 1.2 2.988L2 12l3.13-1.04A6.1 6.1 0 0 0 7 11c2.985 0 5.5-2.074 5.5-4.75S9.985 1.5 7 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="chat-copy">
+                <strong>UI Design</strong>
+                <span>Main conversation</span>
+              </span>
+            </button>
+            <button class="chat-options-trigger" type="button" data-chat-options-trigger aria-label="Chat options" aria-haspopup="menu" aria-expanded="false">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="5" r="1.35" fill="currentColor"></circle>
+                <circle cx="12" cy="12" r="1.35" fill="currentColor"></circle>
+                <circle cx="12" cy="19" r="1.35" fill="currentColor"></circle>
               </svg>
-            </span>
-            <span class="chat-copy">
-              <strong>UI Design</strong>
-              <span>Main conversation</span>
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
       </div>
     </aside>
@@ -4346,6 +4743,50 @@ html.privacy-shield-active .privacy-shield-overlay {
     </main>
   </div>
 
+  <div class="chat-options-backdrop" id="chatOptionsBackdrop" aria-hidden="true"></div>
+  <div class="mobile-chat-focus" id="mobileChatFocus" aria-hidden="true"></div>
+  <div class="mobile-chat-options-sheet" id="mobileChatOptionsSheet" role="dialog" aria-label="Chat options" aria-hidden="true">
+    <button class="chat-option-action is-delete" type="button" data-chat-option-action="delete">
+      <span>Delete Chat</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+      </svg>
+    </button>
+    <button class="chat-option-action" type="button" data-chat-option-action="rename">
+      <span>Rename Chat</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m4 16.5-.8 4.3 4.3-.8L19 8.5a2.8 2.8 0 0 0-4-4L4 16.5Z"></path><path d="m13.7 5.8 4.5 4.5"></path>
+      </svg>
+    </button>
+    <button class="chat-option-action" type="button" data-chat-option-action="pin">
+      <span>Pin Chat</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m14.5 3 6.5 6.5-3 1-3.5 3.5 1 3-1.5 1.5-4.5-4.5-5.5 5.5-1-1 5.5-5.5-4.5-4.5L6 4l3 1L12.5 1.5l2 1.5Z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-context-menu" id="chatContextMenu" role="menu" aria-label="Chat options" aria-hidden="true">
+    <button class="chat-option-action is-delete" type="button" role="menuitem" data-chat-option-action="delete">
+      <span>Delete Chat</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+      </svg>
+    </button>
+    <button class="chat-option-action" type="button" role="menuitem" data-chat-option-action="rename">
+      <span>Rename Chat</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m4 16.5-.8 4.3 4.3-.8L19 8.5a2.8 2.8 0 0 0-4-4L4 16.5Z"></path><path d="m13.7 5.8 4.5 4.5"></path>
+      </svg>
+    </button>
+    <button class="chat-option-action" type="button" role="menuitem" data-chat-option-action="pin">
+      <span>Pin Chat</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m14.5 3 6.5 6.5-3 1-3.5 3.5 1 3-1.5 1.5-4.5-4.5-5.5 5.5-1-1 5.5-5.5-4.5-4.5L6 4l3 1L12.5 1.5l2 1.5Z"></path>
+      </svg>
+    </button>
+  </div>
+
   <div class="share-popover" id="sharePopover" aria-hidden="true">
     <div class="share-card" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
       <div class="share-card-header">
@@ -4474,6 +4915,7 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
    function toggleSidebar() {
       closeModeDropdowns();
+      closeChatOptions();
       sidebar.classList.toggle("collapsed");
       if (mobileQuery.matches) {
         mobileOverlay.classList.toggle("active", !sidebar.classList.contains("collapsed"));
@@ -4682,7 +5124,6 @@ html.privacy-shield-active .privacy-shield-overlay {
       conv.locked = privacyLockedChatIds.has(conv.id) ? false : true;
     });
 
-    const chatButtons = document.querySelectorAll(".chat-item[data-chat-index]");
     const newChatButton = document.querySelector(".new-chat");
     const conversationTitle = document.getElementById("conversationTitle");
     const messages = document.getElementById("messages");
@@ -4696,6 +5137,10 @@ html.privacy-shield-active .privacy-shield-overlay {
     const sidebar = document.getElementById("sidebar");
     const mobileOverlay = document.getElementById("mobileOverlay");
     const mobileQuery = window.matchMedia("(max-width: 900px)");
+    const chatOptionsBackdrop = document.getElementById("chatOptionsBackdrop");
+    const mobileChatFocus = document.getElementById("mobileChatFocus");
+    const mobileChatOptionsSheet = document.getElementById("mobileChatOptionsSheet");
+    const chatContextMenu = document.getElementById("chatContextMenu");
     const modeDropdowns = document.querySelectorAll("[data-mode-dropdown]");
     const modeLabels = document.querySelectorAll("[data-mode-label]");
     const modeOptions = document.querySelectorAll("[data-mode-option]");
@@ -4704,6 +5149,9 @@ html.privacy-shield-active .privacy-shield-overlay {
     let currentMode = "Minimal AI";
     let startScreenDraft = "";
     let isSharedChatView = false;
+    let longPressTimer = null;
+    let suppressChatClickUntil = 0;
+    let openChatOptionsTrigger = null;
 
    const startScreenMarkup = `
       <div class="start-screen">
@@ -5071,7 +5519,10 @@ html.privacy-shield-active .privacy-shield-overlay {
       currentChatButtons.forEach((button) => {
         const isActive = Number(button.dataset.chatIndex) === nextIndex;
         button.classList.toggle("active", isActive);
-        button.setAttribute("aria-pressed", String(isActive));
+        const chatSelect = button.querySelector("[data-chat-select]");
+        if (chatSelect) {
+          chatSelect.setAttribute("aria-pressed", String(isActive));
+        }
       });
 
       newChatButton.classList.toggle("active", nextIndex === -1);
@@ -5133,12 +5584,14 @@ html.privacy-shield-active .privacy-shield-overlay {
       if (!mobileQuery.matches) return;
 
       closeModeDropdowns();
+      closeChatOptions();
       sidebar.classList.add("collapsed");
       mobileOverlay.classList.remove("active");
     }
 
     function syncSidebarToViewport() {
       closeModeDropdowns();
+      closeChatOptions();
       if (mobileQuery.matches) {
         sidebar.classList.add("collapsed");
         mobileOverlay.classList.remove("active");
@@ -5148,6 +5601,143 @@ html.privacy-shield-active .privacy-shield-overlay {
       }
 
     fitConversationTitle();
+    }
+
+    function closeDesktopChatOptions() {
+      if (!chatContextMenu) return;
+
+      chatContextMenu.classList.remove("is-open");
+      chatContextMenu.setAttribute("aria-hidden", "true");
+      if (openChatOptionsTrigger) {
+        openChatOptionsTrigger.setAttribute("aria-expanded", "false");
+      }
+      openChatOptionsTrigger = null;
+    }
+
+    function closeMobileChatOptions() {
+      if (!mobileChatOptionsSheet || !mobileChatOptionsSheet.classList.contains("is-visible")) return;
+
+      chatOptionsBackdrop.classList.remove("is-visible");
+      mobileChatFocus.classList.remove("is-visible");
+      mobileChatOptionsSheet.classList.remove("is-visible");
+      mobileChatFocus.setAttribute("aria-hidden", "true");
+      mobileChatOptionsSheet.setAttribute("aria-hidden", "true");
+
+      window.setTimeout(() => {
+        if (!mobileChatOptionsSheet.classList.contains("is-visible")) {
+          mobileChatFocus.innerHTML = "";
+        }
+      }, 460);
+    }
+
+    function closeChatOptions() {
+      closeDesktopChatOptions();
+      closeMobileChatOptions();
+    }
+
+    function openMobileChatOptions(chatItem) {
+      if (!mobileQuery.matches || !chatItem) return;
+
+      const chatSelect = chatItem.querySelector("[data-chat-select]");
+      if (!chatSelect) return;
+
+      const rect = chatSelect.getBoundingClientRect();
+      mobileChatFocus.style.setProperty("--chat-focus-left", `${Math.round(rect.left)}px`);
+      mobileChatFocus.style.setProperty("--chat-focus-top", `${Math.round(rect.top)}px`);
+      mobileChatFocus.style.setProperty("--chat-focus-width", `${Math.round(rect.width)}px`);
+      mobileChatFocus.style.setProperty("--chat-focus-height", `${Math.round(rect.height)}px`);
+      mobileChatFocus.innerHTML = chatSelect.innerHTML;
+      mobileChatFocus.setAttribute("aria-hidden", "false");
+      mobileChatOptionsSheet.setAttribute("aria-hidden", "false");
+      chatOptionsBackdrop.classList.add("is-visible");
+
+      requestAnimationFrame(() => {
+        mobileChatFocus.classList.add("is-visible");
+        mobileChatOptionsSheet.classList.add("is-visible");
+      });
+    }
+
+    function openDesktopChatOptions(chatItem, trigger) {
+      if (mobileQuery.matches || !chatContextMenu || !chatItem || !trigger) return;
+
+      if (openChatOptionsTrigger === trigger && chatContextMenu.classList.contains("is-open")) {
+        closeDesktopChatOptions();
+        return;
+      }
+
+      closeDesktopChatOptions();
+      const rect = chatItem.getBoundingClientRect();
+      const menuWidth = 212;
+      const menuHeight = 154;
+      const left = Math.max(12, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 12));
+      const top = Math.max(12, Math.min(rect.bottom + 8, window.innerHeight - menuHeight - 12));
+
+      chatContextMenu.style.left = `${Math.round(left)}px`;
+      chatContextMenu.style.top = `${Math.round(top)}px`;
+      chatContextMenu.classList.add("is-open");
+      chatContextMenu.setAttribute("aria-hidden", "false");
+      trigger.setAttribute("aria-expanded", "true");
+      openChatOptionsTrigger = trigger;
+    }
+
+    function bindSidebarChatItems() {
+      document.querySelectorAll(".chat-item[data-chat-index]").forEach((chatItem) => {
+        const chatSelect = chatItem.querySelector("[data-chat-select]");
+        const optionsTrigger = chatItem.querySelector("[data-chat-options-trigger]");
+        if (!chatSelect || chatSelect.dataset.optionsBound === "true") return;
+
+        chatSelect.dataset.optionsBound = "true";
+        chatSelect.addEventListener("click", (event) => {
+          if (Date.now() < suppressChatClickUntil) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+          switchChat(Number(chatItem.dataset.chatIndex));
+          collapseMobileSidebar();
+        });
+
+        let startX = 0;
+        let startY = 0;
+        const cancelLongPress = () => {
+          if (longPressTimer) {
+            window.clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+        };
+
+        chatSelect.addEventListener("pointerdown", (event) => {
+          if (!mobileQuery.matches || event.pointerType === "mouse" || (event.button !== undefined && event.button !== 0)) return;
+
+          cancelLongPress();
+          startX = event.clientX;
+          startY = event.clientY;
+          longPressTimer = window.setTimeout(() => {
+            longPressTimer = null;
+            suppressChatClickUntil = Date.now() + 520;
+            openMobileChatOptions(chatItem);
+          }, 460);
+        });
+
+        chatSelect.addEventListener("pointermove", (event) => {
+          if (Math.abs(event.clientX - startX) > 10 || Math.abs(event.clientY - startY) > 10) {
+            cancelLongPress();
+          }
+        });
+        chatSelect.addEventListener("pointerup", cancelLongPress);
+        chatSelect.addEventListener("pointercancel", cancelLongPress);
+        chatSelect.addEventListener("contextmenu", (event) => {
+          if (mobileQuery.matches) event.preventDefault();
+        });
+
+        if (optionsTrigger) {
+          optionsTrigger.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openDesktopChatOptions(chatItem, optionsTrigger);
+          });
+        }
+      });
     }
 
     function isMessagesNearBottom() {
@@ -5282,12 +5872,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       if (!mobileQuery.matches) document.querySelector(".composer-row input").focus();
     }
 
-    chatButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        switchChat(Number(button.dataset.chatIndex));
-        collapseMobileSidebar();
-      });
-    });
+    bindSidebarChatItems();
 
     newChatButton.addEventListener("click", () => {
       showNewChat();
@@ -5323,6 +5908,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       if (event.key === "Escape") {
         closeModeDropdowns();
         closeSharePopover();
+        closeChatOptions();
       }
     });
 
@@ -5356,6 +5942,14 @@ html.privacy-shield-active .privacy-shield-overlay {
     window.addEventListener("resize", fitConversationTitle);
     
     mobileOverlay.addEventListener("click", collapseMobileSidebar);
+    chatOptionsBackdrop.addEventListener("click", closeMobileChatOptions);
+    document.addEventListener("pointerdown", (event) => {
+      const clickedTrigger = event.target.closest("[data-chat-options-trigger]");
+      if (!clickedTrigger && !chatContextMenu.contains(event.target)) {
+        closeDesktopChatOptions();
+      }
+    });
+    window.addEventListener("resize", closeDesktopChatOptions);
 
 // --- Search Functionality Logic ---
     let searchMatches = [];
@@ -6006,27 +6600,30 @@ function renderSidebarList() {
     const preview = lastMessage.length > 25 ? `${lastMessage.substring(0, 25)}...` : lastMessage;
 
     return `
-      <button class="chat-item ${index === currentChatIndex ? 'active' : ''}" type="button" data-chat-index="${index}" aria-pressed="${index === currentChatIndex}">
-        <span class="chat-icon" aria-hidden="true">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1.5C4.015 1.5 1.5 3.574 1.5 6.25c0 1.13.45 2.168 1.2 2.988L2 12l3.13-1.04A6.1 6.1 0 0 0 7 11c2.985 0 5.5-2.074 5.5-4.75S9.985 1.5 7 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+      <div class="chat-item ${index === currentChatIndex ? 'active' : ''}" data-chat-index="${index}">
+        <button class="chat-select" type="button" data-chat-select aria-pressed="${index === currentChatIndex}">
+          <span class="chat-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1.5C4.015 1.5 1.5 3.574 1.5 6.25c0 1.13.45 2.168 1.2 2.988L2 12l3.13-1.04A6.1 6.1 0 0 0 7 11c2.985 0 5.5-2.074 5.5-4.75S9.985 1.5 7 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="chat-copy">
+            <strong>${escapeHTML(conv.title)}</strong>
+            <span>${escapeHTML(preview)}</span>
+          </span>
+        </button>
+        <button class="chat-options-trigger" type="button" data-chat-options-trigger aria-label="Chat options for ${escapeHTML(conv.title)}" aria-haspopup="menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="5" r="1.35" fill="currentColor"></circle>
+            <circle cx="12" cy="12" r="1.35" fill="currentColor"></circle>
+            <circle cx="12" cy="19" r="1.35" fill="currentColor"></circle>
           </svg>
-        </span>
-        <span class="chat-copy">
-          <strong>${escapeHTML(conv.title)}</strong>
-          <span>${escapeHTML(preview)}</span>
-        </span>
-      </button>
+        </button>
+      </div>
     `;
   }).join("");
 
-  const newChatButtons = document.querySelectorAll(".chat-item[data-chat-index]");
-  newChatButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      switchChat(Number(button.dataset.chatIndex));
-      collapseMobileSidebar();
-    });
-  });
+  bindSidebarChatItems();
 }
 
 // --- Chat Interaction Logic ---
