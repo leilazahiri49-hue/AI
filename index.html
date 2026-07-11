@@ -2007,6 +2007,13 @@
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.5s ease;
   transform-style: preserve-3d;
   font-weight: 500;
+  
+  /* --- NEW: Mobile Performance Fixes --- */
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .rotating-text.magic-quote {
