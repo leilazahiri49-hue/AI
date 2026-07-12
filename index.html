@@ -404,6 +404,19 @@
       align-items: center; 
       padding-right: 0;    
       overflow-x: hidden;
+      /* Collapsed rail is only ~42px wide — a visible scrollbar would eat into
+         that space and pull the centered icons off-axis as soon as the list
+         overflows. Scrolling still works via wheel/touch/keyboard; only the
+         (unnecessary, space-hungry) visual track is suppressed here so icon
+         centering stays constant whether or not the list is scrollable. */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .sidebar.collapsed .chat-list::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
     }
 
     .chat-item {
@@ -484,13 +497,31 @@
     .sidebar.collapsed .chat-item .chat-icon {
       width: 38px; 
       height: 38px;
+      flex: 0 0 38px;
       font-size: 0.9rem;
+      /* Inactive default: grey, normal size. */
+      color: var(--muted);
+      background: var(--line-strong);
     }
 
-    .sidebar.collapsed .chat-item.active .chat-icon,
     .sidebar.collapsed .chat-item:hover .chat-icon {
-      transform: translateY(-1px) scale(1.05); 
+      /* Preserve the existing subtle hover enlarge for inactive icons. */
+      transform: translateY(-1px) scale(1.05);
       filter: brightness(1.15);
+    }
+
+    .sidebar.collapsed .chat-item.active .chat-icon {
+      /* Active chat: keep the neon-blue accent, and make it stand out with a
+         slightly larger size so it's identifiable at a glance, independent
+         of hover state. This size (and the flex-basis override, needed
+         because .chat-icon's base "flex: 0 0 34px" otherwise wins over
+         width/height in the flex layout) persists as long as .active is on
+         the item — i.e. until the user switches to a different chat. */
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      color: var(--accent);
+      background: var(--accent-soft);
     }
 
     .chat-copy {
@@ -4256,6 +4287,29 @@ html.privacy-shield-active .privacy-shield-overlay {
   transform: translateY(-50%) scale(0.9);
 }
 
+/* Collapsed sidebar: the chat-select button IS the compact icon box, so it
+   must fit inside it exactly (no leftover padding reserved for the
+   three-dot trigger, which never appears here). This keeps the icon's
+   size/position fixed and prevents any overflow-driven scrollbar. */
+.sidebar.collapsed .chat-select {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  justify-content: center;
+  border-radius: var(--compact-radius);
+}
+
+.sidebar.collapsed .chat-select:hover,
+.sidebar.collapsed .chat-item.active .chat-select {
+  background: transparent;
+  border-color: transparent;
+}
+
+.sidebar.collapsed .chat-options-trigger {
+  display: none;
+}
+
 .chat-context-menu {
   position: fixed;
   z-index: 9002;
@@ -4542,6 +4596,28 @@ html.privacy-shield-active .privacy-shield-overlay {
   .chat-option-action,
   .chat-select {
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Mobile: remove card-like framing from the main chat panel ──
+   Drops the rounded corners, border, shadow, and surrounding gap around
+   the chat panel on phones/tablets so it fills the screen edge-to-edge
+   for a more space-efficient layout, instead of floating like a card.
+   Top/right/left padding still respects notch safe areas; the sidebar
+   drawer, desktop layout, and the composer's rounded input shape are
+   untouched. */
+@media (max-width: 900px) {
+  .app {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: 0;
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .main {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
@@ -5755,7 +5831,13 @@ html.privacy-shield-active .privacy-shield-overlay {
         chatSelect.addEventListener("pointerup", cancelLongPress);
         chatSelect.addEventListener("pointercancel", cancelLongPress);
         chatSelect.addEventListener("contextmenu", (event) => {
-          if (mobileQuery.matches) event.preventDefault();
+          event.preventDefault();
+          if (mobileQuery.matches) return;
+
+          cancelLongPress();
+          if (optionsTrigger) {
+            openDesktopChatOptions(chatItem, optionsTrigger);
+          }
         });
 
         if (optionsTrigger) {
