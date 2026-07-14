@@ -4848,10 +4848,14 @@ html.privacy-shield-active .privacy-shield-overlay {
   <div class="chat-options-backdrop" id="chatOptionsBackdrop" aria-hidden="true"></div>
   <div class="mobile-chat-focus" id="mobileChatFocus" aria-hidden="true"></div>
   <div class="mobile-chat-options-sheet" id="mobileChatOptionsSheet" role="dialog" aria-label="Chat options" aria-hidden="true">
-    <button class="chat-option-action is-delete" type="button" data-chat-option-action="delete">
-      <span>Delete Chat</span>
+    <button class="chat-option-action" type="button" data-chat-option-action="pin">
+      <span>Pin Chat</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+        <g transform="rotate(45 12 12)">
+          <path d="M8.5 5.5h7"></path>
+          <path d="M9.5 5.5v5L6.5 14h11l-3-3.5v-5"></path>
+          <path d="M12 14v5"></path>
+        </g>
       </svg>
     </button>
     <button class="chat-option-action" type="button" data-chat-option-action="rename">
@@ -4860,19 +4864,23 @@ html.privacy-shield-active .privacy-shield-overlay {
         <path d="m4 16.5-.8 4.3 4.3-.8L19 8.5a2.8 2.8 0 0 0-4-4L4 16.5Z"></path><path d="m13.7 5.8 4.5 4.5"></path>
       </svg>
     </button>
-    <button class="chat-option-action" type="button" data-chat-option-action="pin">
-      <span>Pin Chat</span>
+    <button class="chat-option-action is-delete" type="button" data-chat-option-action="delete">
+      <span>Delete Chat</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m14.5 3 6.5 6.5-3 1-3.5 3.5 1 3-1.5 1.5-4.5-4.5-5.5 5.5-1-1 5.5-5.5-4.5-4.5L6 4l3 1L12.5 1.5l2 1.5Z"></path>
+        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
       </svg>
     </button>
   </div>
 
   <div class="chat-context-menu" id="chatContextMenu" role="menu" aria-label="Chat options" aria-hidden="true">
-    <button class="chat-option-action is-delete" type="button" role="menuitem" data-chat-option-action="delete">
-      <span>Delete Chat</span>
+    <button class="chat-option-action" type="button" role="menuitem" data-chat-option-action="pin">
+      <span>Pin Chat</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+        <g transform="rotate(45 12 12)">
+          <path d="M8.5 5.5h7"></path>
+          <path d="M9.5 5.5v5L6.5 14h11l-3-3.5v-5"></path>
+          <path d="M12 14v5"></path>
+        </g>
       </svg>
     </button>
     <button class="chat-option-action" type="button" role="menuitem" data-chat-option-action="rename">
@@ -4881,10 +4889,10 @@ html.privacy-shield-active .privacy-shield-overlay {
         <path d="m4 16.5-.8 4.3 4.3-.8L19 8.5a2.8 2.8 0 0 0-4-4L4 16.5Z"></path><path d="m13.7 5.8 4.5 4.5"></path>
       </svg>
     </button>
-    <button class="chat-option-action" type="button" role="menuitem" data-chat-option-action="pin">
-      <span>Pin Chat</span>
+    <button class="chat-option-action is-delete" type="button" role="menuitem" data-chat-option-action="delete">
+      <span>Delete Chat</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m14.5 3 6.5 6.5-3 1-3.5 3.5 1 3-1.5 1.5-4.5-4.5-5.5 5.5-1-1 5.5-5.5-4.5-4.5L6 4l3 1L12.5 1.5l2 1.5Z"></path>
+        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
       </svg>
     </button>
   </div>
