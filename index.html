@@ -353,17 +353,104 @@
       gap: 10px;
       flex: 1; 
       min-height: 0; 
+      transition: gap 0.26s ease;
+    }
+
+    .sidebar-section.is-collapsed {
+      gap: 0;
+    }
+
+    /* Pinned Chats sizes to its content instead of sharing the flex-1 split
+       with Recent Chats — a couple of pinned items shouldn't squeeze the
+       rest of the list. If pins pile up, its own chat-list scrolls (see
+       below) instead of pushing Recent Chats off-screen. */
+    .sidebar-section.pinned-section {
+      flex: 0 0 auto;
+      min-height: 0;
+    }
+
+    .sidebar-section.pinned-section.is-empty {
+      display: none;
+    }
+
+    .pinned-section .chat-list {
+      max-height: 216px;
+    }
+
+    .pinned-section .section-content {
+      flex: 0 0 auto;
     }
 
     .section-label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      width: 100%;
       padding: 0 4px;
+      border: 0;
+      background: transparent;
       color: var(--muted);
       font-size: 0.74rem;
+      font-family: inherit;
+      font-weight: inherit;
       letter-spacing: 0.08em;
+      line-height: 20px;
+      text-align: left;
       text-transform: uppercase;
-      transition: opacity 0.16s ease, max-height 0.24s ease, margin 0.24s ease;
+      cursor: pointer;
+      transition: opacity 0.16s ease, max-height 0.24s ease, margin 0.24s ease, color 0.18s ease;
       overflow: hidden;
       max-height: 20px;
+    }
+
+    .section-label:hover,
+    .section-label:focus-visible {
+      color: var(--text);
+      outline: none;
+    }
+
+    .section-label:focus-visible {
+      border-radius: 6px;
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .section-toggle-arrow {
+      flex: 0 0 auto;
+      width: 13px;
+      height: 13px;
+      opacity: 0;
+      transform: rotate(0deg);
+      transition: opacity 0.18s ease, transform 0.26s ease;
+    }
+
+    .section-label:hover .section-toggle-arrow,
+    .section-label:focus-visible .section-toggle-arrow,
+    .sidebar-section.is-collapsed .section-toggle-arrow {
+      opacity: 1;
+    }
+
+    .sidebar-section.is-collapsed .section-toggle-arrow {
+      transform: rotate(-90deg);
+    }
+
+    .section-content {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr);
+      flex: 1;
+      min-height: 0;
+      opacity: 1;
+      transition: grid-template-rows 0.28s ease, opacity 0.2s ease;
+    }
+
+    .section-content > .chat-list {
+      min-height: 0;
+    }
+
+    .sidebar-section.is-collapsed .section-content {
+      grid-template-rows: 0fr;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .sidebar.collapsed .section-label {
@@ -4707,9 +4794,27 @@ html.privacy-shield-active .privacy-shield-overlay {
         <span class="new-chat-text">New chat</span>
       </button>
 
-      <div class="sidebar-section">
-        <div class="section-label">Recent</div>
-        <div class="chat-list">
+      <div class="sidebar-section pinned-section is-empty" id="pinnedSection">
+        <button class="section-label section-toggle" type="button" data-section-toggle="pinned" aria-expanded="true" aria-controls="pinnedChatList">
+          <span>Pinned Chats</span>
+          <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="section-content">
+          <div class="chat-list" id="pinnedChatList"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section" id="recentSection">
+        <button class="section-label section-toggle" type="button" data-section-toggle="recent" aria-expanded="true" aria-controls="recentChatList">
+          <span>Recent Chats</span>
+          <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="section-content">
+          <div class="chat-list" id="recentChatList">
           <div class="chat-item" data-chat-index="0">
             <button class="chat-select" type="button" data-chat-select aria-pressed="false">
               <span class="chat-icon" aria-hidden="true">
@@ -4731,6 +4836,7 @@ html.privacy-shield-active .privacy-shield-overlay {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </aside>
 
@@ -5775,6 +5881,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       if (!chatSelect) return;
 
       chatOptionsContextItem = chatItem;
+      updatePinActionLabel(chatItem);
 
       const rect = chatSelect.getBoundingClientRect();
       mobileChatFocus.style.setProperty("--chat-focus-left", `${Math.round(rect.left)}px`);
@@ -5802,6 +5909,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       closeDesktopChatOptions();
       chatOptionsContextItem = chatItem;
+      updatePinActionLabel(chatItem);
       const rect = chatItem.getBoundingClientRect();
       const menuWidth = 212;
       const menuHeight = 154;
@@ -5986,6 +6094,33 @@ html.privacy-shield-active .privacy-shield-overlay {
       // Give the menu-closing animation/state a tick to settle before we
       // swap the title into an input (matters most on the mobile sheet).
       requestAnimationFrame(() => startRenamingChat(chatItem));
+    }
+
+    // --- Pin / Unpin Chat (three-dot menu) ---
+    // Updates the "Pin Chat" / "Unpin Chat" label (and aria-label) on both
+    // the desktop context menu and the mobile options sheet, based on
+    // whichever chat the menu is currently open for.
+    function updatePinActionLabel(chatItem) {
+      if (!chatItem) return;
+      const index = Number(chatItem.dataset.chatIndex);
+      const conv = conversations[index];
+      const isPinned = !!(conv && conv.pinned);
+      const label = isPinned ? "Unpin Chat" : "Pin Chat";
+
+      document.querySelectorAll('[data-chat-option-action="pin"]').forEach((pinButton) => {
+        const span = pinButton.querySelector("span");
+        if (span) span.textContent = label;
+        pinButton.setAttribute("aria-label", label);
+      });
+    }
+
+    function togglePinChat(chatItem) {
+      if (!chatItem) return;
+      const index = Number(chatItem.dataset.chatIndex);
+      if (Number.isNaN(index) || !conversations[index]) return;
+
+      conversations[index].pinned = !conversations[index].pinned;
+      renderSidebarList();
     }
 
     function isMessagesNearBottom() {
@@ -6207,6 +6342,17 @@ html.privacy-shield-active .privacy-shield-overlay {
         const targetChatItem = chatOptionsContextItem;
         closeChatOptions();
         requestRenameChat(targetChatItem);
+      });
+    });
+
+    document.querySelectorAll('[data-chat-option-action="pin"]').forEach((pinButton) => {
+      pinButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const targetChatItem = chatOptionsContextItem;
+        closeChatOptions();
+        togglePinChat(targetChatItem);
       });
     });
 
@@ -6850,15 +6996,69 @@ function startRotatingText() {
 
 } // <-- This closes your startRotatingText function!
 
+const CHAT_SECTION_STATE_STORAGE_KEY = "spark-chat-section-state";
+
+function loadChatSectionState() {
+  const defaultState = { pinned: true, recent: true };
+
+  try {
+    const raw = readPersistedValue(CHAT_SECTION_STATE_STORAGE_KEY);
+    const savedState = raw ? JSON.parse(raw) : {};
+    return {
+      pinned: savedState && savedState.pinned === false ? false : defaultState.pinned,
+      recent: savedState && savedState.recent === false ? false : defaultState.recent
+    };
+  } catch (error) {
+    return defaultState;
+  }
+}
+
+let chatSectionState = loadChatSectionState();
+
+function applyChatSectionState(sectionName) {
+  const section = document.getElementById(`${sectionName}Section`);
+  const toggle = section ? section.querySelector("[data-section-toggle]") : null;
+  const content = section ? section.querySelector(".section-content") : null;
+  if (!section || !toggle || !content) return;
+
+  const isExpanded = chatSectionState[sectionName] !== false;
+  section.classList.toggle("is-collapsed", !isExpanded);
+  toggle.setAttribute("aria-expanded", String(isExpanded));
+  content.setAttribute("aria-hidden", String(!isExpanded));
+  content.inert = !isExpanded;
+}
+
+function toggleChatSection(sectionName) {
+  chatSectionState[sectionName] = !(chatSectionState[sectionName] !== false);
+  applyChatSectionState(sectionName);
+  writePersistedValue(CHAT_SECTION_STATE_STORAGE_KEY, JSON.stringify(chatSectionState));
+}
+
+function bindChatSectionToggles() {
+  document.querySelectorAll("[data-section-toggle]").forEach((toggle) => {
+    if (toggle.dataset.sectionToggleBound === "true") return;
+
+    toggle.dataset.sectionToggleBound = "true";
+    toggle.addEventListener("click", () => {
+      toggleChatSection(toggle.dataset.sectionToggle);
+    });
+  });
+}
+
 // --- Dynamic Sidebar Rendering ---
 function renderSidebarList() {
-  const chatList = document.querySelector(".chat-list");
-  
-  chatList.innerHTML = conversations.map((conv, index) => {
+  const pinnedSection = document.getElementById("pinnedSection");
+  const pinnedList = document.getElementById("pinnedChatList");
+  const recentList = document.getElementById("recentChatList");
+
+  const pinnedItems = [];
+  const recentItems = [];
+
+  conversations.forEach((conv, index) => {
     const lastMessage = conv.messages.length > 0 ? conv.messages[conv.messages.length - 1].text : "New chat";
     const preview = lastMessage.length > 25 ? `${lastMessage.substring(0, 25)}...` : lastMessage;
 
-    return `
+    const itemHTML = `
       <div class="chat-item ${index === currentChatIndex ? 'active' : ''}" data-chat-index="${index}">
         <button class="chat-select" type="button" data-chat-select aria-pressed="${index === currentChatIndex}">
           <span class="chat-icon" aria-hidden="true">
@@ -6880,10 +7080,27 @@ function renderSidebarList() {
         </button>
       </div>
     `;
-  }).join("");
 
+    if (conv.pinned) {
+      pinnedItems.push(itemHTML);
+    } else {
+      recentItems.push(itemHTML);
+    }
+  });
+
+  pinnedList.innerHTML = pinnedItems.join("");
+  recentList.innerHTML = recentItems.join("");
+  pinnedSection.classList.toggle("is-empty", pinnedItems.length === 0);
+
+  bindChatSectionToggles();
+  applyChatSectionState("pinned");
+  applyChatSectionState("recent");
   bindSidebarChatItems();
 }
+
+bindChatSectionToggles();
+applyChatSectionState("pinned");
+applyChatSectionState("recent");
 
 // --- Chat Interaction Logic ---
 const chatInput = document.querySelector(".composer-row input");
