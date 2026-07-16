@@ -139,13 +139,11 @@
       padding: 18px;
       border: 1px solid var(--line);
       border-radius: 24px;
-      background: rgb(10, 15, 26);
+      background: rgba(10, 15, 26, 0.94);
       box-shadow: var(--shadow);
       overflow: hidden;
       position: relative;
-      z-index: 150; /* Above floating UI (.jump-bottom: 85, .search-navigator: 100) so the
-                       open sidebar always covers them; still below real overlays like
-                       .share-popover (300) and .modal-overlay (1000). */
+      z-index: 30;
       -webkit-transform: translateZ(0); /* Force GPU layer on iOS */
       transform: translateZ(0);
       will-change: transform;
@@ -396,17 +394,14 @@
       font-size: 0.74rem;
       font-family: inherit;
       font-weight: inherit;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.08em;
       line-height: 20px;
       text-align: left;
+      text-transform: uppercase;
       cursor: pointer;
       transition: opacity 0.16s ease, max-height 0.24s ease, margin 0.24s ease, color 0.18s ease;
       overflow: hidden;
       max-height: 20px;
-    }
-
-    .section-label b {
-      font-weight: 600;
     }
 
     .section-label:hover,
@@ -1174,16 +1169,6 @@
       pointer-events: auto;
       transform: translateX(-50%) translateY(0) scale(1);
     }
-
-    /* Match the mobile background treatment while the sidebar is open. */
-    @media (max-width: 900px) {
-      .sidebar:not(.collapsed) ~ .main .search-navigator {
-        filter: blur(8px) brightness(0.62) saturate(0.78);
-        pointer-events: none !important;
-        user-select: none;
-        -webkit-user-select: none;
-      }
-    }
     .search-navigator .nav-btn,
     .search-navigator .nav-btn:hover,
     .search-navigator .nav-btn:focus-visible {
@@ -1764,7 +1749,7 @@
       .sidebar {
         width: min(250px, calc(100vw - 96px));
         position: absolute;
-        z-index: 150; /* Keep in sync with the base .sidebar z-index above */
+        z-index: 30;
         top: 8px;
         left: 8px;
         height: calc(100% - 16px);
@@ -2268,6 +2253,121 @@
 
 .modal-overlay.active .modal-box {
   transform: translateY(0) scale(1);
+}
+
+/* Delete confirmation */
+.delete-confirm-overlay {
+  z-index: 1100;
+}
+
+.modal-box.delete-confirm-box {
+  width: min(420px, calc(100vw - 32px));
+  max-height: none;
+  padding: 28px;
+  gap: 20px;
+  text-align: left;
+}
+
+.delete-confirm-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: #ff7773;
+  background: rgba(255, 119, 115, 0.12);
+  border: 1px solid rgba(255, 119, 115, 0.2);
+}
+
+.delete-confirm-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.delete-confirm-copy h2 {
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 1.22rem;
+  line-height: 1.25;
+}
+
+.delete-confirm-copy p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.delete-confirm-actions button {
+  min-width: 92px;
+  min-height: 40px;
+  padding: 9px 15px;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.14s ease, filter 0.16s ease;
+}
+
+.delete-confirm-cancel {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.delete-confirm-cancel:hover,
+.delete-confirm-cancel:focus-visible {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: var(--line-strong);
+  outline: none;
+}
+
+.delete-confirm-delete {
+  color: #1a0808;
+  background: #ff7773;
+  border-color: #ff7773 !important;
+}
+
+.delete-confirm-delete:hover,
+.delete-confirm-delete:focus-visible {
+  filter: brightness(1.08);
+  outline: none;
+}
+
+.delete-confirm-actions button:active {
+  transform: scale(0.97);
+}
+
+:root.light-mode .delete-confirm-cancel {
+  color: var(--text);
+  background: rgba(83, 63, 42, 0.05);
+}
+
+:root.light-mode .delete-confirm-cancel:hover,
+:root.light-mode .delete-confirm-cancel:focus-visible {
+  background: rgba(83, 63, 42, 0.1);
+  border-color: rgba(83, 63, 42, 0.16);
+}
+
+@media (max-width: 640px) {
+  .modal-box.delete-confirm-box {
+    padding: 23px;
+    border-radius: 20px;
+  }
+
+  .delete-confirm-actions {
+    width: 100%;
+  }
+
+  .delete-confirm-actions button {
+    flex: 1;
+  }
 }
 
 .skip-btn, .back-btn {
@@ -2804,7 +2904,7 @@ input.slider-value-display[type=number] {
         linear-gradient(180deg, #e9dfd2 0%, #f1e9df 100%);
     }
     :root.light-mode .sidebar {
-      background: rgb(246, 239, 230);
+      background: rgba(246, 239, 230, 0.96);
     }
     :root.light-mode .main {
       background: rgba(250, 244, 236, 0.96);
@@ -4333,6 +4433,13 @@ html.privacy-shield-active .privacy-shield-overlay {
   border-color: transparent;
 }
 
+.chat-item.is-deleting {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-18px) scale(0.97) !important;
+  transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .chat-select {
   display: flex;
   align-items: center;
@@ -4811,7 +4918,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       <div class="sidebar-section pinned-section is-empty" id="pinnedSection">
         <button class="section-label section-toggle" type="button" data-section-toggle="pinned" aria-expanded="true" aria-controls="pinnedChatList">
-          <span><b>Pinned</b></span>
+          <span>Pinned Chats</span>
           <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -4823,7 +4930,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       <div class="sidebar-section" id="recentSection">
         <button class="section-label section-toggle" type="button" data-section-toggle="recent" aria-expanded="true" aria-controls="recentChatList">
-          <span><b>Recent</b></span>
+          <span>Recent Chats</span>
           <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -5061,6 +5168,24 @@ html.privacy-shield-active .privacy-shield-overlay {
     </div>
   </div>
 
+  <div class="modal-overlay delete-confirm-overlay" id="deleteConfirmOverlay" aria-hidden="true" inert>
+    <div class="modal-box delete-confirm-box" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmMessage">
+      <div class="delete-confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+        </svg>
+      </div>
+      <div class="delete-confirm-copy">
+        <h2 id="deleteConfirmTitle">Delete chat?</h2>
+        <p id="deleteConfirmMessage">This will permanently remove this conversation and make its shared link unavailable on this device.</p>
+      </div>
+      <div class="delete-confirm-actions">
+        <button class="delete-confirm-cancel" id="cancelDeleteButton" type="button">Cancel</button>
+        <button class="delete-confirm-delete" id="confirmDeleteButton" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <div class="privacy-shield-overlay" id="privacyShieldOverlay" aria-hidden="true">
     <div class="privacy-shield-overlay-card">
       <div class="locked-chat-icon">
@@ -5170,7 +5295,6 @@ html.privacy-shield-active .privacy-shield-overlay {
       closeModeDropdowns();
       closeChatOptions();
       sidebar.classList.toggle("collapsed");
-      syncSearchNavigatorSidebarState();
       if (mobileQuery.matches) {
         mobileOverlay.classList.toggle("active", !sidebar.classList.contains("collapsed"));
       }
@@ -5369,6 +5493,27 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
 
     let privacyLockedChatIds = loadPrivacyLockedIds();
+    const DELETED_CHAT_STORAGE_KEY = "spark-deleted-chat-ids";
+
+    function loadDeletedChatIds() {
+      try {
+        const raw = readPersistedValue(DELETED_CHAT_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(parsed) ? parsed : []);
+      } catch (error) {
+        return new Set();
+      }
+    }
+
+    function saveDeletedChatIds(idSet) {
+      try {
+        writePersistedValue(DELETED_CHAT_STORAGE_KEY, JSON.stringify(Array.from(idSet)));
+      } catch (error) {
+        // The in-memory set still protects this tab if storage is unavailable.
+      }
+    }
+
+    let deletedChatIds = loadDeletedChatIds();
 
     // Bring every seeded conversation's `locked` flag in line with whatever
     // was persisted from a previous visit, so a chat that was locked before
@@ -5378,6 +5523,13 @@ html.privacy-shield-active .privacy-shield-overlay {
       conv.locked = privacyLockedChatIds.has(conv.id) ? false : true;
     });
 
+    // Deleted chats are tombstoned so they do not reappear on the next load.
+    for (let index = conversations.length - 1; index >= 0; index -= 1) {
+      if (deletedChatIds.has(conversations[index].id)) {
+        conversations.splice(index, 1);
+      }
+    }
+
     const newChatButton = document.querySelector(".new-chat");
     const conversationTitle = document.getElementById("conversationTitle");
     const messages = document.getElementById("messages");
@@ -5385,9 +5537,14 @@ html.privacy-shield-active .privacy-shield-overlay {
     const sharePopover = document.getElementById("sharePopover");
     const shareLinkInput = document.getElementById("shareLinkInput");
     const copyShareLinkButton = document.getElementById("copyShareLinkBtn");
-    const shareCloseButton = document.getElementById("shareCloseBtn");
-    const shareStatus = document.getElementById("shareStatus");
-   const jumpBottomButton = document.getElementById("jumpBottomButton");
+     const shareCloseButton = document.getElementById("shareCloseBtn");
+     const shareStatus = document.getElementById("shareStatus");
+     const deleteConfirmOverlay = document.getElementById("deleteConfirmOverlay");
+     const deleteConfirmTitle = document.getElementById("deleteConfirmTitle");
+     const deleteConfirmMessage = document.getElementById("deleteConfirmMessage");
+     const cancelDeleteButton = document.getElementById("cancelDeleteButton");
+     const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+    const jumpBottomButton = document.getElementById("jumpBottomButton");
     const sidebar = document.getElementById("sidebar");
     const mobileOverlay = document.getElementById("mobileOverlay");
     const mobileQuery = window.matchMedia("(max-width: 900px)");
@@ -5407,6 +5564,9 @@ html.privacy-shield-active .privacy-shield-overlay {
     let suppressChatClickUntil = 0;
     let openChatOptionsTrigger = null;
     let chatOptionsContextItem = null;
+    let pendingDeleteConversationId = null;
+    let pendingDeleteChatItem = null;
+    let deleteConfirmReturnTarget = null;
 
    const startScreenMarkup = `
       <div class="start-screen">
@@ -5606,6 +5766,11 @@ html.privacy-shield-active .privacy-shield-overlay {
       return Boolean(payload.convId) && privacyLockedChatIds.has(payload.convId);
     }
 
+    function isSharedPayloadDeleted(payload) {
+      if (!payload || !payload.convId) return false;
+      return deletedChatIds.has(payload.convId);
+    }
+
     function showShareStatus(message, isError) {
       if (!shareStatus) return;
       shareStatus.textContent = message || "";
@@ -5762,6 +5927,44 @@ html.privacy-shield-active .privacy-shield-overlay {
       if (sendButton) sendButton.disabled = true;
     }
 
+    // Deleted shared links remain unavailable on this origin after the source
+    // chat is removed. No conversation content is rendered here.
+    function renderDeletedSharedChat() {
+      isSharedChatView = true;
+      document.documentElement.classList.add("shared-chat-mode");
+
+      const onboardingModal = document.getElementById("onboardingModal");
+      if (onboardingModal) onboardingModal.style.display = "none";
+
+      conversationTitle.textContent = "Chat deleted";
+      fitConversationTitle();
+
+      messages.classList.add("start-mode");
+      messages.innerHTML = `
+        <div class="start-screen">
+          <div class="start-panel">
+            <div class="locked-chat-icon delete-confirm-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+              </svg>
+            </div>
+            <h2>Chat deleted</h2>
+            <p>This conversation is no longer available through this shared link.</p>
+          </div>
+        </div>
+      `;
+      messages.scrollTop = 0;
+
+      const input = document.getElementById("chatInput");
+      const sendButton = document.querySelector(".send-button");
+      if (input) {
+        input.disabled = true;
+        input.setAttribute("aria-readonly", "true");
+        input.placeholder = "This shared chat is unavailable";
+      }
+      if (sendButton) sendButton.disabled = true;
+    }
+
     function setActiveChat(nextIndex) {
       // Close search if it's open when changing chats
       if (typeof closeSearch === 'function') {
@@ -5842,7 +6045,6 @@ html.privacy-shield-active .privacy-shield-overlay {
       closeChatOptions();
       sidebar.classList.add("collapsed");
       mobileOverlay.classList.remove("active");
-      syncSearchNavigatorSidebarState();
     }
 
     function syncSidebarToViewport() {
@@ -5855,8 +6057,6 @@ html.privacy-shield-active .privacy-shield-overlay {
         sidebar.classList.remove("collapsed");
         mobileOverlay.classList.remove("active");
       }
-
-      syncSearchNavigatorSidebarState();
 
     fitConversationTitle();
     }
@@ -5891,6 +6091,90 @@ html.privacy-shield-active .privacy-shield-overlay {
     function closeChatOptions() {
       closeDesktopChatOptions();
       closeMobileChatOptions();
+    }
+
+    function closeDeleteConfirmation(restoreFocus = true) {
+      if (!deleteConfirmOverlay) return;
+
+      const returnTarget = deleteConfirmReturnTarget;
+      deleteConfirmOverlay.classList.remove("active");
+      deleteConfirmOverlay.setAttribute("aria-hidden", "true");
+      deleteConfirmOverlay.inert = true;
+      pendingDeleteConversationId = null;
+      pendingDeleteChatItem = null;
+      deleteConfirmReturnTarget = null;
+
+      if (restoreFocus && returnTarget && document.contains(returnTarget)) {
+        returnTarget.focus();
+      }
+    }
+
+    function openDeleteConfirmation(chatItem) {
+      if (!chatItem || !deleteConfirmOverlay) return;
+
+      const index = Number(chatItem.dataset.chatIndex);
+      if (Number.isNaN(index) || !conversations[index]) return;
+
+      const conversation = conversations[index];
+      pendingDeleteConversationId = ensureConversationId(conversation);
+      pendingDeleteChatItem = chatItem;
+      deleteConfirmReturnTarget = chatItem.querySelector("[data-chat-options-trigger]") || chatItem.querySelector("[data-chat-select]");
+      if (deleteConfirmTitle) {
+        deleteConfirmTitle.textContent = `Delete "${conversation.title || "this chat"}"?`;
+      }
+      if (deleteConfirmMessage) {
+        deleteConfirmMessage.textContent = "This will permanently remove the conversation and make its shared link unavailable on this device.";
+      }
+
+      deleteConfirmOverlay.inert = false;
+      deleteConfirmOverlay.classList.add("active");
+      deleteConfirmOverlay.setAttribute("aria-hidden", "false");
+      window.requestAnimationFrame(() => {
+        if (confirmDeleteButton) confirmDeleteButton.focus();
+      });
+    }
+
+    function deleteConversationById(conversationId) {
+      if (!conversationId) return;
+
+      const index = conversations.findIndex((conversation) => conversation.id === conversationId);
+      if (index < 0 || !conversations[index]) return;
+
+      const deletedConversation = conversations[index];
+      const deletingActiveChat = index === currentChatIndex;
+
+      deletedChatIds.add(conversationId);
+      saveDeletedChatIds(deletedChatIds);
+      privacyLockedChatIds.delete(conversationId);
+      savePrivacyLockedIds(privacyLockedChatIds);
+
+      // Clear the in-memory history before dropping the conversation reference.
+      if (Array.isArray(deletedConversation.messages)) {
+        deletedConversation.messages.length = 0;
+      }
+      deletedConversation.draft = "";
+      deletedConversation.scrollPosition = 0;
+      conversations.splice(index, 1);
+      chatOptionsContextItem = null;
+
+      if (deletingActiveChat) {
+        currentChatIndex = -1;
+        isSwitching = false;
+        startScreenDraft = "";
+        const input = document.querySelector(".composer-row input");
+        if (input) input.value = "";
+        renderSidebarList();
+        setActiveChat(-1);
+        renderStartScreen();
+      } else {
+        if (index < currentChatIndex) currentChatIndex -= 1;
+        renderSidebarList();
+        setActiveChat(currentChatIndex);
+      }
+
+      if (sharePopover && sharePopover.classList.contains("open")) {
+        closeSharePopover();
+      }
     }
 
     function openMobileChatOptions(chatItem) {
@@ -6102,38 +6386,16 @@ html.privacy-shield-active .privacy-shield-overlay {
       input.addEventListener("pointerdown", (event) => event.stopPropagation());
       input.addEventListener("pointerup", (event) => event.stopPropagation());
 
-      if (mobileQuery.matches) {
-        // Mobile: focus/select synchronously, in the same tick as the tap
-        // that triggered renaming. Phone browsers only auto-open the
-        // on-screen keyboard when focus() happens as part of the original
-        // user gesture — deferring it even one frame (via rAF/setTimeout)
-        // means the field visually focuses but the keyboard never appears,
-        // forcing a second tap. Calling it here, synchronously, is what
-        // lets typing start immediately with the name pre-selected.
+      requestAnimationFrame(() => {
         input.focus();
         input.select();
-      } else {
-        requestAnimationFrame(() => {
-          input.focus();
-          input.select();
-        });
-      }
+      });
     }
 
     function requestRenameChat(chatItem) {
       if (!chatItem) return;
-      if (mobileQuery.matches) {
-        // Start renaming in this same tick (no rAF) so the focus()/select()
-        // call inside startRenamingChat stays tied to the tap gesture and
-        // the keyboard opens automatically. The sheet/backdrop close via
-        // CSS transitions triggered above and keep animating regardless —
-        // their pointer-events already drop instantly, so swapping the
-        // title into an input right away doesn't interrupt anything.
-        startRenamingChat(chatItem);
-        return;
-      }
-      // Desktop: give the menu-closing animation/state a tick to settle
-      // before we swap the title into an input.
+      // Give the menu-closing animation/state a tick to settle before we
+      // swap the title into an input (matters most on the mobile sheet).
       requestAnimationFrame(() => startRenamingChat(chatItem));
     }
 
@@ -6160,8 +6422,18 @@ html.privacy-shield-active .privacy-shield-overlay {
       const index = Number(chatItem.dataset.chatIndex);
       if (Number.isNaN(index) || !conversations[index]) return;
 
+      const previousSidebarPositions = captureSidebarChatPositions();
+      const sidebarMoveFlight = prepareSidebarChatFlight(
+        chatItem,
+        previousSidebarPositions.get(String(index))
+      );
       conversations[index].pinned = !conversations[index].pinned;
-      renderSidebarList();
+      renderSidebarList({
+        animateMove: true,
+        movedChatIndex: index,
+        previousPositions: previousSidebarPositions,
+        flight: sidebarMoveFlight
+      });
     }
 
     function isMessagesNearBottom() {
@@ -6330,6 +6602,10 @@ html.privacy-shield-active .privacy-shield-overlay {
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
+        if (deleteConfirmOverlay && deleteConfirmOverlay.classList.contains("active")) {
+          closeDeleteConfirmation(true);
+          return;
+        }
         closeModeDropdowns();
         closeSharePopover();
         closeChatOptions();
@@ -6397,6 +6673,44 @@ html.privacy-shield-active .privacy-shield-overlay {
       });
     });
 
+    document.querySelectorAll('[data-chat-option-action="delete"]').forEach((deleteButton) => {
+      deleteButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const targetChatItem = chatOptionsContextItem;
+        closeChatOptions();
+        openDeleteConfirmation(targetChatItem);
+      });
+    });
+
+    if (cancelDeleteButton) {
+      cancelDeleteButton.addEventListener("click", () => {
+        closeDeleteConfirmation(true);
+      });
+    }
+
+    if (confirmDeleteButton) {
+      confirmDeleteButton.addEventListener("click", () => {
+        const conversationId = pendingDeleteConversationId;
+        const chatItem = pendingDeleteChatItem;
+        closeDeleteConfirmation(false);
+
+        if (chatItem && document.contains(chatItem)) {
+          chatItem.classList.add("is-deleting");
+          window.setTimeout(() => deleteConversationById(conversationId), 270);
+        } else {
+          deleteConversationById(conversationId);
+        }
+      });
+    }
+
+    if (deleteConfirmOverlay) {
+      deleteConfirmOverlay.addEventListener("click", (event) => {
+        if (event.target === deleteConfirmOverlay) closeDeleteConfirmation(true);
+      });
+    }
+
 // --- Search Functionality Logic ---
     let searchMatches = [];
     let currentMatchIndex = -1;
@@ -6417,15 +6731,6 @@ html.privacy-shield-active .privacy-shield-overlay {
     const actionMenuWrapper = document.querySelector('.action-menu-wrapper');
     const kebabMenuBtn = document.getElementById('kebabMenuBtn');
     const actionDropdown = document.getElementById('actionDropdown');
-
-    function syncSearchNavigatorSidebarState() {
-      const sidebarOpen = mobileQuery.matches && !sidebar.classList.contains("collapsed");
-      searchNavigator.inert = sidebarOpen;
-
-      if (sidebarOpen && searchNavigator.contains(document.activeElement)) {
-        document.activeElement.blur();
-      }
-    }
 
     function setActionMenuOpen(isOpen) {
       actionDropdown.classList.toggle('open', isOpen);
@@ -6989,7 +7294,9 @@ html.privacy-shield-active .privacy-shield-overlay {
     const sharedChatPayload = readSharedChatFromUrl();
 
     if (sharedChatPayload) {
-      if (isSharedPayloadLocked(sharedChatPayload)) {
+      if (isSharedPayloadDeleted(sharedChatPayload)) {
+        renderDeletedSharedChat();
+      } else if (isSharedPayloadLocked(sharedChatPayload)) {
         renderLockedSharedChat();
       } else {
         renderSharedChat(sharedChatPayload);
@@ -7000,6 +7307,16 @@ html.privacy-shield-active .privacy-shield-overlay {
       syncSidebarToViewport();
       renderStartScreen();
     }
+
+    window.addEventListener("storage", (event) => {
+      if (event.key !== DELETED_CHAT_STORAGE_KEY) return;
+
+      deletedChatIds = loadDeletedChatIds();
+      const currentSharedPayload = readSharedChatFromUrl();
+      if (currentSharedPayload && isSharedPayloadDeleted(currentSharedPayload)) {
+        renderDeletedSharedChat();
+      }
+    });
 
 const rotatingMessages = [
   "Let the magic of SPARK light up the spark within yourself :)",
@@ -7095,8 +7412,150 @@ function bindChatSectionToggles() {
   });
 }
 
+function captureSidebarChatPositions() {
+  const positions = new Map();
+
+  document.querySelectorAll(".chat-item[data-chat-index]").forEach((chatItem) => {
+    const rect = chatItem.getBoundingClientRect();
+    positions.set(String(chatItem.dataset.chatIndex), {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height
+    });
+  });
+
+  return positions;
+}
+
+let activeSidebarMoveCleanup = null;
+
+function prepareSidebarChatFlight(chatItem, previousPosition) {
+  if (!chatItem || !previousPosition) return null;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+  if (typeof chatItem.animate !== "function") return null;
+  if (activeSidebarMoveCleanup) {
+    activeSidebarMoveCleanup();
+    activeSidebarMoveCleanup = null;
+  }
+
+  const flyingChat = chatItem.cloneNode(true);
+  flyingChat.classList.add("sidebar-chat-flying");
+  flyingChat.setAttribute("aria-hidden", "true");
+  flyingChat.inert = true;
+  flyingChat.querySelectorAll("button").forEach((button) => {
+    button.tabIndex = -1;
+  });
+  Object.assign(flyingChat.style, {
+    position: "fixed",
+    left: `${previousPosition.left}px`,
+    top: `${previousPosition.top}px`,
+    width: `${previousPosition.width}px`,
+    height: `${previousPosition.height}px`,
+    margin: "0",
+    boxSizing: "border-box",
+    pointerEvents: "none",
+    transformOrigin: "top left",
+    zIndex: "10000"
+  });
+
+  document.body.appendChild(flyingChat);
+  return { flyingChat, previousPosition };
+}
+
+function animateSidebarChatMove(previousPositions, movedChatIndex, flight) {
+  if (!previousPositions || previousPositions.size === 0) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const movedKey = String(movedChatIndex);
+  const movedChat = document.querySelector(`.chat-item[data-chat-index="${movedKey}"]`);
+  const nextMovedPosition = movedChat ? movedChat.getBoundingClientRect() : null;
+  const canFlyToDestination = !!(
+    flight &&
+    flight.flyingChat &&
+    document.body.contains(flight.flyingChat) &&
+    movedChat &&
+    nextMovedPosition &&
+    nextMovedPosition.width &&
+    nextMovedPosition.height
+  );
+
+  let originalMovedOpacity = "";
+  if (canFlyToDestination) {
+    originalMovedOpacity = movedChat.style.opacity;
+    movedChat.style.opacity = "0";
+  }
+
+  window.requestAnimationFrame(() => {
+    if (canFlyToDestination) {
+      const scaleX = flight.previousPosition.width ? nextMovedPosition.width / flight.previousPosition.width : 1;
+      const scaleY = flight.previousPosition.height ? nextMovedPosition.height / flight.previousPosition.height : 1;
+      const deltaX = nextMovedPosition.left - flight.previousPosition.left;
+      const deltaY = nextMovedPosition.top - flight.previousPosition.top;
+      const cleanupFlyingChat = () => {
+        movedChat.style.opacity = originalMovedOpacity;
+        flight.flyingChat.remove();
+        if (activeSidebarMoveCleanup === cleanupFlyingChat) {
+          activeSidebarMoveCleanup = null;
+        }
+      };
+
+      activeSidebarMoveCleanup = cleanupFlyingChat;
+      const flightAnimation = flight.flyingChat.animate(
+        [
+          { transform: "translate3d(0, 0, 0) scale(1, 1)" },
+          { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})` }
+        ],
+        {
+          duration: 560,
+          easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+          fill: "both"
+        }
+      );
+
+      flightAnimation.onfinish = cleanupFlyingChat;
+      flightAnimation.oncancel = cleanupFlyingChat;
+    } else if (flight && flight.flyingChat) {
+      flight.flyingChat.remove();
+    }
+
+    document.querySelectorAll(".chat-item[data-chat-index]").forEach((chatItem) => {
+      if (typeof chatItem.animate !== "function") return;
+      if (canFlyToDestination && String(chatItem.dataset.chatIndex) === movedKey) return;
+
+      const previous = previousPositions.get(String(chatItem.dataset.chatIndex));
+      if (!previous) return;
+
+      const next = chatItem.getBoundingClientRect();
+      if (!next.width || !next.height) return;
+
+      const deltaX = previous.left - next.left;
+      const deltaY = previous.top - next.top;
+      const scaleX = next.width ? previous.width / next.width : 1;
+      const scaleY = next.height ? previous.height / next.height : 1;
+      if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5 && Math.abs(scaleX - 1) < 0.005 && Math.abs(scaleY - 1) < 0.005) {
+        return;
+      }
+
+      const layoutAnimation = chatItem.animate(
+        [
+          { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})` },
+          { transform: "translate3d(0, 0, 0) scale(1, 1)" }
+        ],
+        {
+          duration: 480,
+          easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+          fill: "both"
+        }
+      );
+
+      layoutAnimation.onfinish = () => layoutAnimation.cancel();
+    });
+  });
+}
+
 // --- Dynamic Sidebar Rendering ---
-function renderSidebarList() {
+function renderSidebarList(animationOptions = null) {
   const pinnedSection = document.getElementById("pinnedSection");
   const pinnedList = document.getElementById("pinnedChatList");
   const recentList = document.getElementById("recentChatList");
@@ -7146,6 +7605,14 @@ function renderSidebarList() {
   applyChatSectionState("pinned");
   applyChatSectionState("recent");
   bindSidebarChatItems();
+
+  if (animationOptions && animationOptions.animateMove) {
+    animateSidebarChatMove(
+      animationOptions.previousPositions,
+      animationOptions.movedChatIndex,
+      animationOptions.flight
+    );
+  }
 }
 
 bindChatSectionToggles();
@@ -7260,6 +7727,11 @@ function typeTextInto(element, text) {
 }
 
 function appendBotMessage(text, messageId, timeStr, targetConversation) {
+  if (!targetConversation || deletedChatIds.has(targetConversation.id) || !conversations.includes(targetConversation)) {
+    hideThinkingIndicator();
+    return Promise.resolve();
+  }
+
   const finalText = String(text || "Spark replied, but the response came back empty. Try sending that once more.").trim();
   const botMsg = {
     who: "bot",
