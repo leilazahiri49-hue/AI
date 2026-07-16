@@ -394,14 +394,17 @@
       font-size: 0.74rem;
       font-family: inherit;
       font-weight: inherit;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.02em;
       line-height: 20px;
       text-align: left;
-      text-transform: uppercase;
       cursor: pointer;
       transition: opacity 0.16s ease, max-height 0.24s ease, margin 0.24s ease, color 0.18s ease;
       overflow: hidden;
       max-height: 20px;
+    }
+
+    .section-label b {
+      font-weight: 600;
     }
 
     .section-label:hover,
@@ -4796,7 +4799,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       <div class="sidebar-section pinned-section is-empty" id="pinnedSection">
         <button class="section-label section-toggle" type="button" data-section-toggle="pinned" aria-expanded="true" aria-controls="pinnedChatList">
-          <span>Pinned Chats</span>
+          <span><b>Pinned</b></span>
           <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -4808,7 +4811,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       <div class="sidebar-section" id="recentSection">
         <button class="section-label section-toggle" type="button" data-section-toggle="recent" aria-expanded="true" aria-controls="recentChatList">
-          <span>Recent Chats</span>
+          <span><b>Recent</b></span>
           <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
