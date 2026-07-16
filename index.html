@@ -139,11 +139,13 @@
       padding: 18px;
       border: 1px solid var(--line);
       border-radius: 24px;
-      background: rgba(10, 15, 26, 0.94);
+      background: rgb(10, 15, 26);
       box-shadow: var(--shadow);
       overflow: hidden;
       position: relative;
-      z-index: 30;
+      z-index: 150; /* Above floating UI (.jump-bottom: 85, .search-navigator: 100) so the
+                       open sidebar always covers them; still below real overlays like
+                       .share-popover (300) and .modal-overlay (1000). */
       -webkit-transform: translateZ(0); /* Force GPU layer on iOS */
       transform: translateZ(0);
       will-change: transform;
@@ -1172,6 +1174,16 @@
       pointer-events: auto;
       transform: translateX(-50%) translateY(0) scale(1);
     }
+
+    /* Match the mobile background treatment while the sidebar is open. */
+    @media (max-width: 900px) {
+      .sidebar:not(.collapsed) ~ .main .search-navigator {
+        filter: blur(8px) brightness(0.62) saturate(0.78);
+        pointer-events: none !important;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+    }
     .search-navigator .nav-btn,
     .search-navigator .nav-btn:hover,
     .search-navigator .nav-btn:focus-visible {
@@ -1752,7 +1764,7 @@
       .sidebar {
         width: min(250px, calc(100vw - 96px));
         position: absolute;
-        z-index: 30;
+        z-index: 150; /* Keep in sync with the base .sidebar z-index above */
         top: 8px;
         left: 8px;
         height: calc(100% - 16px);
@@ -2792,7 +2804,7 @@ input.slider-value-display[type=number] {
         linear-gradient(180deg, #e9dfd2 0%, #f1e9df 100%);
     }
     :root.light-mode .sidebar {
-      background: rgba(246, 239, 230, 0.96);
+      background: rgb(246, 239, 230);
     }
     :root.light-mode .main {
       background: rgba(250, 244, 236, 0.96);
@@ -5158,6 +5170,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       closeModeDropdowns();
       closeChatOptions();
       sidebar.classList.toggle("collapsed");
+      syncSearchNavigatorSidebarState();
       if (mobileQuery.matches) {
         mobileOverlay.classList.toggle("active", !sidebar.classList.contains("collapsed"));
       }
@@ -5829,6 +5842,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       closeChatOptions();
       sidebar.classList.add("collapsed");
       mobileOverlay.classList.remove("active");
+      syncSearchNavigatorSidebarState();
     }
 
     function syncSidebarToViewport() {
@@ -5841,6 +5855,8 @@ html.privacy-shield-active .privacy-shield-overlay {
         sidebar.classList.remove("collapsed");
         mobileOverlay.classList.remove("active");
       }
+
+      syncSearchNavigatorSidebarState();
 
     fitConversationTitle();
     }
@@ -6401,6 +6417,15 @@ html.privacy-shield-active .privacy-shield-overlay {
     const actionMenuWrapper = document.querySelector('.action-menu-wrapper');
     const kebabMenuBtn = document.getElementById('kebabMenuBtn');
     const actionDropdown = document.getElementById('actionDropdown');
+
+    function syncSearchNavigatorSidebarState() {
+      const sidebarOpen = mobileQuery.matches && !sidebar.classList.contains("collapsed");
+      searchNavigator.inert = sidebarOpen;
+
+      if (sidebarOpen && searchNavigator.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+    }
 
     function setActionMenuOpen(isOpen) {
       actionDropdown.classList.toggle('open', isOpen);
