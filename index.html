@@ -139,11 +139,13 @@
       padding: 18px;
       border: 1px solid var(--line);
       border-radius: 24px;
-      background: rgba(10, 15, 26, 0.94);
+      background: rgb(10, 15, 26);
       box-shadow: var(--shadow);
       overflow: hidden;
       position: relative;
-      z-index: 30;
+      z-index: 150; /* Above floating UI (.jump-bottom: 85, .search-navigator: 100) so the
+                       open sidebar always covers them; still below real overlays like
+                       .share-popover (300) and .modal-overlay (1000). */
       -webkit-transform: translateZ(0); /* Force GPU layer on iOS */
       transform: translateZ(0);
       will-change: transform;
@@ -394,14 +396,17 @@
       font-size: 0.74rem;
       font-family: inherit;
       font-weight: inherit;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.02em;
       line-height: 20px;
       text-align: left;
-      text-transform: uppercase;
       cursor: pointer;
       transition: opacity 0.16s ease, max-height 0.24s ease, margin 0.24s ease, color 0.18s ease;
       overflow: hidden;
       max-height: 20px;
+    }
+
+    .section-label b {
+      font-weight: 600;
     }
 
     .section-label:hover,
@@ -1169,6 +1174,16 @@
       pointer-events: auto;
       transform: translateX(-50%) translateY(0) scale(1);
     }
+
+    /* Match the mobile background treatment while the sidebar is open. */
+    @media (max-width: 900px) {
+      .sidebar:not(.collapsed) ~ .main .search-navigator {
+        filter: blur(8px) brightness(0.62) saturate(0.78);
+        pointer-events: none !important;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+    }
     .search-navigator .nav-btn,
     .search-navigator .nav-btn:hover,
     .search-navigator .nav-btn:focus-visible {
@@ -1749,7 +1764,7 @@
       .sidebar {
         width: min(250px, calc(100vw - 96px));
         position: absolute;
-        z-index: 30;
+        z-index: 150; /* Keep in sync with the base .sidebar z-index above */
         top: 8px;
         left: 8px;
         height: calc(100% - 16px);
@@ -2904,7 +2919,7 @@ input.slider-value-display[type=number] {
         linear-gradient(180deg, #e9dfd2 0%, #f1e9df 100%);
     }
     :root.light-mode .sidebar {
-      background: rgba(246, 239, 230, 0.96);
+      background: rgb(246, 239, 230);
     }
     :root.light-mode .main {
       background: rgba(250, 244, 236, 0.96);
@@ -4918,7 +4933,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       <div class="sidebar-section pinned-section is-empty" id="pinnedSection">
         <button class="section-label section-toggle" type="button" data-section-toggle="pinned" aria-expanded="true" aria-controls="pinnedChatList">
-          <span>Pinned Chats</span>
+          <span><b>Pinned</b></span>
           <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -4930,7 +4945,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       <div class="sidebar-section" id="recentSection">
         <button class="section-label section-toggle" type="button" data-section-toggle="recent" aria-expanded="true" aria-controls="recentChatList">
-          <span>Recent Chats</span>
+          <span><b>Recent</b></span>
           <svg class="section-toggle-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -5295,6 +5310,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       closeModeDropdowns();
       closeChatOptions();
       sidebar.classList.toggle("collapsed");
+      syncSearchNavigatorSidebarState();
       if (mobileQuery.matches) {
         mobileOverlay.classList.toggle("active", !sidebar.classList.contains("collapsed"));
       }
@@ -5537,14 +5553,14 @@ html.privacy-shield-active .privacy-shield-overlay {
     const sharePopover = document.getElementById("sharePopover");
     const shareLinkInput = document.getElementById("shareLinkInput");
     const copyShareLinkButton = document.getElementById("copyShareLinkBtn");
-     const shareCloseButton = document.getElementById("shareCloseBtn");
-     const shareStatus = document.getElementById("shareStatus");
-     const deleteConfirmOverlay = document.getElementById("deleteConfirmOverlay");
-     const deleteConfirmTitle = document.getElementById("deleteConfirmTitle");
-     const deleteConfirmMessage = document.getElementById("deleteConfirmMessage");
-     const cancelDeleteButton = document.getElementById("cancelDeleteButton");
-     const confirmDeleteButton = document.getElementById("confirmDeleteButton");
-    const jumpBottomButton = document.getElementById("jumpBottomButton");
+    const shareCloseButton = document.getElementById("shareCloseBtn");
+    const shareStatus = document.getElementById("shareStatus");
+    const deleteConfirmOverlay = document.getElementById("deleteConfirmOverlay");
+    const deleteConfirmTitle = document.getElementById("deleteConfirmTitle");
+    const deleteConfirmMessage = document.getElementById("deleteConfirmMessage");
+    const cancelDeleteButton = document.getElementById("cancelDeleteButton");
+    const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+   const jumpBottomButton = document.getElementById("jumpBottomButton");
     const sidebar = document.getElementById("sidebar");
     const mobileOverlay = document.getElementById("mobileOverlay");
     const mobileQuery = window.matchMedia("(max-width: 900px)");
@@ -6045,6 +6061,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       closeChatOptions();
       sidebar.classList.add("collapsed");
       mobileOverlay.classList.remove("active");
+      syncSearchNavigatorSidebarState();
     }
 
     function syncSidebarToViewport() {
@@ -6057,6 +6074,8 @@ html.privacy-shield-active .privacy-shield-overlay {
         sidebar.classList.remove("collapsed");
         mobileOverlay.classList.remove("active");
       }
+
+      syncSearchNavigatorSidebarState();
 
     fitConversationTitle();
     }
@@ -6386,16 +6405,38 @@ html.privacy-shield-active .privacy-shield-overlay {
       input.addEventListener("pointerdown", (event) => event.stopPropagation());
       input.addEventListener("pointerup", (event) => event.stopPropagation());
 
-      requestAnimationFrame(() => {
+      if (mobileQuery.matches) {
+        // Mobile: focus/select synchronously, in the same tick as the tap
+        // that triggered renaming. Phone browsers only auto-open the
+        // on-screen keyboard when focus() happens as part of the original
+        // user gesture — deferring it even one frame (via rAF/setTimeout)
+        // means the field visually focuses but the keyboard never appears,
+        // forcing a second tap. Calling it here, synchronously, is what
+        // lets typing start immediately with the name pre-selected.
         input.focus();
         input.select();
-      });
+      } else {
+        requestAnimationFrame(() => {
+          input.focus();
+          input.select();
+        });
+      }
     }
 
     function requestRenameChat(chatItem) {
       if (!chatItem) return;
-      // Give the menu-closing animation/state a tick to settle before we
-      // swap the title into an input (matters most on the mobile sheet).
+      if (mobileQuery.matches) {
+        // Start renaming in this same tick (no rAF) so the focus()/select()
+        // call inside startRenamingChat stays tied to the tap gesture and
+        // the keyboard opens automatically. The sheet/backdrop close via
+        // CSS transitions triggered above and keep animating regardless —
+        // their pointer-events already drop instantly, so swapping the
+        // title into an input right away doesn't interrupt anything.
+        startRenamingChat(chatItem);
+        return;
+      }
+      // Desktop: give the menu-closing animation/state a tick to settle
+      // before we swap the title into an input.
       requestAnimationFrame(() => startRenamingChat(chatItem));
     }
 
@@ -6422,18 +6463,8 @@ html.privacy-shield-active .privacy-shield-overlay {
       const index = Number(chatItem.dataset.chatIndex);
       if (Number.isNaN(index) || !conversations[index]) return;
 
-      const previousSidebarPositions = captureSidebarChatPositions();
-      const sidebarMoveFlight = prepareSidebarChatFlight(
-        chatItem,
-        previousSidebarPositions.get(String(index))
-      );
       conversations[index].pinned = !conversations[index].pinned;
-      renderSidebarList({
-        animateMove: true,
-        movedChatIndex: index,
-        previousPositions: previousSidebarPositions,
-        flight: sidebarMoveFlight
-      });
+      renderSidebarList();
     }
 
     function isMessagesNearBottom() {
@@ -6731,6 +6762,15 @@ html.privacy-shield-active .privacy-shield-overlay {
     const actionMenuWrapper = document.querySelector('.action-menu-wrapper');
     const kebabMenuBtn = document.getElementById('kebabMenuBtn');
     const actionDropdown = document.getElementById('actionDropdown');
+
+    function syncSearchNavigatorSidebarState() {
+      const sidebarOpen = mobileQuery.matches && !sidebar.classList.contains("collapsed");
+      searchNavigator.inert = sidebarOpen;
+
+      if (sidebarOpen && searchNavigator.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+    }
 
     function setActionMenuOpen(isOpen) {
       actionDropdown.classList.toggle('open', isOpen);
@@ -7412,150 +7452,8 @@ function bindChatSectionToggles() {
   });
 }
 
-function captureSidebarChatPositions() {
-  const positions = new Map();
-
-  document.querySelectorAll(".chat-item[data-chat-index]").forEach((chatItem) => {
-    const rect = chatItem.getBoundingClientRect();
-    positions.set(String(chatItem.dataset.chatIndex), {
-      left: rect.left,
-      top: rect.top,
-      width: rect.width,
-      height: rect.height
-    });
-  });
-
-  return positions;
-}
-
-let activeSidebarMoveCleanup = null;
-
-function prepareSidebarChatFlight(chatItem, previousPosition) {
-  if (!chatItem || !previousPosition) return null;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
-  if (typeof chatItem.animate !== "function") return null;
-  if (activeSidebarMoveCleanup) {
-    activeSidebarMoveCleanup();
-    activeSidebarMoveCleanup = null;
-  }
-
-  const flyingChat = chatItem.cloneNode(true);
-  flyingChat.classList.add("sidebar-chat-flying");
-  flyingChat.setAttribute("aria-hidden", "true");
-  flyingChat.inert = true;
-  flyingChat.querySelectorAll("button").forEach((button) => {
-    button.tabIndex = -1;
-  });
-  Object.assign(flyingChat.style, {
-    position: "fixed",
-    left: `${previousPosition.left}px`,
-    top: `${previousPosition.top}px`,
-    width: `${previousPosition.width}px`,
-    height: `${previousPosition.height}px`,
-    margin: "0",
-    boxSizing: "border-box",
-    pointerEvents: "none",
-    transformOrigin: "top left",
-    zIndex: "10000"
-  });
-
-  document.body.appendChild(flyingChat);
-  return { flyingChat, previousPosition };
-}
-
-function animateSidebarChatMove(previousPositions, movedChatIndex, flight) {
-  if (!previousPositions || previousPositions.size === 0) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  const movedKey = String(movedChatIndex);
-  const movedChat = document.querySelector(`.chat-item[data-chat-index="${movedKey}"]`);
-  const nextMovedPosition = movedChat ? movedChat.getBoundingClientRect() : null;
-  const canFlyToDestination = !!(
-    flight &&
-    flight.flyingChat &&
-    document.body.contains(flight.flyingChat) &&
-    movedChat &&
-    nextMovedPosition &&
-    nextMovedPosition.width &&
-    nextMovedPosition.height
-  );
-
-  let originalMovedOpacity = "";
-  if (canFlyToDestination) {
-    originalMovedOpacity = movedChat.style.opacity;
-    movedChat.style.opacity = "0";
-  }
-
-  window.requestAnimationFrame(() => {
-    if (canFlyToDestination) {
-      const scaleX = flight.previousPosition.width ? nextMovedPosition.width / flight.previousPosition.width : 1;
-      const scaleY = flight.previousPosition.height ? nextMovedPosition.height / flight.previousPosition.height : 1;
-      const deltaX = nextMovedPosition.left - flight.previousPosition.left;
-      const deltaY = nextMovedPosition.top - flight.previousPosition.top;
-      const cleanupFlyingChat = () => {
-        movedChat.style.opacity = originalMovedOpacity;
-        flight.flyingChat.remove();
-        if (activeSidebarMoveCleanup === cleanupFlyingChat) {
-          activeSidebarMoveCleanup = null;
-        }
-      };
-
-      activeSidebarMoveCleanup = cleanupFlyingChat;
-      const flightAnimation = flight.flyingChat.animate(
-        [
-          { transform: "translate3d(0, 0, 0) scale(1, 1)" },
-          { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})` }
-        ],
-        {
-          duration: 560,
-          easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
-          fill: "both"
-        }
-      );
-
-      flightAnimation.onfinish = cleanupFlyingChat;
-      flightAnimation.oncancel = cleanupFlyingChat;
-    } else if (flight && flight.flyingChat) {
-      flight.flyingChat.remove();
-    }
-
-    document.querySelectorAll(".chat-item[data-chat-index]").forEach((chatItem) => {
-      if (typeof chatItem.animate !== "function") return;
-      if (canFlyToDestination && String(chatItem.dataset.chatIndex) === movedKey) return;
-
-      const previous = previousPositions.get(String(chatItem.dataset.chatIndex));
-      if (!previous) return;
-
-      const next = chatItem.getBoundingClientRect();
-      if (!next.width || !next.height) return;
-
-      const deltaX = previous.left - next.left;
-      const deltaY = previous.top - next.top;
-      const scaleX = next.width ? previous.width / next.width : 1;
-      const scaleY = next.height ? previous.height / next.height : 1;
-      if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5 && Math.abs(scaleX - 1) < 0.005 && Math.abs(scaleY - 1) < 0.005) {
-        return;
-      }
-
-      const layoutAnimation = chatItem.animate(
-        [
-          { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})` },
-          { transform: "translate3d(0, 0, 0) scale(1, 1)" }
-        ],
-        {
-          duration: 480,
-          easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
-          fill: "both"
-        }
-      );
-
-      layoutAnimation.onfinish = () => layoutAnimation.cancel();
-    });
-  });
-}
-
 // --- Dynamic Sidebar Rendering ---
-function renderSidebarList(animationOptions = null) {
+function renderSidebarList() {
   const pinnedSection = document.getElementById("pinnedSection");
   const pinnedList = document.getElementById("pinnedChatList");
   const recentList = document.getElementById("recentChatList");
@@ -7605,14 +7503,6 @@ function renderSidebarList(animationOptions = null) {
   applyChatSectionState("pinned");
   applyChatSectionState("recent");
   bindSidebarChatItems();
-
-  if (animationOptions && animationOptions.animateMove) {
-    animateSidebarChatMove(
-      animationOptions.previousPositions,
-      animationOptions.movedChatIndex,
-      animationOptions.flight
-    );
-  }
 }
 
 bindChatSectionToggles();
