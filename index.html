@@ -4455,6 +4455,13 @@ html.privacy-shield-active .privacy-shield-overlay {
   transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Pin/unpin FLIP animation — the item's own transform (dx/dy) is set inline
+   from JS via setProperty(..., "important") since .chat-item resets transform
+   to none !important above; this class just hints the browser to optimize. */
+.chat-item.is-flipping {
+  will-change: transform;
+}
+
 .chat-select {
   display: flex;
   align-items: center;
@@ -5511,6 +5518,15 @@ html.privacy-shield-active .privacy-shield-overlay {
     let privacyLockedChatIds = loadPrivacyLockedIds();
     const DELETED_CHAT_STORAGE_KEY = "spark-deleted-chat-ids";
 
+    // "Long Testing Chat" is the bundled default sample conversation. Deleting
+    // it should only behave like a deletion for the current session (it still
+    // disappears from the sidebar and acts deleted everywhere else right
+    // away) — it must NOT be written to the persisted deleted-chat registry,
+    // so a refresh or a fresh visit always finds it absent from storage and
+    // the seed data re-adds it, restoring it as the default sample chat.
+    // Every other chat continues to persist its deletion normally.
+    const SESSION_ONLY_DELETE_CHAT_ID = "seed-long-testing-chat";
+
     function loadDeletedChatIds() {
       try {
         const raw = readPersistedValue(DELETED_CHAT_STORAGE_KEY);
@@ -6163,7 +6179,15 @@ html.privacy-shield-active .privacy-shield-overlay {
       const deletingActiveChat = index === currentChatIndex;
 
       deletedChatIds.add(conversationId);
-      saveDeletedChatIds(deletedChatIds);
+      // Long Testing Chat's deletion is intentionally session-only: keep it
+      // in the in-memory set (so it disappears now and stays "deleted" for
+      // the rest of this session) but don't persist it, so a refresh or a
+      // fresh visit never sees it in the deleted-chat registry and the seed
+      // data brings it back as the default sample chat. Every other chat
+      // still persists its deletion as before.
+      if (conversationId !== SESSION_ONLY_DELETE_CHAT_ID) {
+        saveDeletedChatIds(deletedChatIds);
+      }
       privacyLockedChatIds.delete(conversationId);
       savePrivacyLockedIds(privacyLockedChatIds);
 
@@ -6458,13 +6482,82 @@ html.privacy-shield-active .privacy-shield-overlay {
       });
     }
 
+    // --- Sidebar chat FLIP animation (smooth pin/unpin movement between sections) ---
+    // renderSidebarList() rebuilds both chat-list containers from scratch via
+    // innerHTML, so a pinned/unpinned chat would otherwise just vanish from one
+    // section and pop into the other. Standard FLIP (First, Last, Invert, Play)
+    // fixes that without touching renderSidebarList() itself: snapshot where every
+    // chat item sits on screen beforehand, let the instant rebuild happen as
+    // normal, then invert the resulting jump into a transform and ease it away.
+    // Any sibling items that shifted as a side effect (list closing a gap, the
+    // other section growing to fit) glide into place too, not just the toggled
+    // item. Scoped to togglePinChat only — every other renderSidebarList() caller
+    // (new message, delete, bot reply, etc.) is untouched and stays instant.
+    const CHAT_FLIP_DURATION = 400;
+    const CHAT_FLIP_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
+    const CHAT_FLIP_RESTORE_TRANSITION = `transform ${CHAT_FLIP_DURATION}ms ${CHAT_FLIP_EASING}, background 0.18s ease, border-color 0.18s ease`;
+
+    function captureChatListPositions() {
+      const positions = new Map();
+      document.querySelectorAll('#pinnedChatList .chat-item[data-chat-index], #recentChatList .chat-item[data-chat-index]').forEach((el) => {
+        positions.set(el.dataset.chatIndex, el.getBoundingClientRect());
+      });
+      return positions;
+    }
+
+    function playChatListFlip(firstPositions) {
+      const items = document.querySelectorAll('#pinnedChatList .chat-item[data-chat-index], #recentChatList .chat-item[data-chat-index]');
+      const flipped = [];
+
+      items.forEach((el) => {
+        const first = firstPositions.get(el.dataset.chatIndex);
+        if (!first) return;
+
+        const last = el.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+
+        // Invert: jump the item back to where it used to be, with no transition,
+        // so the "Last" layout underneath it is already final and correct.
+        el.classList.add("is-flipping");
+        el.style.transition = "none";
+        el.style.setProperty("transform", `translate(${dx}px, ${dy}px)`, "important");
+        flipped.push(el);
+      });
+
+      if (!flipped.length) return;
+
+      // Commit the instant jump above before transitioning out of it, or the
+      // browser will coalesce both style changes into one and skip the animation.
+      void document.body.offsetHeight;
+
+      flipped.forEach((el) => {
+        el.style.transition = CHAT_FLIP_RESTORE_TRANSITION;
+        el.style.setProperty("transform", "translate(0, 0)", "important");
+      });
+
+      window.setTimeout(() => {
+        flipped.forEach((el) => {
+          el.classList.remove("is-flipping");
+          el.style.transition = "";
+          el.style.removeProperty("transform");
+        });
+      }, CHAT_FLIP_DURATION + 40);
+    }
+
     function togglePinChat(chatItem) {
       if (!chatItem) return;
       const index = Number(chatItem.dataset.chatIndex);
       if (Number.isNaN(index) || !conversations[index]) return;
 
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const firstPositions = reducedMotion ? null : captureChatListPositions();
+
       conversations[index].pinned = !conversations[index].pinned;
       renderSidebarList();
+
+      if (firstPositions) playChatListFlip(firstPositions);
     }
 
     function isMessagesNearBottom() {
@@ -7351,7 +7444,13 @@ html.privacy-shield-active .privacy-shield-overlay {
     window.addEventListener("storage", (event) => {
       if (event.key !== DELETED_CHAT_STORAGE_KEY) return;
 
+      const wasSessionOnlyDeleted = deletedChatIds.has(SESSION_ONLY_DELETE_CHAT_ID);
       deletedChatIds = loadDeletedChatIds();
+      // The session-only deletion above is never persisted on purpose, so
+      // reloading from storage would otherwise silently undo it in this tab.
+      if (wasSessionOnlyDeleted) {
+        deletedChatIds.add(SESSION_ONLY_DELETE_CHAT_ID);
+      }
       const currentSharedPayload = readSharedChatFromUrl();
       if (currentSharedPayload && isSharedPayloadDeleted(currentSharedPayload)) {
         renderDeletedSharedChat();
