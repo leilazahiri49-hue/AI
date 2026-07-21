@@ -2385,6 +2385,195 @@
   }
 }
 
+/* Password modals — the "unlock" prompt shown when opening a locked chat,
+   and the "set password" prompt shown before a chat becomes locked. Both
+   are placeholder UI only for now: their primary buttons run temporary
+   stand-in functions and no password storage, encryption, or validation
+   is wired up yet — see handlePasswordUnlockAttempt() and the Set Password
+   modal's placeholder handler. */
+.password-modal-overlay,
+.set-password-modal-overlay {
+  /* Above .privacy-shield-overlay (9998) and .privacy-shield-toast (9999):
+     when the active locked chat re-covers itself after a focus/visibility
+     loss, the password prompt asking to re-open it must sit on top of that
+     cover, not underneath it. */
+  z-index: 10010;
+}
+
+.modal-box.password-modal-box {
+  width: min(400px, calc(100vw - 32px));
+  max-height: none;
+  padding: 36px 28px 28px;
+  gap: 4px;
+}
+
+.password-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.14s ease;
+}
+
+.password-modal-close:hover,
+.password-modal-close:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--line-strong);
+  color: var(--text);
+  outline: none;
+}
+
+.password-modal-close:active {
+  transform: scale(0.93);
+}
+
+.password-modal-copy {
+  margin-top: 4px;
+}
+
+.password-modal-copy h2 {
+  color: var(--text);
+  font-size: 1.15rem;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.password-modal-copy p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.password-modal-field {
+  margin-top: 18px;
+}
+
+.password-modal-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px 16px;
+  background: rgba(8, 13, 23, 0.48);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-align: center;
+  letter-spacing: 0.03em;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.password-modal-input::placeholder {
+  color: var(--muted);
+  letter-spacing: normal;
+}
+
+.password-modal-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.password-modal-unlock {
+  width: 100%;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 16px;
+  color: #08111a;
+  background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.16s ease, transform 0.14s ease;
+}
+
+.password-modal-unlock:hover,
+.password-modal-unlock:focus-visible {
+  filter: brightness(1.06);
+  outline: none;
+}
+
+.password-modal-unlock:active {
+  transform: scale(0.97);
+}
+
+/* Inline validation — shown for a password/confirm-password mismatch when
+   creating a lock, and for an incorrect password when unlocking one. Hidden
+   by default; toggled visible in JS via the .visible class. */
+.password-modal-error {
+  display: none;
+  margin-top: 12px;
+  color: #ff5a5a;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.password-modal-error.visible {
+  display: block;
+}
+
+.password-modal-input.input-error {
+  border-color: #ff5a5a;
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, 0.16);
+}
+
+.password-modal-input.input-error:focus {
+  border-color: #ff5a5a;
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, 0.24);
+}
+
+/* Wrong-password shake — same timing/curve/offsets as .search-navigator's
+   shake (navigatorShake), just without that element's own translateX(-50%)
+   centering transform baked in, since the modal box doesn't use one. */
+@keyframes passwordModalShake {
+  0%   { transform: translateX(0); }
+  16%  { transform: translateX(-8px); }
+  32%  { transform: translateX(8px); }
+  48%  { transform: translateX(-6px); }
+  64%  { transform: translateX(6px); }
+  82%  { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+.password-modal-box.shake {
+  animation: passwordModalShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+:root.light-mode .password-modal-close {
+  background: rgba(83, 63, 42, 0.05);
+  border-color: rgba(83, 63, 42, 0.15);
+  color: var(--text);
+}
+
+:root.light-mode .password-modal-close:hover { background: rgba(83, 63, 42, 0.1); }
+
+:root.light-mode .password-modal-input {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(83, 63, 42, 0.2);
+}
+
+:root.light-mode .password-modal-unlock {
+  background: linear-gradient(135deg, #8fd3ff, #68b9f2);
+  color: #062033;
+}
+
+@media (max-width: 640px) {
+  .modal-box.password-modal-box {
+    padding: 30px 22px 24px;
+    border-radius: 20px;
+  }
+}
+
 .skip-btn, .back-btn {
   position: absolute;
   top: 24px;
@@ -3521,7 +3710,7 @@ input.slider-value-display[type=number] {
         max-height: min(88dvh, calc(var(--app-height, 100dvh) - 18px));
       }
 
-      .modal-box > *:not(.skip-btn):not(.back-btn),
+      .modal-box > *:not(.skip-btn):not(.back-btn):not(.password-modal-close):not(.locked-chat-icon),
       .start-container,
       .start-actions,
       .question-container,
@@ -4057,6 +4246,13 @@ input.slider-value-display[type=number] {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.08);
   outline: none;
+}
+
+/* Used only for menu items that don't apply when no chat is open (Share
+   chat / Lock chat on the New Chat screen). Kept as its own rule so the
+   item's normal styling/animation above is untouched when it IS shown. */
+.dropdown-item.chat-scoped-hidden {
+  display: none;
 }
 
 /* Reveal text/icons smoothly as the box expands */
@@ -5208,6 +5404,61 @@ html.privacy-shield-active .privacy-shield-overlay {
     </div>
   </div>
 
+  <div class="modal-overlay password-modal-overlay" id="passwordModalOverlay" aria-hidden="true" inert>
+    <div class="modal-box password-modal-box" role="dialog" aria-modal="true" aria-labelledby="passwordModalTitle" aria-describedby="passwordModalMessage">
+      <button class="password-modal-close" id="passwordModalCloseBtn" type="button" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="locked-chat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="4" y="11" width="16" height="10" rx="2.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="password-modal-copy">
+        <h2 id="passwordModalTitle">This chat is locked</h2>
+        <p id="passwordModalMessage">Enter the password to view this conversation.</p>
+      </div>
+      <div class="password-modal-field">
+        <input type="password" id="passwordModalInput" class="password-modal-input" placeholder="Enter password" aria-label="Password" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done">
+      </div>
+      <p class="password-modal-error" id="passwordModalError" role="alert" aria-live="assertive"></p>
+      <button class="password-modal-unlock" id="passwordModalUnlockBtn" type="button">Unlock</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay set-password-modal-overlay" id="setPasswordModalOverlay" aria-hidden="true" inert>
+    <div class="modal-box password-modal-box" role="dialog" aria-modal="true" aria-labelledby="setPasswordModalTitle" aria-describedby="setPasswordModalMessage">
+      <button class="password-modal-close" id="setPasswordModalCloseBtn" type="button" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="locked-chat-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="4" y="11" width="16" height="10" rx="2.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="password-modal-copy">
+        <h2 id="setPasswordModalTitle">Set Password</h2>
+        <p id="setPasswordModalMessage">Create a password to lock this conversation.</p>
+      </div>
+      <div class="password-modal-field">
+        <input type="password" id="setPasswordInput" class="password-modal-input" placeholder="Enter password" aria-label="Password" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="next">
+      </div>
+      <div class="password-modal-field">
+        <input type="password" id="setPasswordConfirmInput" class="password-modal-input" placeholder="Confirm password" aria-label="Confirm password" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done">
+      </div>
+      <p class="password-modal-error" id="setPasswordModalError" role="alert" aria-live="assertive"></p>
+      <button class="password-modal-unlock" id="setPasswordLockBtn" type="button">Lock Chat</button>
+    </div>
+  </div>
+
   <div class="privacy-shield-overlay" id="privacyShieldOverlay" aria-hidden="true">
     <div class="privacy-shield-overlay-card">
       <div class="locked-chat-icon">
@@ -5516,6 +5767,44 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
 
     let privacyLockedChatIds = loadPrivacyLockedIds();
+
+    // --- Chat Lock: per-chat password storage ----------------------------
+    // Each locked chat's password is stored keyed by that chat's stable id,
+    // using the same localStorage -> sessionStorage -> in-memory fallback
+    // chain as the lock registry above, so a password set for one chat
+    // never affects, overwrites, or leaks into any other chat's password,
+    // and a chat's password survives a reload just like its lock state
+    // does. This is a plain client-side demo store (no hashing/encryption),
+    // consistent with the rest of this prototype's "chat lock" feature.
+    const CHAT_PASSWORDS_STORAGE_KEY = "spark-chat-passwords";
+
+    function loadChatPasswords() {
+      try {
+        const raw = readPersistedValue(CHAT_PASSWORDS_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return (parsed && typeof parsed === "object" && !Array.isArray(parsed)) ? parsed : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveChatPasswords(passwordMap) {
+      try {
+        writePersistedValue(CHAT_PASSWORDS_STORAGE_KEY, JSON.stringify(passwordMap));
+      } catch (error) {
+        // The in-memory fallback inside read/writePersistedValue still
+        // covers this tab even if every storage layer above failed.
+      }
+    }
+
+    let chatPasswords = loadChatPasswords();
+
+    // Chat currently granted temporary view access after a correct password
+    // entry (at most one at a time, since only one chat is ever on screen).
+    // Deliberately in-memory only — it must NOT survive a reload, a switch
+    // to another chat and back, or the window losing focus/visibility, so
+    // each of those re-requires the password exactly as specified.
+    let sessionUnlockedChatId = null;
     const DELETED_CHAT_STORAGE_KEY = "spark-deleted-chat-ids";
 
     // "Long Testing Chat" is the bundled default sample conversation. Deleting
@@ -5553,6 +5842,9 @@ html.privacy-shield-active .privacy-shield-overlay {
     conversations.forEach((conv) => {
       ensureConversationId(conv);
       conv.locked = privacyLockedChatIds.has(conv.id) ? false : true;
+      conv.password = Object.prototype.hasOwnProperty.call(chatPasswords, conv.id)
+        ? chatPasswords[conv.id]
+        : null;
     });
 
     // Deleted chats are tombstoned so they do not reappear on the next load.
@@ -5576,6 +5868,18 @@ html.privacy-shield-active .privacy-shield-overlay {
     const deleteConfirmMessage = document.getElementById("deleteConfirmMessage");
     const cancelDeleteButton = document.getElementById("cancelDeleteButton");
     const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+    const passwordModalOverlay = document.getElementById("passwordModalOverlay");
+    const passwordModalInput = document.getElementById("passwordModalInput");
+    const passwordModalError = document.getElementById("passwordModalError");
+    const passwordModalMessage = document.getElementById("passwordModalMessage");
+    const passwordModalCloseBtn = document.getElementById("passwordModalCloseBtn");
+    const passwordModalUnlockBtn = document.getElementById("passwordModalUnlockBtn");
+    const setPasswordModalOverlay = document.getElementById("setPasswordModalOverlay");
+    const setPasswordInput = document.getElementById("setPasswordInput");
+    const setPasswordConfirmInput = document.getElementById("setPasswordConfirmInput");
+    const setPasswordModalError = document.getElementById("setPasswordModalError");
+    const setPasswordModalCloseBtn = document.getElementById("setPasswordModalCloseBtn");
+    const setPasswordLockBtn = document.getElementById("setPasswordLockBtn");
    const jumpBottomButton = document.getElementById("jumpBottomButton");
     const sidebar = document.getElementById("sidebar");
     const mobileOverlay = document.getElementById("mobileOverlay");
@@ -5599,6 +5903,21 @@ html.privacy-shield-active .privacy-shield-overlay {
     let pendingDeleteConversationId = null;
     let pendingDeleteChatItem = null;
     let deleteConfirmReturnTarget = null;
+    let passwordModalReturnTarget = null;
+    let pendingUnlockIndex = null; // index of the conversation the unlock modal is currently open for
+    let pendingUnlockIsReauth = false; // true when the modal was opened by a focus-loss relock, not a sidebar click
+    let pendingUnlockAction = "open"; // what to do once the password is verified: "open" | "rename" | "delete"
+    let pendingUnlockChatItem = null; // sidebar chat item element the rename/delete action targets
+
+    // Copy shown while the modal is used for its default purpose (opening a
+    // locked chat, or re-authenticating one after a focus loss). Captured
+    // once up front so it can be restored after being swapped out for the
+    // rename/delete phrasing below.
+    const passwordModalDefaultMessage = passwordModalMessage ? passwordModalMessage.textContent : "";
+    const passwordModalActionMessages = {
+      rename: "Enter the password to rename this conversation.",
+      delete: "Enter the password to delete this conversation.",
+    };
 
    const startScreenMarkup = `
       <div class="start-screen">
@@ -6169,6 +6488,274 @@ html.privacy-shield-active .privacy-shield-overlay {
       });
     }
 
+    // --- Password modal: shown when opening a locked chat, or when the
+    // active locked chat needs to be re-authenticated after losing focus
+    // ---------------------------------------------------------------------
+    function clearPasswordModalError() {
+      if (passwordModalError) {
+        passwordModalError.textContent = "";
+        passwordModalError.classList.remove("visible");
+      }
+      if (passwordModalInput) passwordModalInput.classList.remove("input-error");
+    }
+
+    function showPasswordModalError(message) {
+      if (passwordModalError) {
+        passwordModalError.textContent = message;
+        passwordModalError.classList.add("visible");
+      }
+      if (passwordModalInput) passwordModalInput.classList.add("input-error");
+    }
+
+    function shakePasswordModalBox() {
+      const box = passwordModalOverlay ? passwordModalOverlay.querySelector(".password-modal-box") : null;
+      if (!box) return;
+      box.classList.remove("shake");
+      void box.offsetWidth;
+      box.classList.add("shake");
+      box.addEventListener("animationend", () => box.classList.remove("shake"), { once: true });
+    }
+
+    // success=false (the default) means "dismissed without unlocking" — the
+    // X button, an Escape press, and a backdrop click all count as that.
+    function closePasswordModal(success = false) {
+      if (!passwordModalOverlay) return;
+
+      const returnTarget = passwordModalReturnTarget;
+      const wasReauth = pendingUnlockIsReauth;
+
+      passwordModalOverlay.classList.remove("active");
+      passwordModalOverlay.setAttribute("aria-hidden", "true");
+      passwordModalOverlay.inert = true;
+      passwordModalReturnTarget = null;
+      pendingUnlockIndex = null;
+      pendingUnlockIsReauth = false;
+      pendingUnlockAction = "open";
+      pendingUnlockChatItem = null;
+      if (passwordModalInput) passwordModalInput.value = "";
+      clearPasswordModalError();
+
+      if (returnTarget && document.contains(returnTarget)) {
+        returnTarget.focus();
+      }
+
+      // A re-authentication prompt only ever appears over a chat that's
+      // already on screen, fully covered by the privacy shield. Dismissing
+      // it without the correct password would otherwise leave that shield
+      // up with no way back in, so fall back to the start screen instead —
+      // exactly like tapping "New chat" would.
+      if (!success && wasReauth && typeof showNewChat === "function") {
+        showNewChat();
+      }
+    }
+
+    function openPasswordModal(index, options = {}) {
+      const conv = conversations[index];
+      if (!conv || !passwordModalOverlay) return;
+
+      pendingUnlockIndex = index;
+      pendingUnlockIsReauth = !!options.isReauth;
+      pendingUnlockAction = options.action || "open";
+      pendingUnlockChatItem = options.chatItem || null;
+      passwordModalReturnTarget = options.returnTarget || null;
+      if (passwordModalInput) passwordModalInput.value = "";
+      clearPasswordModalError();
+      if (passwordModalMessage) {
+        passwordModalMessage.textContent =
+          passwordModalActionMessages[pendingUnlockAction] || passwordModalDefaultMessage;
+      }
+
+      passwordModalOverlay.inert = false;
+      passwordModalOverlay.classList.add("active");
+      passwordModalOverlay.setAttribute("aria-hidden", "false");
+
+      // CRITICAL FOR MOBILE: .focus() must fire immediately inside the click event
+      // without a delay so the mobile keyboard pops up automatically.
+      if (passwordModalInput) {
+        passwordModalInput.focus();
+        // Keep the timeout as a backup for slightly slower browser rendering engines.
+        window.setTimeout(() => passwordModalInput.focus(), 50);
+      }
+    }
+
+    // Re-opens (or leaves open) the unlock modal for the currently active
+    // chat when it regains focus/visibility without a matching temporary
+    // grant. Safe to call repeatedly — reconcilePrivacyShield can run many
+    // times a second (resize handler, the 400ms poll), so this must not
+    // reset an already-open prompt for the same chat out from under
+    // whatever the user is mid-typing.
+    function requestChatReauth(index) {
+      if (!passwordModalOverlay || !conversations[index]) return;
+      const alreadyPromptingForThisChat =
+        passwordModalOverlay.classList.contains("active") &&
+        pendingUnlockIsReauth &&
+        pendingUnlockIndex === index;
+      if (alreadyPromptingForThisChat) return;
+      openPasswordModal(index, { isReauth: true });
+    }
+
+    // Checks the entered password against the one stored for this specific
+    // chat. Wrong password: inline error + shake, modal stays open, input
+    // cleared for a fresh attempt — nothing about the conversation is ever
+    // revealed. Correct password: proceeds with whatever this prompt was
+    // opened for — opening the chat (grants this tab temporary view access
+    // and switches into it, or lifts the re-lock shield for a focus-loss
+    // prompt), or, for a rename/delete request, handing off to that
+    // existing (unmodified) flow without granting any view access.
+    function handlePasswordUnlockAttempt() {
+      const index = pendingUnlockIndex;
+      const conv = index !== null ? conversations[index] : null;
+      if (!conv) {
+        closePasswordModal(false);
+        return;
+      }
+
+      const wasReauth = pendingUnlockIsReauth;
+      const action = pendingUnlockAction;
+      const chatItemForAction = pendingUnlockChatItem;
+      const id = ensureConversationId(conv);
+      const enteredPassword = passwordModalInput ? passwordModalInput.value : "";
+      const storedPassword = Object.prototype.hasOwnProperty.call(chatPasswords, id)
+        ? chatPasswords[id]
+        : null;
+
+      if (storedPassword === null || enteredPassword !== storedPassword) {
+        showPasswordModalError("Incorrect password. Please try again.");
+        shakePasswordModalBox();
+        if (passwordModalInput) {
+          passwordModalInput.value = "";
+          passwordModalInput.focus();
+        }
+        return;
+      }
+
+      closePasswordModal(true);
+
+      if (wasReauth) {
+        sessionUnlockedChatId = id;
+        releasePrivacyShield();
+      } else if (action === "rename") {
+        requestRenameChat(chatItemForAction);
+      } else if (action === "delete") {
+        openDeleteConfirmation(chatItemForAction);
+      } else {
+        sessionUnlockedChatId = id;
+        switchChat(index);
+        collapseMobileSidebar();
+      }
+    }
+
+    // --- Set Password modal: shown before a chat becomes locked -----------
+    // Opened from the header's "Lock chat" button instead of locking
+    // immediately.
+    function clearSetPasswordError() {
+      if (setPasswordModalError) {
+        setPasswordModalError.textContent = "";
+        setPasswordModalError.classList.remove("visible");
+      }
+      if (setPasswordInput) setPasswordInput.classList.remove("input-error");
+      if (setPasswordConfirmInput) setPasswordConfirmInput.classList.remove("input-error");
+    }
+
+    function showSetPasswordError(message, fieldsToHighlight) {
+      const fields = fieldsToHighlight || [setPasswordInput, setPasswordConfirmInput];
+      if (setPasswordModalError) {
+        setPasswordModalError.textContent = message;
+        setPasswordModalError.classList.add("visible");
+      }
+      fields.forEach((field) => {
+        if (field) field.classList.add("input-error");
+      });
+    }
+
+    function closeSetPasswordModal(restoreFocus = true) {
+      if (!setPasswordModalOverlay) return;
+
+      setPasswordModalOverlay.classList.remove("active");
+      setPasswordModalOverlay.setAttribute("aria-hidden", "true");
+      setPasswordModalOverlay.inert = true;
+      if (setPasswordInput) setPasswordInput.value = "";
+      if (setPasswordConfirmInput) setPasswordConfirmInput.value = "";
+      clearSetPasswordError();
+
+      if (restoreFocus && lockChatBtn) {
+        lockChatBtn.focus();
+      }
+    }
+
+    function openSetPasswordModal() {
+      if (!setPasswordModalOverlay) return;
+
+      if (setPasswordInput) setPasswordInput.value = "";
+      if (setPasswordConfirmInput) setPasswordConfirmInput.value = "";
+      clearSetPasswordError();
+
+      setPasswordModalOverlay.inert = false;
+      setPasswordModalOverlay.classList.add("active");
+      setPasswordModalOverlay.setAttribute("aria-hidden", "false");
+
+      // CRITICAL FOR MOBILE: .focus() must fire immediately inside the click event
+      // without a delay so the mobile keyboard pops up automatically.
+      if (setPasswordInput) {
+        setPasswordInput.focus();
+        // Keep the timeout as a backup for slightly slower browser rendering engines.
+        window.setTimeout(() => setPasswordInput.focus(), 50);
+      }
+    }
+
+    // Validates the Password/Confirm Password fields, and on success saves
+    // the password for this specific chat, locks it immediately, and closes
+    // the modal with its existing animation. On a mismatch (or an empty
+    // field), the chat is never locked: an inline error appears, the
+    // relevant field(s) are highlighted, and both fields keep whatever the
+    // user typed so they can fix it without retyping from scratch.
+    function handleSetPasswordLockAttempt() {
+      if (!setPasswordInput || !setPasswordConfirmInput) return;
+      if (currentChatIndex === -1 || !conversations[currentChatIndex]) {
+        closeSetPasswordModal();
+        return;
+      }
+
+      const password = setPasswordInput.value;
+      const confirmPassword = setPasswordConfirmInput.value;
+
+      if (!password || !confirmPassword) {
+        const emptyFields = [];
+        if (!password) emptyFields.push(setPasswordInput);
+        if (!confirmPassword) emptyFields.push(setPasswordConfirmInput);
+        showSetPasswordError("Enter and confirm a password to lock this chat.", emptyFields);
+        (password ? setPasswordConfirmInput : setPasswordInput).focus();
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showSetPasswordError("Passwords do not match. Please try again.");
+        setPasswordConfirmInput.focus();
+        setPasswordConfirmInput.select();
+        return;
+      }
+
+      const conv = conversations[currentChatIndex];
+      const id = ensureConversationId(conv);
+
+      // Save the password for this specific chat only — every other chat's
+      // stored password is untouched.
+      chatPasswords[id] = password;
+      saveChatPasswords(chatPasswords);
+      conv.password = password;
+
+      // The user is actively viewing this chat right now and just proved
+      // they know the password by setting it, so grant this tab immediate
+      // view access instead of turning around and re-prompting for it.
+      sessionUnlockedChatId = id;
+
+      conv.locked = false;
+      applyLockButtonState(false);
+      updatePrivacyLockForChat(currentChatIndex);
+
+      closeSetPasswordModal();
+    }
+
     function deleteConversationById(conversationId) {
       if (!conversationId) return;
 
@@ -6190,6 +6777,13 @@ html.privacy-shield-active .privacy-shield-overlay {
       }
       privacyLockedChatIds.delete(conversationId);
       savePrivacyLockedIds(privacyLockedChatIds);
+      if (Object.prototype.hasOwnProperty.call(chatPasswords, conversationId)) {
+        delete chatPasswords[conversationId];
+        saveChatPasswords(chatPasswords);
+      }
+      if (sessionUnlockedChatId === conversationId) {
+        sessionUnlockedChatId = null;
+      }
 
       // Clear the in-memory history before dropping the conversation reference.
       if (Array.isArray(deletedConversation.messages)) {
@@ -6288,7 +6882,17 @@ html.privacy-shield-active .privacy-shield-overlay {
             event.stopPropagation();
             return;
           }
-          switchChat(Number(chatItem.dataset.chatIndex));
+          const index = Number(chatItem.dataset.chatIndex);
+          const alreadyOpenAndUnlocked =
+            index === currentChatIndex &&
+            conversations[index] &&
+            sessionUnlockedChatId === conversations[index].id;
+          if (isPrivacyLockOn(index) && !alreadyOpenAndUnlocked) {
+            const returnTarget = chatItem.querySelector("[data-chat-select]") || chatItem.querySelector("[data-chat-options-trigger]");
+            openPasswordModal(index, { returnTarget });
+            return;
+          }
+          switchChat(index);
           collapseMobileSidebar();
         });
 
@@ -6638,6 +7242,15 @@ html.privacy-shield-active .privacy-shield-overlay {
 
       messages.addEventListener("animationend", function handleExit() {
         messages.removeEventListener("animationend", handleExit);
+
+        // Revoke the outgoing chat's temporary unlock grant (if any) in the
+        // same synchronous step as advancing currentChatIndex, so a shield
+        // reconcile pass (the 400ms poll, a resize, a focus event, etc.)
+        // can never observe the grant already gone while currentChatIndex
+        // still points at the chat being left — that mismatch was
+        // wrongly triggering a re-lock password prompt for the chat being
+        // switched away from, not the one being opened.
+        revokeSessionUnlockIfLeavingCurrentChat();
         currentChatIndex = nextIndex;
         renderNext();
 
@@ -6662,6 +7275,17 @@ html.privacy-shield-active .privacy-shield-overlay {
         input.value = startScreenDraft || "";
       } else if (conversations[index]) {
         input.value = conversations[index].draft || "";
+      }
+    }
+
+    // Revokes this tab's temporary "unlocked for viewing" grant for the
+    // chat being navigated away from, if it currently holds one — so
+    // coming back to it later, even later in the same session, requires
+    // its password again, exactly like the very first visit did.
+    function revokeSessionUnlockIfLeavingCurrentChat() {
+      const leavingConv = currentChatIndex !== -1 ? conversations[currentChatIndex] : null;
+      if (leavingConv && sessionUnlockedChatId === leavingConv.id) {
+        sessionUnlockedChatId = null;
       }
     }
 
@@ -6730,6 +7354,14 @@ html.privacy-shield-active .privacy-shield-overlay {
           closeDeleteConfirmation(true);
           return;
         }
+        if (passwordModalOverlay && passwordModalOverlay.classList.contains("active")) {
+          closePasswordModal(false);
+          return;
+        }
+        if (setPasswordModalOverlay && setPasswordModalOverlay.classList.contains("active")) {
+          closeSetPasswordModal(true);
+          return;
+        }
         closeModeDropdowns();
         closeSharePopover();
         closeChatOptions();
@@ -6782,6 +7414,15 @@ html.privacy-shield-active .privacy-shield-overlay {
 
         const targetChatItem = chatOptionsContextItem;
         closeChatOptions();
+
+        if (targetChatItem) {
+          const index = Number(targetChatItem.dataset.chatIndex);
+          if (isPrivacyLockOn(index)) {
+            const returnTarget = targetChatItem.querySelector("[data-chat-options-trigger]") || targetChatItem.querySelector("[data-chat-select]");
+            openPasswordModal(index, { action: "rename", chatItem: targetChatItem, returnTarget });
+            return;
+          }
+        }
         requestRenameChat(targetChatItem);
       });
     });
@@ -6804,6 +7445,15 @@ html.privacy-shield-active .privacy-shield-overlay {
 
         const targetChatItem = chatOptionsContextItem;
         closeChatOptions();
+
+        if (targetChatItem) {
+          const index = Number(targetChatItem.dataset.chatIndex);
+          if (isPrivacyLockOn(index)) {
+            const returnTarget = targetChatItem.querySelector("[data-chat-options-trigger]") || targetChatItem.querySelector("[data-chat-select]");
+            openPasswordModal(index, { action: "delete", chatItem: targetChatItem, returnTarget });
+            return;
+          }
+        }
         openDeleteConfirmation(targetChatItem);
       });
     });
@@ -6832,6 +7482,78 @@ html.privacy-shield-active .privacy-shield-overlay {
     if (deleteConfirmOverlay) {
       deleteConfirmOverlay.addEventListener("click", (event) => {
         if (event.target === deleteConfirmOverlay) closeDeleteConfirmation(true);
+      });
+    }
+
+    if (passwordModalCloseBtn) {
+      passwordModalCloseBtn.addEventListener("click", () => {
+        closePasswordModal(false);
+      });
+    }
+
+    if (passwordModalUnlockBtn) {
+      passwordModalUnlockBtn.addEventListener("click", () => {
+        handlePasswordUnlockAttempt();
+      });
+    }
+
+    if (passwordModalOverlay) {
+      passwordModalOverlay.addEventListener("click", (event) => {
+        if (event.target === passwordModalOverlay) closePasswordModal(false);
+      });
+    }
+
+    if (passwordModalInput) {
+      passwordModalInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          handlePasswordUnlockAttempt();
+        }
+      });
+      passwordModalInput.addEventListener("input", () => {
+        clearPasswordModalError();
+      });
+    }
+
+    if (setPasswordModalCloseBtn) {
+      setPasswordModalCloseBtn.addEventListener("click", () => {
+        closeSetPasswordModal(true);
+      });
+    }
+
+    if (setPasswordLockBtn) {
+      setPasswordLockBtn.addEventListener("click", () => {
+        handleSetPasswordLockAttempt();
+      });
+    }
+
+    if (setPasswordModalOverlay) {
+      setPasswordModalOverlay.addEventListener("click", (event) => {
+        if (event.target === setPasswordModalOverlay) closeSetPasswordModal(true);
+      });
+    }
+
+    if (setPasswordInput) {
+      setPasswordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (setPasswordConfirmInput) setPasswordConfirmInput.focus();
+        }
+      });
+      setPasswordInput.addEventListener("input", () => {
+        clearSetPasswordError();
+      });
+    }
+
+    if (setPasswordConfirmInput) {
+      setPasswordConfirmInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          handleSetPasswordLockAttempt();
+        }
+      });
+      setPasswordConfirmInput.addEventListener("input", () => {
+        clearSetPasswordError();
       });
     }
 
@@ -6987,6 +7709,16 @@ html.privacy-shield-active .privacy-shield-overlay {
       }
     }
 
+    // Shows/hides the Share chat and Lock chat menu items based on whether
+    // an actual chat is currently open — there's nothing to share or lock
+    // on the New Chat screen (index -1). Order, styling, and animation of
+    // the menu are untouched; this only toggles the class added above.
+    function updateChatScopedMenuVisibility(index) {
+      const hasChat = index !== -1;
+      if (shareChatButton) shareChatButton.classList.toggle('chat-scoped-hidden', !hasChat);
+      if (lockChatBtn) lockChatBtn.classList.toggle('chat-scoped-hidden', !hasChat);
+    }
+
     // Called whenever the visible chat changes (switch, new chat, start
     // screen) so the button, the share option, and screenshot protection
     // all match that specific chat's saved state.
@@ -6994,6 +7726,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       applyLockButtonState(isChatLocked(index));
       refreshShareAvailability(index);
       refreshScreenshotProtection(index);
+      updateChatScopedMenuVisibility(index);
     }
 
     // Persists the lock for this conversation (keyed by its stable id) and
@@ -7022,9 +7755,20 @@ html.privacy-shield-active .privacy-shield-overlay {
         // if the shackle is currently open (is-unlocked), this click closes
         // it, so the upcoming state is locked — and vice versa.
         const nextLocked = lockChatBtn.classList.contains('is-unlocked');
+
+        // About to go from unlocked -> locked: require setting a password
+        // first instead of locking immediately. Unlocking (the branch below)
+        // is unaffected.
+        if (!nextLocked) {
+          openSetPasswordModal();
+          return;
+        }
+
         applyLockButtonState(nextLocked);
         if (currentChatIndex !== -1 && conversations[currentChatIndex]) {
-          conversations[currentChatIndex].locked = nextLocked;
+          const conv = conversations[currentChatIndex];
+          conv.locked = nextLocked;
+          if (sessionUnlockedChatId === conv.id) sessionUnlockedChatId = null;
           updatePrivacyLockForChat(currentChatIndex);
         }
       });
@@ -7080,13 +7824,36 @@ html.privacy-shield-active .privacy-shield-overlay {
     // focus/blur, page lifecycle, resize/orientation, and the polling
     // fallback — feeds into this one function instead of each deciding
     // engage/release on its own, so they can't disagree with each other.
+    //
+    // This is also where a locked chat actually re-locks itself: losing
+    // focus/visibility revokes this tab's temporary view grant for
+    // whichever chat is on screen, and regaining focus/visibility without a
+    // matching grant keeps the shield up and asks for the password again
+    // instead of revealing the conversation.
     function reconcilePrivacyShield() {
       if (!isScreenshotProtectionActive()) return;
-      if (document.hidden || !document.hasFocus()) {
+
+      const activeConv = currentChatIndex !== -1 ? conversations[currentChatIndex] : null;
+      const isHiddenOrUnfocused = document.hidden || !document.hasFocus();
+
+      if (isHiddenOrUnfocused) {
         engagePrivacyShield();
-      } else {
-        releasePrivacyShield();
+        if (activeConv && sessionUnlockedChatId === activeConv.id) {
+          sessionUnlockedChatId = null;
+        }
+        return;
       }
+
+      if (activeConv && isPrivacyLockOn(currentChatIndex) && sessionUnlockedChatId !== activeConv.id) {
+        // Focused/visible again, but nothing has granted this tab access to
+        // this specific chat since it lost focus — stay fully covered and
+        // prompt for the password instead of releasing the shield.
+        engagePrivacyShield();
+        requestChatReauth(currentChatIndex);
+        return;
+      }
+
+      releasePrivacyShield();
     }
 
     // Primary signals: tab visibility and window focus. Covers switching
