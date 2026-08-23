@@ -5588,6 +5588,11 @@ html.privacy-shield-active .privacy-shield-overlay {
     Screenshots and screen recording are restricted while this chat is locked.
   </div>
 
+  <!-- LZ-String (MIT License, https://github.com/pieroxy/lz-string) — used only to
+       compress the conversation data baked into "Share chat" links so they stay as
+       short as possible. -->
+  <script>var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();</script>
+
   <script>
     (function setupMobileViewportLock() {
       const root = document.documentElement;
@@ -6108,8 +6113,11 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
 
 
-    const SHARE_HASH_PREFIX = "#spark-share=";
+    const SHARE_HASH_PREFIX = "#s=";
 
+    // Plain base64url JSON encode/decode. This used to be the only way share
+    // links were built; it's kept as a fallback for encodeSharePayload() /
+    // decodeSharePayload() below in the rare case LZString isn't available.
     function base64UrlEncode(value) {
       const json = JSON.stringify(value);
       let binary = "";
@@ -6141,6 +6149,70 @@ html.privacy-shield-active .privacy-shield-overlay {
       }
 
       return JSON.parse(decodeURIComponent(escape(binary)));
+    }
+
+    // Trims a shareable message down to only the bytes that actually need to
+    // travel in the link: "name" is never used on the way back in (it's
+    // always re-derived from "who" — see unpackShareMessage() and
+    // normalizeSharedPayload()), so it's dropped here rather than encoded.
+    function packShareMessage(message) {
+      return [message.who === "user" ? 0 : 1, message.text, message.meta || ""];
+    }
+
+    function unpackShareMessage(entry) {
+      const isBot = Array.isArray(entry) ? entry[0] : 0;
+      return {
+        who: isBot ? "bot" : "user",
+        name: isBot ? "AI" : "You",
+        text: String((Array.isArray(entry) ? entry[1] : "") || ""),
+        meta: String((Array.isArray(entry) ? entry[2] : "") || "")
+      };
+    }
+
+    // Packs a share payload into the shortest form that still carries
+    // everything normalizeSharedPayload() actually reads (v, convId, title,
+    // locked, messages — "id" and "createdAt" are generated for callers that
+    // might want them but were never read back out of a link, so they're left
+    // out here too), then compresses it. LZString's "encoded URI component"
+    // alphabet is already URL-safe, so the result can be dropped straight
+    // into the hash with no further escaping.
+    function encodeSharePayload(payload) {
+      const compact = [
+        payload.v || 1,
+        payload.convId || "",
+        payload.title || "",
+        payload.locked ? 1 : 0,
+        (payload.messages || []).map(packShareMessage)
+      ];
+
+      const json = JSON.stringify(compact);
+
+      if (window.LZString && typeof window.LZString.compressToEncodedURIComponent === "function") {
+        return window.LZString.compressToEncodedURIComponent(json);
+      }
+
+      return base64UrlEncode(compact);
+    }
+
+    function decodeSharePayload(token) {
+      if (!token) return null;
+
+      let json = null;
+
+      if (window.LZString && typeof window.LZString.decompressFromEncodedURIComponent === "function") {
+        json = window.LZString.decompressFromEncodedURIComponent(token);
+      }
+
+      const parsed = json != null ? JSON.parse(json) : base64UrlDecode(token);
+      if (!Array.isArray(parsed)) return null;
+
+      return {
+        v: parsed[0],
+        convId: parsed[1],
+        title: parsed[2],
+        locked: parsed[3] === 1,
+        messages: Array.isArray(parsed[4]) ? parsed[4].map(unpackShareMessage) : []
+      };
     }
 
     function createShareId() {
@@ -6201,7 +6273,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
     function buildShareLink(payload) {
       const url = new URL(window.location.href);
-      url.hash = `spark-share=${base64UrlEncode(payload)}`;
+      url.hash = `s=${encodeSharePayload(payload)}`;
       return url.toString();
     }
 
@@ -6237,7 +6309,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       if (hash.indexOf(SHARE_HASH_PREFIX) !== 0) return null;
 
       try {
-        return normalizeSharedPayload(base64UrlDecode(hash.slice(SHARE_HASH_PREFIX.length)));
+        return normalizeSharedPayload(decodeSharePayload(hash.slice(SHARE_HASH_PREFIX.length)));
       } catch (error) {
         console.warn("Could not read shared Spark chat:", error);
         return null;
@@ -6280,9 +6352,11 @@ html.privacy-shield-active .privacy-shield-overlay {
       sharePopover.classList.add("open");
       sharePopover.setAttribute("aria-hidden", "false");
 
+      // Focus the field so it's reachable right away, but leave its text
+      // unselected — the Copy button copies the full link on its own (see
+      // copyShareLinkToClipboard()), so nothing needs to be pre-highlighted.
       window.setTimeout(() => {
         shareLinkInput.focus();
-        shareLinkInput.select();
       }, 80);
     }
 
