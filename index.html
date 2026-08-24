@@ -1570,6 +1570,7 @@
     }
 
     .bubble {
+      position: relative;
       padding: 14px 16px;
       border-radius: 16px;
       border: 1px solid var(--line);
@@ -1578,6 +1579,12 @@
       color: #e6efff;
       word-break: break-word;
       overflow-wrap: break-word; /* handles URLs and unbreakable strings */
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .message-row.swipe-open .bubble {
+      transform: translateX(-12px);
     }
 
     .message-row.user .bubble {
@@ -1729,6 +1736,121 @@
       .message-row:focus-within .message-actions {
         opacity: 1;
       }
+    }
+
+    /* ── Reply (UI only — not wired to any reply/context logic yet) ──
+       Desktop: a small button fades in at the top-right corner of an AI
+       bubble after a short hover delay. Mobile: swiping an AI bubble
+       right-to-left reveals a matching icon proportionally to the drag.
+       See the "Reply gesture" JS block for the swipe interaction. */
+    .bubble-row {
+      position: relative;
+    }
+
+    .reply-hover-btn {
+      display: none; /* only enabled where hover is meaningful, see media query below */
+      position: absolute;
+      top: -10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--muted);
+      background: var(--surface-2);
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 4px 14px rgba(4, 8, 16, 0.32);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      z-index: 3;
+    }
+
+    .reply-hover-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .reply-hover-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--accent);
+    }
+
+    .reply-hover-btn:active {
+      transform: scale(0.92);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .reply-hover-btn {
+        display: grid;
+        opacity: 0;
+        transform: translateY(4px) scale(0.88);
+        pointer-events: none;
+        transition: opacity 0.16s ease, transform 0.16s ease, color 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      }
+
+      /* The 0.5s delay lives only on this rule (the "appear" transition), not
+         on the base rule above, so hiding on mouse-out is instant while
+         showing waits for a deliberate hover. */
+      .message-row:not(.user):hover .reply-hover-btn {
+        transition-delay: 0.5s, 0.5s, 0s, 0s, 0s;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+    }
+
+    .reply-swipe-icon {
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      margin-left: 8px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--accent);
+      background: var(--surface-2);
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 4px 14px rgba(4, 8, 16, 0.32);
+      opacity: 0;
+      transform: translateY(-50%) translateX(8px) scale(0.6);
+      pointer-events: none;
+      will-change: opacity, transform;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reply-swipe-icon svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .message-row.swipe-open .reply-swipe-icon {
+      /* transform is set inline by JS (see "Reply gesture" below) so it can
+         account for the per-message edge clamp; opacity/pointer-events are
+         safe as static fallbacks here. */
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Hide the swipe affordance entirely on precise-pointer devices — it's a
+       touch-only gesture, mirrored there by the hover button instead. */
+    @media (hover: hover) and (pointer: fine) {
+      .reply-swipe-icon {
+        display: none;
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .bubble-row .bubble {
+        touch-action: pan-y; /* keep vertical scroll native; horizontal is ours to read */
+      }
+    }
+
+    .message-row.is-dragging .bubble,
+    .message-row.is-dragging .reply-swipe-icon {
+      transition: none !important;
     }
 
     .composer {
@@ -3288,6 +3410,11 @@ input.slider-value-display[type=number] {
     :root.light-mode .msg-action-btn:hover {
       background: rgba(83, 63, 42, 0.05);
       border-color: rgba(83, 63, 42, 0.08);
+    }
+
+    :root.light-mode .reply-hover-btn,
+    :root.light-mode .reply-swipe-icon {
+      box-shadow: 0 4px 14px rgba(65, 48, 31, 0.14);
     }
 
     /* ── Composer ── */
@@ -6083,10 +6210,27 @@ html.privacy-shield-active .privacy-shield-overlay {
               </svg>
             </button>`;
 
+      // Reply — UI only for now (see the "Reply gesture" JS block below):
+      // a hover-revealed button on desktop, a swipe-revealed icon on touch.
+      // Neither is wired to any reply/context logic yet. AI messages only.
+      const replyIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 17l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 12h10a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>`;
+      const replyHoverButton = isUser
+        ? ""
+        : `<button class="reply-hover-btn" type="button" aria-label="Reply">${replyIconSvg}</button>`;
+      const replySwipeIcon = isUser
+        ? ""
+        : `<button class="reply-swipe-icon" type="button" tabindex="-1" aria-hidden="true">${replyIconSvg}</button>`;
+
       return `
         <div class="message-row ${isUser ? "user" : ""}">
           <div class="bubble-wrap">
-            <div class="bubble"${bubbleId}>${escapeHTML(message.text)}</div>
+            <div class="bubble-row">
+              <div class="bubble"${bubbleId}>${escapeHTML(message.text)}${replyHoverButton}</div>
+              ${replySwipeIcon}
+            </div>
             <div class="message-footer">
               <div class="meta"${metaId}>${escapeHTML(message.meta)}</div>
               <div class="message-actions">
@@ -6112,6 +6256,163 @@ html.privacy-shield-active .privacy-shield-overlay {
        `;
     }
 
+    // ── Reply gesture — mobile swipe (UI only) ──────────────────────────
+    // The desktop hover reveal is handled entirely in CSS (see ".reply-hover-btn"
+    // above). This just handles the touch swipe: dragging an AI bubble
+    // right-to-left reveals ".reply-swipe-icon" proportionally to the drag,
+    // snapping back if the swipe isn't completed. Nothing here does anything
+    // with the reply itself yet — that's a follow-up once the icon needs to
+    // actually attach context to a message.
+    const SWIPE_MAX_DRAG = 64; // px of finger travel that maps to a full (100%) reveal
+    const SWIPE_BUBBLE_SHIFT = 12; // px the bubble itself is allowed to visually shift
+    const SWIPE_AXIS_THRESHOLD = 6; // px of movement before committing to horizontal vs. vertical
+    const SWIPE_ICON_GAP = 8; // matches .reply-swipe-icon's margin-left in CSS
+    const SWIPE_ICON_SIZE = 34; // matches .reply-swipe-icon's width in CSS
+    const SWIPE_EDGE_SAFE_MARGIN = 6; // breathing room from the edge of the scroll container
+    let swipeState = null;
+    let openSwipeRow = null;
+
+    // A wrapped, multi-line AI reply routinely sits close to the bubble's own
+    // max-width, leaving little or no gutter for the icon to reveal into —
+    // this isn't a rare edge case, so pull the icon back toward the bubble by
+    // however much it would otherwise spill past the scrollable area.
+    function computeSwipeClampOffset(bubbleEl) {
+      const messagesRect = messages.getBoundingClientRect();
+      const bubbleRect = bubbleEl.getBoundingClientRect();
+      const naturalIconRight = bubbleRect.right + SWIPE_ICON_GAP + SWIPE_ICON_SIZE;
+      const overflow = naturalIconRight - (messagesRect.right - SWIPE_EDGE_SAFE_MARGIN);
+      return Math.max(0, overflow);
+    }
+
+    function resetSwipeVisuals(row) {
+      const bubble = row.querySelector(".bubble");
+      const icon = row.querySelector(".reply-swipe-icon");
+      if (bubble) bubble.style.transform = "";
+      if (icon) {
+        icon.style.opacity = "";
+        icon.style.transform = "";
+      }
+    }
+
+    function closeSwipeRow(row) {
+      if (!row) return;
+      row.classList.remove("swipe-open");
+      resetSwipeVisuals(row);
+      if (openSwipeRow === row) openSwipeRow = null;
+    }
+
+    function handleSwipePointerDown(event) {
+      if (event.pointerType !== "touch") return;
+      const bubbleEl = event.target.closest(".bubble");
+      if (!bubbleEl) return;
+      const row = bubbleEl.closest(".message-row:not(.user)");
+      if (!row) return;
+
+      swipeState = {
+        row,
+        bubble: bubbleEl,
+        icon: row.querySelector(".reply-swipe-icon"),
+        startX: event.clientX,
+        startY: event.clientY,
+        axis: null,
+        progress: 0,
+        clampOffset: computeSwipeClampOffset(bubbleEl),
+      };
+      row.classList.add("is-dragging");
+    }
+
+    function handleSwipePointerMove(event) {
+      if (!swipeState || event.pointerType !== "touch") return;
+      const dx = event.clientX - swipeState.startX;
+      const dy = event.clientY - swipeState.startY;
+
+      if (swipeState.axis === null) {
+        if (Math.abs(dx) < SWIPE_AXIS_THRESHOLD && Math.abs(dy) < SWIPE_AXIS_THRESHOLD) return;
+        // Only a leftward, mostly-horizontal drag is "our" gesture — anything
+        // else (vertical scroll, or dragging the other way) is left alone so
+        // native scrolling keeps working.
+        if (Math.abs(dx) > Math.abs(dy) && dx < 0) {
+          swipeState.axis = "x";
+        } else {
+          swipeState.row.classList.remove("is-dragging");
+          swipeState = null;
+          return;
+        }
+      }
+
+      if (swipeState.axis !== "x") return;
+
+      event.preventDefault();
+      const leftDrag = Math.max(0, -dx);
+      const effective = leftDrag <= SWIPE_MAX_DRAG
+        ? leftDrag
+        : SWIPE_MAX_DRAG + (leftDrag - SWIPE_MAX_DRAG) * 0.25; // slight resistance past full reveal
+      const progress = Math.min(effective / SWIPE_MAX_DRAG, 1);
+      swipeState.progress = progress;
+
+      swipeState.bubble.style.transform = `translateX(${-progress * SWIPE_BUBBLE_SHIFT}px)`;
+      if (swipeState.icon) {
+        const clamp = swipeState.clampOffset;
+        swipeState.icon.style.opacity = String(progress);
+        swipeState.icon.style.transform =
+          `translateY(-50%) translateX(${(1 - progress) * SWIPE_ICON_GAP - clamp}px) scale(${0.6 + 0.4 * progress})`;
+      }
+    }
+
+    function handleSwipePointerEnd(event) {
+      if (!swipeState || (event && event.pointerType && event.pointerType !== "touch")) return;
+      const { row, axis, progress, icon, clampOffset } = swipeState;
+      row.classList.remove("is-dragging");
+
+      if (axis !== "x") {
+        // Never turned into a horizontal drag — treat it as a tap. A tap on
+        // an already-open row closes it; otherwise leave the message as-is.
+        if (row.classList.contains("swipe-open")) closeSwipeRow(row);
+        swipeState = null;
+        return;
+      }
+
+      if (progress >= 0.98) {
+        // Fully completed: settle into the revealed state instead of
+        // snapping back, so the icon is actually there to be tapped. The
+        // bubble's own shift is small enough to hand off to the CSS class,
+        // but the icon keeps its inline (possibly clamped) position so it
+        // stays fully on-screen for wide bubbles too.
+        if (openSwipeRow && openSwipeRow !== row) closeSwipeRow(openSwipeRow);
+        row.querySelector(".bubble").style.transform = "";
+        if (icon) {
+          icon.style.opacity = "1";
+          icon.style.transform = `translateY(-50%) translateX(${-clampOffset}px) scale(1)`;
+        }
+        row.classList.add("swipe-open");
+        openSwipeRow = row;
+      } else {
+        closeSwipeRow(row);
+      }
+
+      swipeState = null;
+    }
+
+    messages.addEventListener("pointerdown", handleSwipePointerDown);
+    messages.addEventListener("pointermove", handleSwipePointerMove, { passive: false });
+    messages.addEventListener("pointerup", handleSwipePointerEnd);
+    messages.addEventListener("pointercancel", handleSwipePointerEnd);
+
+    // Tapping the revealed icon just closes the reveal for now — there's no
+    // reply action to trigger yet.
+    messages.addEventListener("click", (event) => {
+      const icon = event.target.closest(".reply-swipe-icon");
+      if (!icon) return;
+      event.preventDefault();
+      event.stopPropagation();
+      closeSwipeRow(icon.closest(".message-row"));
+    });
+
+    // Tapping anywhere outside the currently-open row dismisses it.
+    document.addEventListener("pointerdown", (event) => {
+      if (!openSwipeRow) return;
+      if (!openSwipeRow.contains(event.target)) closeSwipeRow(openSwipeRow);
+    });
 
     const SHARE_HASH_PREFIX = "#s=";
 
