@@ -52,13 +52,37 @@
       --accent-soft: rgba(84, 210, 255, 0.14);
       --user: linear-gradient(135deg, #68e1ff, #4aa8ff);
       --shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+
+      /* ── Unified corner-radius system ──
+         Every rounded corner in the app pulls from this one proportional
+         scale. Larger, more prominent surfaces get a larger radius; small
+         controls get a smaller one — but the curvature always steps from
+         the same ladder, so no element reads as more/less rounded than
+         its peers. Perfect circles (50%) and full pills (--radius-full)
+         are their own "maximally round" tier and stay that way at every
+         size, since a circle is already as curved as it can be. */
+      --radius-2xs: 8px;       /* micro elements: inline chips, checkboxes, focus rings */
+      --radius-xs: 10px;       /* small icon-square controls, ~28–36px */
+      --radius-sm: 12px;       /* compact controls, ~38–48px */
+      --radius-md: 14px;       /* rows, inputs, medium buttons/cards, ~44–56px */
+      --radius-lg: 16px;       /* message bubbles and their close kin */
+      --radius-panel-md: 18px; /* large panels at intermediate (tablet) widths */
+      --radius-xl: 20px;       /* secondary dialogs and panels */
+      --radius-2xl: 24px;      /* primary app-shell containers */
+      --radius-full: 999px;    /* pill / stadium shape */
+      --radius-circle: 50%;    /* perfect circle */
+
+      --bubble-corner-radius: var(--radius-lg);
       --compact-pad: 15px;
       --compact-size: 40px;
-      --compact-radius: 12px;
+      --compact-radius: var(--radius-sm);
       --app-height: 100dvh;
       --mobile-pad: 8px;
       --mobile-control: 40px;
       --floating-bottom: 92px;
+      --composer-max-height: 200px; /* cap for the auto-growing message input; overridden to 160px on mobile */
+      --composer-grow-offset: 0px; /* set by JS to however far the composer has grown past its resting height; used to push floating buttons (jump-to-bottom, search navigator) up so they clear it */
+      --send-button-margin-bottom: 5.5px; /* set by JS per breakpoint so the send button sits centered at rest; this default only matters for the first paint before JS runs */
       --sidebar-mobile-width: min(250px, calc(100vw - 76px));
     }
 
@@ -115,7 +139,8 @@
     }
 
     button,
-    input {
+    input,
+    textarea {
       font: inherit;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -138,7 +163,7 @@
       gap: 18px;
       padding: 18px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: var(--radius-2xl);
       background: rgb(10, 15, 26);
       box-shadow: var(--shadow);
       overflow: hidden;
@@ -207,7 +232,7 @@
       flex: 0 0 auto;
       display: grid;
       place-items: center;
-      border-radius: 14px;
+      border-radius: var(--radius-sm);
       color: #08111a;
       font-size: 0.95rem;
       font-weight: 800;
@@ -275,7 +300,7 @@
       gap: 12px;
       min-height: 44px;
       padding: 0 14px;
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       color: var(--text);
       background: transparent;
       border: 1px solid transparent;
@@ -416,7 +441,7 @@
     }
 
     .section-label:focus-visible {
-      border-radius: 6px;
+      border-radius: var(--radius-2xs);
       box-shadow: 0 0 0 2px var(--accent-soft);
     }
 
@@ -517,7 +542,7 @@
       gap: 12px;
       width: 100%;
       padding: 10px 12px;
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       background: transparent;
       color: inherit;
       text-align: left;
@@ -574,7 +599,7 @@
       flex: 0 0 34px;
       display: grid;
       place-items: center;
-      border-radius: 10px;
+      border-radius: var(--radius-xs);
       color: var(--accent);
       background: var(--accent-soft);
       font-size: 0.86rem;
@@ -668,7 +693,7 @@
       display: flex;
       flex-direction: column;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: var(--radius-2xl);
       background: rgba(15, 22, 36, 0.94);
       box-shadow: var(--shadow);
       overflow: hidden;
@@ -789,7 +814,7 @@
     .share-card {
   width: min(520px, 100%);
   border: 1px solid var(--line-strong);
-  border-radius: 24px;
+  border-radius: var(--radius-2xl);
   
   /* 1. Adjusted the 0.96 at the end to 0.60 for translucency */
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)), rgba(15, 22, 36, 0.60);
@@ -806,6 +831,17 @@
 
     .share-popover.open .share-card {
       transform: translateY(0) scale(1);
+    }
+
+    .share-popover.is-message-share .share-card {
+      width: min(440px, 100%);
+      padding: 16px;
+      border-radius: var(--radius-xl);
+    }
+
+    .share-popover.is-message-share .share-card-header {
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
     .share-card-header {
@@ -847,7 +883,7 @@
       align-items: center;
       gap: 8px;
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-radius: var(--radius-md);
       padding: 8px;
       background: rgba(8, 13, 23, 0.48);
     }
@@ -867,7 +903,7 @@
       flex: 0 0 auto;
       overflow: hidden;
       border: 0;
-      border-radius: 12px;
+      border-radius: var(--radius-sm);
       padding: 10px 14px;
       color: #08111a;
       background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
@@ -946,7 +982,7 @@
       align-items: center;
       background: transparent;
       border: 1px solid transparent;
-      border-radius: 12px;
+      border-radius: var(--radius-sm);
       height: 46px;
       width: 46px;
       overflow: hidden;
@@ -955,7 +991,7 @@
 
     .search-container.active {
       width: 240px;
-      border-radius: 20px;
+      border-radius: var(--radius-full);
       background: rgba(255, 255, 255, 0.03);
       border-color: var(--line);
     }
@@ -1004,7 +1040,7 @@
 
     .search-highlight {
       padding: 0.02em 0.22em;
-      border-radius: 7px;
+      border-radius: var(--radius-2xs);
       color: #dff6ff;
       background:
         linear-gradient(180deg, rgba(84, 210, 255, 0.24), rgba(84, 210, 255, 0.12));
@@ -1046,7 +1082,7 @@
 
     .search-navigator {
       position: absolute;
-      bottom: 92px;
+      bottom: calc(92px + var(--composer-grow-offset, 0px));
       left: 50%;
       transform: translateX(-50%) translateY(12px) scale(0.96);
       min-height: 56px;
@@ -1272,7 +1308,7 @@
       height: 46px;
       display: grid;
       place-items: center;
-      border-radius: 12px;
+      border-radius: var(--radius-sm);
       color: var(--muted);
       background: transparent;
       border: 1px solid transparent;
@@ -1312,7 +1348,7 @@
     .jump-bottom {
       position: absolute;
       left: 50%;
-      bottom: 92px;
+      bottom: calc(92px + var(--composer-grow-offset, 0px));
       width: 44px;
       height: 44px;
       display: grid;
@@ -1522,7 +1558,7 @@
       min-height: 62px;
       padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       color: var(--text);
       background: rgba(255, 255, 255, 0.03);
       cursor: pointer;
@@ -1572,7 +1608,7 @@
     .bubble {
       position: relative;
       padding: 14px 16px;
-      border-radius: 16px;
+      border-radius: var(--bubble-corner-radius);
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.03);
       line-height: 1.65;
@@ -1584,7 +1620,7 @@
     }
 
     .message-row.swipe-open .bubble {
-      transform: translateX(-12px);
+      transform: translateX(-40px);
     }
 
     .message-row.user .bubble {
@@ -1620,7 +1656,7 @@
       justify-content: center;
       gap: 6px;
       border: 1px solid transparent; /* Removes the harsh border */
-      border-radius: 16px; /* Matches your chat bubbles perfectly */
+      border-radius: var(--radius-lg); /* Matches your chat bubbles perfectly */
       background: transparent; /* Makes it look like it's floating cleanly */
     }
 
@@ -1698,7 +1734,7 @@
       height: 30px;
       display: grid;
       place-items: center;
-      border-radius: 8px;
+      border-radius: var(--radius-xs);
       color: var(--muted);
       background: transparent;
       border: 1px solid transparent;
@@ -1711,6 +1747,50 @@
     .msg-action-btn svg {
       width: 15px;
       height: 15px;
+    }
+
+    .msg-copy-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .msg-copy-btn .msg-copy-icon,
+    .msg-copy-btn .msg-copy-check {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .msg-copy-btn .msg-copy-icon {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.16s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .msg-copy-btn .msg-copy-check {
+      color: #3bc478;
+      opacity: 0;
+      transform: none;
+      transition: opacity 0.16s ease, transform 0.25s cubic-bezier(0.18, 1.35, 0.42, 1);
+    }
+
+    .msg-copy-btn.is-copied .msg-copy-icon {
+      opacity: 0;
+      transform: none;
+    }
+
+    .msg-copy-btn.is-copied .msg-copy-check {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .msg-copy-btn .msg-copy-icon,
+      .msg-copy-btn .msg-copy-check {
+        transition-duration: 0.01ms;
+      }
     }
 
     .msg-action-btn:hover {
@@ -1739,64 +1819,45 @@
     }
 
     /* ── Reply (UI only — not wired to any reply/context logic yet) ──
-       Desktop: a small button fades in at the top-right corner of an AI
-       bubble after a short hover delay. Mobile: swiping an AI bubble
-       right-to-left reveals a matching icon proportionally to the drag.
-       See the "Reply gesture" JS block for the swipe interaction. */
+       Desktop: sits first in the action row, directly between the meta
+       timestamp and Copy (AI • time → Reply → Copy → Share → Regenerate),
+       styled and revealed exactly like the rest of the row (.msg-action-btn)
+       — no button-specific delay or animation of its own. Mobile: swiping an
+       AI bubble right-to-left reveals a matching icon proportionally to the
+       drag, unchanged from before. See the "Reply gesture" JS block for the
+       swipe interaction. */
     .bubble-row {
-      position: relative;
+      position: relative; /* anchors .reply-swipe-icon below */
     }
 
-    .reply-hover-btn {
-      display: none; /* only enabled where hover is meaningful, see media query below */
-      position: absolute;
-      top: -10px;
-      right: 10px;
-      width: 28px;
-      height: 28px;
-      place-items: center;
-      border-radius: 50%;
-      color: var(--muted);
-      background: var(--surface-2);
-      border: 1px solid var(--line-strong);
-      box-shadow: 0 4px 14px rgba(4, 8, 16, 0.32);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      z-index: 3;
+    /* Sits in .message-actions and is styled by the shared .msg-action-btn
+       rules above (size, colors, hover/active states) so it's visually
+       identical to Copy/Share/Regenerate. This rule only controls whether
+       it's present at all: hidden outside of hover-capable pointer devices,
+       since mobile keeps Reply exclusively as the swipe gesture below. */
+    .reply-action-btn {
+      display: none;
     }
 
-    .reply-hover-btn svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    .reply-hover-btn:hover {
-      color: var(--text);
-      background: var(--surface);
-      border-color: var(--accent);
-    }
-
-    .reply-hover-btn:active {
-      transform: scale(0.92);
+    /* Read-only shared chats: Reply is not applicable there (see
+       "shared-chat-mode" in the JS), so it stays hidden regardless of hover. */
+    html.shared-chat-mode .reply-action-btn {
+      display: none !important;
     }
 
     @media (hover: hover) and (pointer: fine) {
-      .reply-hover-btn {
+      .reply-action-btn {
         display: grid;
-        opacity: 0;
-        transform: translateY(4px) scale(0.88);
-        pointer-events: none;
-        transition: opacity 0.16s ease, transform 0.16s ease, color 0.16s ease, background 0.16s ease, border-color 0.16s ease;
-      }
-
-      /* The 0.5s delay lives only on this rule (the "appear" transition), not
-         on the base rule above, so hiding on mouse-out is instant while
-         showing waits for a deliberate hover. */
-      .message-row:not(.user):hover .reply-hover-btn {
-        transition-delay: 0.5s, 0.5s, 0s, 0s, 0s;
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        pointer-events: auto;
+        /* No opacity/transform/transition here: visibility comes entirely
+           from .message-actions' own opacity above, so Reply fades in and
+           out in lockstep with Copy/Share/Regenerate rather than trailing
+           them with its own delay. Reply is first in DOM order (it's placed
+           before Copy/Share/Regenerate), so without this, later siblings
+           would paint on top of it if anything ever overlapped; z-index
+           guarantees it stays in front and fully unobstructed regardless —
+           flex items honor z-index even though this one stays
+           position: static. */
+        z-index: 1;
       }
     }
 
@@ -1805,25 +1866,24 @@
       top: 50%;
       left: 100%;
       margin-left: 8px;
-      width: 34px;
-      height: 34px;
+      width: 40px;
+      height: 40px;
       display: grid;
       place-items: center;
       border-radius: 50%;
-      color: var(--accent);
-      background: var(--surface-2);
-      border: 1px solid var(--line-strong);
-      box-shadow: 0 4px 14px rgba(4, 8, 16, 0.32);
+      color: var(--muted); /* grey while swiping — see .swipe-open below for the completed-swipe color */
+      background: none;
+      border: none;
       opacity: 0;
       transform: translateY(-50%) translateX(8px) scale(0.6);
       pointer-events: none;
       will-change: opacity, transform;
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .reply-swipe-icon svg {
-      width: 15px;
-      height: 15px;
+      width: 18px;
+      height: 18px;
     }
 
     .message-row.swipe-open .reply-swipe-icon {
@@ -1832,10 +1892,19 @@
          safe as static fallbacks here. */
       opacity: 1;
       pointer-events: auto;
+      color: var(--accent); /* only turns the accent blue once the swipe fully completes */
+    }
+
+    /* Read-only shared chats: same as the action-row button above, Reply
+       doesn't apply here. The gesture itself is also short-circuited in JS
+       (see "shared-chat-mode" in handleSwipePointerDown) so bubbles don't
+       shift for a reveal that would never show anything. */
+    html.shared-chat-mode .reply-swipe-icon {
+      display: none !important;
     }
 
     /* Hide the swipe affordance entirely on precise-pointer devices — it's a
-       touch-only gesture, mirrored there by the hover button instead. */
+       touch-only gesture, mirrored there by the action-row button instead. */
     @media (hover: hover) and (pointer: fine) {
       .reply-swipe-icon {
         display: none;
@@ -1864,13 +1933,13 @@
 
     .composer-shell {
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: var(--radius-md);
       background: rgba(15, 22, 36, 0.6);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      padding: 0 8px 0 0; /* Moved the top/bottom/left padding to the input */
+      padding: 0 6px 0 0; /* Right inset is larger than the raw top/bottom gap (~4.5px) on purpose: the shell's own corner curve eats into perceived space right where the button sits, so a numerically-equal inset reads as tighter on that side. This value is tuned to look equidistant on right/top/bottom. */
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-      cursor: text; /* Makes the cursor an I-beam over the whole pill */
+      cursor: text; /* Makes the cursor an I-beam over the whole shell */
     }
 
     .composer-row {
@@ -1879,31 +1948,64 @@
       gap: 10px;
     }
 
-    .composer-row input {
+    .composer-input {
       flex: 1;
       min-width: 0;
+      display: block;
       border: 0;
       outline: 0;
       background: transparent;
       color: var(--text);
       font-size: 0.95rem;
-      padding: 13px 0 13px 18px; /* The input now stretches to fill the left curve and height */
-      border-radius: 999px 0 0 999px; /* Curves the input hit-box to match the shell */
+      padding: 13px 6px 13px 18px; /* The input now stretches to fill the left curve and height; right edge leaves room for the scrollbar gutter */
+      border-radius: var(--radius-md) 0 0 var(--radius-md); /* Curves the input hit-box to match the shell */
       -webkit-appearance: none; /* Remove iOS input default styling */
       appearance: none;
+      resize: none; /* growth is handled in JS, not the manual drag handle */
+      overflow-x: hidden;
+      overflow-y: hidden; /* becomes auto once the max-height cap is hit, via JS */
+      overflow-wrap: break-word;
+      max-height: var(--composer-max-height);
+      transition: height 0.15s ease; /* smooths the grow/shrink as lines are added or removed */
+      scrollbar-width: thin; /* Firefox: same slim, understated track used by the sidebar/messages lists */
+      scrollbar-color: rgba(143, 160, 189, 0.45) transparent;
     }
 
-    .composer-row input::placeholder {
+    /* Composer scrollbar (only visible once the max-height cap is hit) —
+       matches the thin, pill-thumb style already used for the sidebar,
+       message list, and quiz cards, so it reads as native to the UI. */
+    .composer-input::-webkit-scrollbar {
+      width: 5px;
+    }
+    .composer-input::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    .composer-input::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .composer-input::-webkit-scrollbar-thumb {
+      background: rgba(143, 160, 189, 0.42);
+      border-radius: var(--radius-full);
+    }
+    .composer-input::-webkit-scrollbar-thumb:hover {
+      background: rgba(143, 160, 189, 0.7);
+    }
+
+    .composer-input::placeholder {
       color: var(--muted);
     }
 
     .send-button {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       flex: 0 0 auto;
+      align-self: flex-end; /* anchors to the bottom of the row instead of vertical-centering, so it tracks the textarea's bottom edge as it grows */
+      margin-bottom: var(--send-button-margin-bottom, 5.5px); /* set by JS to exactly half the resting-state slack, so top/bottom are equal at rest on every breakpoint, then held fixed as the box grows */
       display: grid;
       place-items: center;
-      border-radius: 50%;
+      border-radius: var(--radius-xs);
       color: #08111a;
       background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
       /* Changed transition to 'all' so the shape morphs smoothly */
@@ -1986,7 +2088,7 @@
         left: 8px;
         height: calc(100% - 16px);
         padding: 14px;
-        border-radius: 18px;
+        border-radius: var(--radius-panel-md);
         gap: 12px;
         -webkit-transform: translateX(0);
         transform: translateX(0);
@@ -2040,7 +2142,7 @@
         flex: 1 1 auto;
         min-height: 0;
         min-width: 0;
-        border-radius: 18px;
+        border-radius: var(--radius-panel-md);
         margin-left: 0; /* Chat now takes up the full width */
       }
 
@@ -2077,7 +2179,7 @@
       .topbar-toggle.toggle-button {
         width: 38px;
         height: 38px;
-        border-radius: 11px;
+        border-radius: var(--radius-sm);
       }
 
       .messages {
@@ -2132,8 +2234,13 @@
 
       .bubble {
         padding: 12px 14px;
-        border-radius: 14px;
+        border-radius: var(--bubble-corner-radius);
         line-height: 1.55;
+      }
+
+      :root {
+        --bubble-corner-radius: var(--radius-md);
+        --composer-max-height: 160px; /* smaller cap on touch/mobile viewports */
       }
 
       .thinking-row {
@@ -2154,7 +2261,7 @@
         padding: 0 7px 0 0; /* Only right padding for the button */
       }
 
-      .composer-row input {
+      .composer-input {
         font-size: 0.9rem;
         padding: 12px 0 12px 14px; /* Stretches the mobile input hit-box */
       }
@@ -2208,7 +2315,7 @@
       .sidebar,
       .sidebar.collapsed,
       .main {
-        border-radius: 16px;
+        border-radius: var(--radius-lg);
       }
 
       .sidebar {
@@ -2238,7 +2345,7 @@
       .brand-mark {
         width: 38px;
         height: 38px;
-        border-radius: 13px;
+        border-radius: var(--radius-sm);
       }
 
       .topbar {
@@ -2271,14 +2378,14 @@
       .icon-button {
         width: 34px;
         height: 34px;
-        border-radius: 10px;
+        border-radius: var(--radius-xs);
       }
 
       /* Match toggle button to icon button sizing at narrow widths */
       .topbar-toggle.toggle-button {
         width: 34px;
         height: 34px;
-        border-radius: 10px;
+        border-radius: var(--radius-xs);
       }
 
       .messages {
@@ -2468,7 +2575,7 @@
   
   /* 3. Kept all your existing structural properties exactly the same */
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: var(--radius-2xl);
   padding: 56px 36px 24px 36px;
   width: 90%;
   max-width: 520px;
@@ -2505,7 +2612,7 @@
   height: 48px;
   display: grid;
   place-items: center;
-  border-radius: 15px;
+  border-radius: var(--radius-sm);
   color: #ff7773;
   background: rgba(255, 119, 115, 0.12);
   border: 1px solid rgba(255, 119, 115, 0.2);
@@ -2541,7 +2648,7 @@
   min-height: 40px;
   padding: 9px 15px;
   border: 1px solid var(--line-strong);
-  border-radius: 11px;
+  border-radius: var(--radius-sm);
   font-size: 0.88rem;
   font-weight: 650;
   cursor: pointer;
@@ -2590,7 +2697,7 @@
 @media (max-width: 640px) {
   .modal-box.delete-confirm-box {
     padding: 23px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
   }
 
   .delete-confirm-actions {
@@ -2676,7 +2783,7 @@
 .password-modal-input {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 13px 16px;
   background: rgba(8, 13, 23, 0.48);
   color: var(--text);
@@ -2702,7 +2809,7 @@
   width: 100%;
   margin-top: 12px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 13px 16px;
   color: #08111a;
   background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
@@ -2787,7 +2894,7 @@
 @media (max-width: 640px) {
   .modal-box.password-modal-box {
     padding: 30px 22px 24px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
   }
 }
 
@@ -2848,7 +2955,7 @@
 }
 .question-container::-webkit-scrollbar-thumb {
   background: rgba(143, 160, 189, 0.4);
-  border-radius: 10px;
+  border-radius: var(--radius-full);
 }
 .question-container::-webkit-scrollbar-thumb:hover {
   background: rgba(143, 160, 189, 0.7);
@@ -2861,7 +2968,7 @@
   padding: 13px 18px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--line-strong);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   color: var(--text);
   font-size: 0.92rem;
   font-weight: 500;
@@ -2913,7 +3020,7 @@
 .mcq-custom-checkbox {
   width: 22px;
   height: 22px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   background-color: var(--accent);
   /* Razor-sharp embedded SVG vector checkmark */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2308111a' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
@@ -2935,7 +3042,7 @@
   background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
   color: #08111a;
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
@@ -2971,7 +3078,7 @@ input.slider-value-display {
   color: var(--accent);
   background: var(--accent-soft);
   padding: 8px 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   border: 1px solid rgba(84, 210, 255, 0.3);
   min-width: 80px;
   max-width: 120px;
@@ -3023,7 +3130,7 @@ input.slider-value-display[type=number] {
   background: linear-gradient(135deg, #7ae6ff, #4aa8ff);
   color: #08111a;
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
@@ -3066,7 +3173,7 @@ input.slider-value-display[type=number] {
   color: var(--accent);
   background: var(--accent-soft);
   padding: 16px 28px;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   border: 1px solid rgba(84, 210, 255, 0.3);
   margin: 10px 0;
   box-shadow: 0 10px 30px rgba(84, 210, 255, 0.1);
@@ -3134,7 +3241,7 @@ input.slider-value-display[type=number] {
   .modal-box {
     padding: 52px 16px 18px 16px;
     width: 94%;
-    border-radius: 22px;
+    border-radius: var(--radius-xl);
     /* Extra safety for very tall phones in portrait */
     max-height: min(88dvh, calc(100dvh - 16px));
     /* Better shadow on small screens */
@@ -3149,7 +3256,7 @@ input.slider-value-display[type=number] {
   .mcq-option {
     padding: 13px 16px;
     font-size: 0.9rem;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     min-height: 48px;
   }
   
@@ -3162,7 +3269,7 @@ input.slider-value-display[type=number] {
   .next-btn {
     padding: 14px 20px;
     font-size: 0.98rem;
-    border-radius: 13px;
+    border-radius: var(--radius-sm);
     /* Ensure these hit the bottom of the viewport easily */
     min-height: 50px;
   }
@@ -3290,7 +3397,7 @@ input.slider-value-display[type=number] {
 
   .result-container::-webkit-scrollbar-thumb {
     background: rgba(143, 160, 189, 0.4);
-    border-radius: 10px;
+    border-radius: var(--radius-full);
   }
 }
 
@@ -3412,11 +3519,6 @@ input.slider-value-display[type=number] {
       border-color: rgba(83, 63, 42, 0.08);
     }
 
-    :root.light-mode .reply-hover-btn,
-    :root.light-mode .reply-swipe-icon {
-      box-shadow: 0 4px 14px rgba(65, 48, 31, 0.14);
-    }
-
     /* ── Composer ── */
     :root.light-mode .composer {
       background: transparent;
@@ -3515,6 +3617,15 @@ input.slider-value-display[type=number] {
       background: rgba(83, 63, 42, 0.2);
     }
     :root.light-mode .question-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(83, 63, 42, 0.3);
+    }
+    :root.light-mode .composer-input {
+      scrollbar-color: rgba(83, 63, 42, 0.2) transparent;
+    }
+    :root.light-mode .composer-input::-webkit-scrollbar-thumb {
+      background: rgba(83, 63, 42, 0.2);
+    }
+    :root.light-mode .composer-input::-webkit-scrollbar-thumb:hover {
       background: rgba(83, 63, 42, 0.3);
     }
 
@@ -3681,6 +3792,39 @@ input.slider-value-display[type=number] {
       }
     }
 
+    /* ── Rippling reveal theme transition (View Transitions API) ──
+       Used instead of the crossfade above whenever the browser supports
+       same-document View Transitions. The browser captures the old theme
+       as one flat snapshot and the new theme as another; toggleTheme()
+       then expands a soft, wobbling blob (built frame-by-frame in
+       buildThemeRippleKeyframes()) outward from the theme-toggle icon's
+       exact position (computed in getThemeToggleOrigin()), easing in and
+       out naturally, until it clears the farthest corner of the screen —
+       so the whole interface changes as one continuous, fluid ripple
+       outward from the icon, instead of many independently-transitioning
+       properties. The wobble fades out by the final frame, so the reveal
+       always settles into a clean, stable circle with nothing left over.
+       Unsupported browsers simply ignore these rules and fall back to the
+       crossfade. */
+    ::view-transition-group(root) {
+      animation-duration: 0s;
+    }
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+    ::view-transition-old(root) {
+      z-index: 1;
+    }
+    ::view-transition-new(root) {
+      z-index: 2;
+      /* Starting state before the JS-driven expansion runs — a zero-radius
+         circle, so there's never a frame where the new theme is visible
+         uncontrolled. */
+      clip-path: circle(0px at 50% 50%);
+    }
+
     /* Mobile production polish layer */
     @media (max-width: 900px) {
       :root {
@@ -3793,7 +3937,7 @@ input.slider-value-display[type=number] {
         height: var(--mobile-control);
         min-width: var(--mobile-control);
         min-height: var(--mobile-control);
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         background: transparent;
         border: 1px solid transparent;
       }
@@ -3832,7 +3976,7 @@ input.slider-value-display[type=number] {
       }
 
       .search-input,
-      .composer-row input {
+      .composer-input {
         font-size: 16px; /* Prevents iOS zoom on focus */
         line-height: 1.3;
       }
@@ -3872,19 +4016,19 @@ input.slider-value-display[type=number] {
         gap: 8px;
       }
 
-      .composer-row input {
+      .composer-input {
         padding: 12px 0 12px 14px;
       }
 
       .send-button {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
       }
 
       .jump-bottom,
       .search-navigator {
-        bottom: calc(var(--floating-bottom) + env(safe-area-inset-bottom));
+        bottom: calc(var(--floating-bottom) + env(safe-area-inset-bottom) + var(--composer-grow-offset, 0px));
       }
 
       .jump-bottom {
@@ -3984,7 +4128,7 @@ input.slider-value-display[type=number] {
       }
 
       .main {
-        border-radius: 16px;
+        border-radius: var(--radius-lg);
       }
 
       /* ── Topbar slim on small phones ── */
@@ -4038,9 +4182,9 @@ input.slider-value-display[type=number] {
       }
 
       .send-button {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
       }
 
       .jump-bottom {
@@ -4051,7 +4195,7 @@ input.slider-value-display[type=number] {
       .modal-box {
         padding: 50px 18px 18px;
         width: calc(100vw - 16px);
-        border-radius: 20px;
+        border-radius: var(--radius-xl);
       }
 
       .skip-btn,
@@ -4152,7 +4296,7 @@ input.slider-value-display[type=number] {
 
       .modal-box {
         padding: 48px 14px 14px;
-        border-radius: 18px;
+        border-radius: var(--radius-panel-md);
       }
 
       .skip-btn {
@@ -4213,15 +4357,15 @@ input.slider-value-display[type=number] {
         min-height: 42px;
       }
 
-      .composer-row input {
+      .composer-input {
         padding-top: 9px;
         padding-bottom: 9px;
       }
 
       .send-button {
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
       }
     }
 
@@ -4364,8 +4508,8 @@ input.slider-value-display[type=number] {
 .action-menu-wrapper {
   --menu-button-size: 46px;
   --menu-width: 210px;
-  --menu-closed-radius: 12px;
-  --menu-open-radius: 16px;
+  --menu-closed-radius: var(--radius-sm);
+  --menu-open-radius: var(--radius-lg);
   width: var(--menu-button-size);
   height: var(--menu-button-size);
   flex: 0 0 var(--menu-button-size);
@@ -4463,7 +4607,7 @@ input.slider-value-display[type=number] {
   padding: 12px 14px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   color: var(--text);
   font-size: 0.95rem;
   font-weight: 500;
@@ -4833,7 +4977,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   max-width: min(360px, calc(100vw - 32px));
   padding: 12px 18px;
   border: 1px solid var(--line-strong);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: rgba(15, 22, 36, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -4866,7 +5010,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   width: 100%;
   padding: 0;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: transparent;
   overflow: visible;
   transform: none !important;
@@ -4900,7 +5044,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   min-width: 0;
   padding: 10px 44px 10px 12px;
   border: 1px solid transparent;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   outline: 0;
   background: transparent;
   color: inherit;
@@ -4939,7 +5083,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   height: 30px;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: var(--radius-xs);
   color: var(--muted);
   background: transparent;
   cursor: pointer;
@@ -4997,7 +5141,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   width: 212px;
   padding: 6px;
   border: 1px solid var(--line-strong);
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   background: rgba(15, 22, 36, 0.96);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(18px);
@@ -5026,7 +5170,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   min-height: 42px;
   padding: 10px 11px 10px 13px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   color: var(--text);
   background: transparent;
   font-size: 0.9rem;
@@ -5119,7 +5263,7 @@ html.privacy-shield-active .privacy-shield-overlay {
     min-height: 52px;
     padding: 9px 12px;
     gap: 12px;
-    border-radius: 13px;
+    border-radius: var(--radius-md);
   }
 
   .sidebar.collapsed .chat-select .chat-copy {
@@ -5175,7 +5319,7 @@ html.privacy-shield-active .privacy-shield-overlay {
     min-height: var(--chat-focus-height, 52px);
     padding: 9px 12px;
     border: 1px solid rgba(180, 205, 235, 0.18);
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     color: var(--text);
     background: rgba(18, 27, 43, 0.98);
     box-shadow: 0 22px 50px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.18);
@@ -5217,7 +5361,7 @@ html.privacy-shield-active .privacy-shield-overlay {
     margin: 0 auto;
     padding: 6px;
     border: 1px solid rgba(180, 205, 235, 0.17);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     background: rgba(15, 22, 36, 0.97);
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
     backdrop-filter: blur(20px);
@@ -5239,7 +5383,7 @@ html.privacy-shield-active .privacy-shield-overlay {
   .mobile-chat-options-sheet .chat-option-action {
     min-height: 52px;
     padding: 13px 15px 13px 17px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
   }
 
@@ -5249,11 +5393,11 @@ html.privacy-shield-active .privacy-shield-overlay {
   }
 
   .mobile-chat-options-sheet .chat-option-action:first-child {
-    border-radius: 14px 14px 0 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
   }
 
   .mobile-chat-options-sheet .chat-option-action:last-child {
-    border-radius: 0 0 14px 14px;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
   }
 
   :root.light-mode .chat-options-backdrop {
@@ -5535,7 +5679,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       <section class="composer">
         <div class="composer-shell">
           <div class="composer-row">
-            <input type="text" id="chatInput" placeholder="Ask anything!" aria-label="Message input" enterkeyhint="send" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <textarea id="chatInput" class="composer-input" rows="1" placeholder="Ask anything!" aria-label="Message input" enterkeyhint="send" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"></textarea>
             <button class="send-button" type="button" aria-label="Send">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -5600,11 +5744,11 @@ html.privacy-shield-active .privacy-shield-overlay {
   </div>
 
   <div class="share-popover" id="sharePopover" aria-hidden="true">
-    <div class="share-card" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="share-card" role="dialog" aria-modal="true" aria-labelledby="shareTitle" aria-describedby="shareDescription">
       <div class="share-card-header">
         <div>
           <h2 id="shareTitle">Share chat</h2>
-          <p>Anyone with this link can view this conversation only. It is read-only and does not include your other chats or profile settings.</p>
+          <p id="shareDescription">Anyone with this link can view this conversation only. It is read-only and does not include your other chats or profile settings.</p>
         </div>
         <button class="share-close-button" id="shareCloseBtn" type="button" aria-label="Close share dialog">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -5781,6 +5925,74 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
     syncThemeColorMeta();
 
+    // Flips the light-mode class, persists it, and keeps the status bar in
+    // sync. Kept separate from toggleTheme() so both the animated
+    // (circular-reveal) path and the fallback crossfade swap state through
+    // the exact same code.
+    function applyThemeSwap() {
+      const isLight = document.documentElement.classList.toggle('light-mode');
+      localStorage.setItem('spark-theme', isLight ? 'light' : 'dark');
+      syncThemeColorMeta();
+    }
+
+    // Finds the exact center of the visible theme icon (not the wider
+    // dropdown row it sits in) so the circular reveal originates from where
+    // the user is actually looking. Falls back to the button, then to the
+    // viewport center, if the icon can't be measured for any reason.
+    function getThemeToggleOrigin(toggleButton) {
+      const iconEl = (toggleButton && toggleButton.querySelector('.theme-toggle-wrapper')) || toggleButton;
+      if (iconEl) {
+        const rect = iconEl.getBoundingClientRect();
+        if (rect.width || rect.height) {
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        }
+      }
+      return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    }
+
+    // Builds a sequence of polygon clip-paths — one per "frame" of the
+    // reveal — that trace a soft, rippling blob expanding from `origin`
+    // rather than a perfectly rigid circle. Two independent sine terms
+    // (different lobe counts, drifting phase) are layered on top of the
+    // growing radius so the boundary wobbles organically instead of
+    // pulsing like a neat flower/gear shape. The wobble's own strength
+    // follows a bell curve (0 → peak around the midpoint → 0), so the very
+    // first frame is a plain point and — critically — the very last frame
+    // is a perfectly clean, wobble-free circle at the full reveal radius:
+    // the playful motion happens in transit, never in the settled result.
+    function buildThemeRippleKeyframes(origin, maxRadius) {
+      const timeSteps = 16;    // how many frames capture the ripple's evolution
+      const angleSteps = 64;   // points per frame — keeps the boundary smooth
+      const wobbleAmp = maxRadius * 0.045;
+      const wobbleAmp2 = maxRadius * 0.02;
+      const lobes1 = 5;
+      const lobes2 = 9;
+      const spin = 0.9; // total gentle phase drift (radians) across the reveal
+
+      const frames = [];
+      for (let i = 0; i <= timeSteps; i++) {
+        const t = i / timeSteps;
+        const radius = t * maxRadius;
+        const envelope = Math.sin(t * Math.PI); // 0 at t=0 and t=1, peak at t=0.5
+        const phase = t * spin;
+
+        const pts = [];
+        for (let a = 0; a < angleSteps; a++) {
+          const theta = (a / angleSteps) * Math.PI * 2;
+          const wobble = envelope * (
+            wobbleAmp * Math.sin(theta * lobes1 + phase) +
+            wobbleAmp2 * Math.sin(theta * lobes2 - phase * 1.6)
+          );
+          const r = Math.max(0, radius + wobble);
+          const x = origin.x + r * Math.cos(theta);
+          const y = origin.y + r * Math.sin(theta);
+          pts.push(x.toFixed(1) + 'px ' + y.toFixed(1) + 'px');
+        }
+        frames.push('polygon(' + pts.join(', ') + ')');
+      }
+      return frames;
+    }
+
     function toggleTheme() {
       const toggleButton = document.getElementById('themeToggleBtn');
       if (toggleButton) {
@@ -5789,24 +6001,65 @@ html.privacy-shield-active .privacy-shield-overlay {
         toggleButton.classList.add('theme-swapping');
       }
 
-      // Temporarily add a transition class to animate all colors smoothly
-      document.documentElement.classList.add('theme-transition');
+      const reduceMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const canWave = !reduceMotion && typeof document.startViewTransition === 'function';
 
-      // Swap the mode
-      const isLight = document.documentElement.classList.toggle('light-mode');
-      
-      // Save preference to memory
-      localStorage.setItem('spark-theme', isLight ? 'light' : 'dark');
-      syncThemeColorMeta();
+      if (!canWave) {
+        // Fallback for browsers without View Transitions support (or with
+        // reduced-motion enabled): crossfade every color together, same as
+        // before.
+        document.documentElement.classList.add('theme-transition');
+        applyThemeSwap();
+        setTimeout(() => {
+          document.documentElement.classList.remove('theme-transition');
+          if (toggleButton) {
+            toggleButton.classList.remove('theme-swapping');
+          }
+        }, 560);
+        return;
+      }
 
-      // Remove the transition class after the icon and color animations finish
-      // so regular hover states don't feel laggy later
-      setTimeout(() => {
-        document.documentElement.classList.remove('theme-transition');
+      // Rippling reveal from the toggle icon: snapshot old + new theme,
+      // then expand a soft, wobbling blob outward from the icon's exact
+      // position, easing in and out naturally, out to a radius that just
+      // clears the farthest viewport corner — so the new theme washes
+      // outward from the icon itself, in one continuous, fluid motion.
+      const origin = getThemeToggleOrigin(toggleButton);
+
+      let transition;
+      try {
+        transition = document.startViewTransition(() => applyThemeSwap());
+      } catch (e) {
+        applyThemeSwap();
         if (toggleButton) {
           toggleButton.classList.remove('theme-swapping');
         }
-      }, 560);
+        return;
+      }
+
+      transition.ready.then(() => {
+        const maxRadius = Math.hypot(
+          Math.max(origin.x, window.innerWidth - origin.x),
+          Math.max(origin.y, window.innerHeight - origin.y)
+        ) + 16; // buffer so the edge fully clears the farthest corner
+        const duration = Math.max(650, Math.min(1050, maxRadius * 0.95));
+
+        document.documentElement.animate(
+          { clipPath: buildThemeRippleKeyframes(origin, maxRadius) },
+          {
+            duration: duration,
+            easing: 'cubic-bezier(0.65, 0, 0.35, 1)',
+            pseudoElement: '::view-transition-new(root)'
+          }
+        );
+      }).catch(() => {});
+
+      transition.finished.finally(() => {
+        if (toggleButton) {
+          toggleButton.classList.remove('theme-swapping');
+        }
+      });
     }
    function toggleSidebar() {
       closeModeDropdowns();
@@ -6103,10 +6356,13 @@ html.privacy-shield-active .privacy-shield-overlay {
     const messages = document.getElementById("messages");
     const shareChatButton = document.getElementById("shareChatBtn");
     const sharePopover = document.getElementById("sharePopover");
+    const shareTitle = document.getElementById("shareTitle");
+    const shareDescription = document.getElementById("shareDescription");
     const shareLinkInput = document.getElementById("shareLinkInput");
     const copyShareLinkButton = document.getElementById("copyShareLinkBtn");
     const shareCloseButton = document.getElementById("shareCloseBtn");
     const shareStatus = document.getElementById("shareStatus");
+    let sharePopoverTrigger = null;
     const deleteConfirmOverlay = document.getElementById("deleteConfirmOverlay");
     const deleteConfirmTitle = document.getElementById("deleteConfirmTitle");
     const deleteConfirmMessage = document.getElementById("deleteConfirmMessage");
@@ -6211,15 +6467,15 @@ html.privacy-shield-active .privacy-shield-overlay {
             </button>`;
 
       // Reply — UI only for now (see the "Reply gesture" JS block below):
-      // a hover-revealed button on desktop, a swipe-revealed icon on touch.
+      // an action-row button on desktop, a swipe-revealed icon on touch.
       // Neither is wired to any reply/context logic yet. AI messages only.
       const replyIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M9 17l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M4 12h10a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>`;
-      const replyHoverButton = isUser
+      const replyActionButton = isUser
         ? ""
-        : `<button class="reply-hover-btn" type="button" aria-label="Reply">${replyIconSvg}</button>`;
+        : `<button class="msg-action-btn reply-action-btn" type="button" aria-label="Reply" data-message-reply>${replyIconSvg}</button>`;
       const replySwipeIcon = isUser
         ? ""
         : `<button class="reply-swipe-icon" type="button" tabindex="-1" aria-hidden="true">${replyIconSvg}</button>`;
@@ -6228,19 +6484,27 @@ html.privacy-shield-active .privacy-shield-overlay {
         <div class="message-row ${isUser ? "user" : ""}">
           <div class="bubble-wrap">
             <div class="bubble-row">
-              <div class="bubble"${bubbleId}>${escapeHTML(message.text)}${replyHoverButton}</div>
+              <div class="bubble"${bubbleId}>${escapeHTML(message.text)}</div>
               ${replySwipeIcon}
             </div>
             <div class="message-footer">
               <div class="meta"${metaId}>${escapeHTML(message.meta)}</div>
               <div class="message-actions">
-                <button class="msg-action-btn" type="button" aria-label="Copy">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
-                  </svg>
+                ${replyActionButton}
+                <button class="msg-action-btn msg-copy-btn" type="button" aria-label="Copy text" data-message-copy>
+                  <span class="msg-copy-icon" aria-hidden="true">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </span>
+                  <span class="msg-copy-check" aria-hidden="true">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <path d="m5 12 4.3 4.3L19 6.7" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
                 </button>
-                <button class="msg-action-btn" type="button" aria-label="Share">
+                <button class="msg-action-btn" type="button" aria-label="Share" data-message-share>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M8.5 12.5 15.5 8.5M8.5 11.5 15.5 15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -6257,17 +6521,17 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
 
     // ── Reply gesture — mobile swipe (UI only) ──────────────────────────
-    // The desktop hover reveal is handled entirely in CSS (see ".reply-hover-btn"
+    // The desktop reveal is handled entirely in CSS (see ".reply-action-btn"
     // above). This just handles the touch swipe: dragging an AI bubble
     // right-to-left reveals ".reply-swipe-icon" proportionally to the drag,
     // snapping back if the swipe isn't completed. Nothing here does anything
     // with the reply itself yet — that's a follow-up once the icon needs to
     // actually attach context to a message.
-    const SWIPE_MAX_DRAG = 64; // px of finger travel that maps to a full (100%) reveal
-    const SWIPE_BUBBLE_SHIFT = 12; // px the bubble itself is allowed to visually shift
+    const SWIPE_MAX_DRAG = 150; // px of finger travel that maps to a full (100%) reveal — deliberately long so the gesture can't trigger by accident
+    const SWIPE_BUBBLE_SHIFT = 40; // px the bubble itself is allowed to visually shift — scaled up with SWIPE_MAX_DRAG so the drag still feels connected to the finger over the longer distance; may extend past the container's normal safe padding, which is expected
     const SWIPE_AXIS_THRESHOLD = 6; // px of movement before committing to horizontal vs. vertical
     const SWIPE_ICON_GAP = 8; // matches .reply-swipe-icon's margin-left in CSS
-    const SWIPE_ICON_SIZE = 34; // matches .reply-swipe-icon's width in CSS
+    const SWIPE_ICON_SIZE = 40; // matches .reply-swipe-icon's width in CSS
     const SWIPE_EDGE_SAFE_MARGIN = 6; // breathing room from the edge of the scroll container
     let swipeState = null;
     let openSwipeRow = null;
@@ -6275,13 +6539,31 @@ html.privacy-shield-active .privacy-shield-overlay {
     // A wrapped, multi-line AI reply routinely sits close to the bubble's own
     // max-width, leaving little or no gutter for the icon to reveal into —
     // this isn't a rare edge case, so pull the icon back toward the bubble by
-    // however much it would otherwise spill past the scrollable area.
+    // however much it would otherwise spill past the scrollable area. Used
+    // only for the live drag (see handleSwipePointerMove) so the icon never
+    // renders off-screen while actively dragging.
     function computeSwipeClampOffset(bubbleEl) {
       const messagesRect = messages.getBoundingClientRect();
       const bubbleRect = bubbleEl.getBoundingClientRect();
       const naturalIconRight = bubbleRect.right + SWIPE_ICON_GAP + SWIPE_ICON_SIZE;
       const overflow = naturalIconRight - (messagesRect.right - SWIPE_EDGE_SAFE_MARGIN);
       return Math.max(0, overflow);
+    }
+
+    // Once a swipe fully completes, the bubble settles shifted left by
+    // SWIPE_BUBBLE_SHIFT, opening a gap between its new edge and the
+    // container's right edge. This centers the icon within that gap —
+    // equal space on both sides — rather than leaving it hugging whichever
+    // edge the old clamp-to-avoid-overflow math happened to land it near.
+    // Used only for the final settled position (see handleSwipePointerEnd).
+    function computeSwipeCenterOffset(bubbleEl) {
+      const messagesRect = messages.getBoundingClientRect();
+      const bubbleRect = bubbleEl.getBoundingClientRect();
+      const shiftedBubbleRight = bubbleRect.right - SWIPE_BUBBLE_SHIFT;
+      const availableSpace = messagesRect.right - shiftedBubbleRight;
+      const naturalIconLeft = bubbleRect.right + SWIPE_ICON_GAP;
+      const centeredIconLeft = shiftedBubbleRight + (availableSpace - SWIPE_ICON_SIZE) / 2;
+      return centeredIconLeft - naturalIconLeft;
     }
 
     function resetSwipeVisuals(row) {
@@ -6303,6 +6585,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
     function handleSwipePointerDown(event) {
       if (event.pointerType !== "touch") return;
+      if (document.documentElement.classList.contains("shared-chat-mode")) return;
       const bubbleEl = event.target.closest(".bubble");
       if (!bubbleEl) return;
       const row = bubbleEl.closest(".message-row:not(.user)");
@@ -6317,6 +6600,7 @@ html.privacy-shield-active .privacy-shield-overlay {
         axis: null,
         progress: 0,
         clampOffset: computeSwipeClampOffset(bubbleEl),
+        centerOffset: computeSwipeCenterOffset(bubbleEl),
       };
       row.classList.add("is-dragging");
     }
@@ -6361,7 +6645,7 @@ html.privacy-shield-active .privacy-shield-overlay {
 
     function handleSwipePointerEnd(event) {
       if (!swipeState || (event && event.pointerType && event.pointerType !== "touch")) return;
-      const { row, axis, progress, icon, clampOffset } = swipeState;
+      const { row, axis, progress, icon, centerOffset } = swipeState;
       row.classList.remove("is-dragging");
 
       if (axis !== "x") {
@@ -6376,13 +6660,14 @@ html.privacy-shield-active .privacy-shield-overlay {
         // Fully completed: settle into the revealed state instead of
         // snapping back, so the icon is actually there to be tapped. The
         // bubble's own shift is small enough to hand off to the CSS class,
-        // but the icon keeps its inline (possibly clamped) position so it
-        // stays fully on-screen for wide bubbles too.
+        // but the icon keeps its inline position — centered within the gap
+        // opened up between the shifted bubble and the container's edge —
+        // so it stays fully on-screen and evenly spaced for wide bubbles too.
         if (openSwipeRow && openSwipeRow !== row) closeSwipeRow(openSwipeRow);
         row.querySelector(".bubble").style.transform = "";
         if (icon) {
           icon.style.opacity = "1";
-          icon.style.transform = `translateY(-50%) translateX(${-clampOffset}px) scale(1)`;
+          icon.style.transform = `translateY(-50%) translateX(${centerOffset}px) scale(1)`;
         }
         row.classList.add("swipe-open");
         openSwipeRow = row;
@@ -6406,6 +6691,64 @@ html.privacy-shield-active .privacy-shield-overlay {
       event.preventDefault();
       event.stopPropagation();
       closeSwipeRow(icon.closest(".message-row"));
+    });
+
+    messages.addEventListener("click", (event) => {
+      const copyButton = event.target.closest("[data-message-copy]");
+      if (!copyButton || !messages.contains(copyButton)) return;
+
+      const messageRow = copyButton.closest(".message-row");
+      const bubble = messageRow ? messageRow.querySelector(".bubble") : null;
+      if (!bubble) return;
+
+      copyMessageTextToClipboard(bubble.textContent).then((copied) => {
+        if (copied) flashMessageCopySuccess(copyButton);
+      });
+    });
+
+    messages.addEventListener("click", (event) => {
+      const shareButton = event.target.closest("[data-message-share]");
+      if (!shareButton || !messages.contains(shareButton) || isSharedChatView) return;
+
+      const messageRow = shareButton.closest(".message-row");
+      if (!messageRow) return;
+
+      const selectedMessageIndex = Array.prototype.indexOf.call(messages.querySelectorAll(".message-row"), messageRow);
+      if (selectedMessageIndex < 0) return;
+
+      if (isPrivacyLockOn(currentChatIndex)) {
+        openSharePopover("", { mode: "message", trigger: shareButton });
+        showShareStatus("This chat is locked. Unlock it to create a share link.", true);
+        return;
+      }
+
+      const bubble = messageRow.querySelector(".bubble");
+      const payload = getShareableConversationThroughMessage(
+        selectedMessageIndex,
+        bubble ? bubble.textContent : ""
+      );
+
+      if (!payload) {
+        openSharePopover("", { mode: "message", trigger: shareButton });
+        showShareStatus("This message is not ready to share yet.", true);
+        return;
+      }
+
+      openSharePopover(buildShareLink(payload), { mode: "message", trigger: shareButton });
+      showShareStatus("Share link ready. It includes this message and every earlier message only.", false);
+    });
+
+    // Reply has no functionality yet — clicking it shouldn't do anything
+    // visible beyond that. Without this, the click would leave the button
+    // focused, and since .message-actions also reveals on :focus-within (for
+    // keyboard users), the whole row — all four buttons, not just Reply —
+    // would stay stuck visible after the pointer moves away until focus
+    // landed somewhere else. Blurring immediately restores the normal
+    // hover-only behavior.
+    messages.addEventListener("click", (event) => {
+      const replyButton = event.target.closest("[data-message-reply]");
+      if (!replyButton || !messages.contains(replyButton)) return;
+      replyButton.blur();
     });
 
     // Tapping anywhere outside the currently-open row dismisses it.
@@ -6472,18 +6815,18 @@ html.privacy-shield-active .privacy-shield-overlay {
 
     // Packs a share payload into the shortest form that still carries
     // everything normalizeSharedPayload() actually reads (v, convId, title,
-    // locked, messages — "id" and "createdAt" are generated for callers that
-    // might want them but were never read back out of a link, so they're left
-    // out here too), then compresses it. LZString's "encoded URI component"
-    // alphabet is already URL-safe, so the result can be dropped straight
-    // into the hash with no further escaping.
+    // locked, messages), plus the generated id so every new shared link is
+    // unique even when the message content is unchanged. LZString's "encoded
+    // URI component" alphabet is already URL-safe, so the result can be
+    // dropped straight into the hash with no further escaping.
     function encodeSharePayload(payload) {
       const compact = [
         payload.v || 1,
         payload.convId || "",
         payload.title || "",
         payload.locked ? 1 : 0,
-        (payload.messages || []).map(packShareMessage)
+        (payload.messages || []).map(packShareMessage),
+        payload.id || ""
       ];
 
       const json = JSON.stringify(compact);
@@ -6534,16 +6877,8 @@ html.privacy-shield-active .privacy-shield-overlay {
       return conv ? conv.id : null;
     }
 
-    function getShareableConversation() {
-      if (currentChatIndex < 0 || !conversations[currentChatIndex]) return null;
-
-      const conversation = conversations[currentChatIndex];
-
-      // Locked chats can't be shared — no new share link gets created
-      // while the lock is on.
-      if (isPrivacyLockOn(currentChatIndex)) return null;
-
-      const shareMessages = conversation.messages
+    function createShareablePayload(conversation, sourceMessages) {
+      const shareMessages = sourceMessages
         .filter((message) => message && typeof message.text !== "undefined" && String(message.text).trim())
         .map((message) => ({
           who: message.who === "user" ? "user" : "bot",
@@ -6570,6 +6905,41 @@ html.privacy-shield-active .privacy-shield-overlay {
         locked: isPrivacyLockOn(currentChatIndex),
         messages: shareMessages
       };
+    }
+
+    function getShareableConversation() {
+      if (currentChatIndex < 0 || !conversations[currentChatIndex]) return null;
+
+      const conversation = conversations[currentChatIndex];
+
+      // Locked chats can't be shared — no new share link gets created
+      // while the lock is on.
+      if (isPrivacyLockOn(currentChatIndex)) return null;
+
+      return createShareablePayload(conversation, conversation.messages);
+    }
+
+    function getShareableConversationThroughMessage(messageIndex, visibleMessageText) {
+      if (currentChatIndex < 0 || !conversations[currentChatIndex]) return null;
+
+      const conversation = conversations[currentChatIndex];
+      const inclusiveIndex = Number(messageIndex);
+      if (isPrivacyLockOn(currentChatIndex) || !Number.isInteger(inclusiveIndex) || inclusiveIndex < 0 || inclusiveIndex >= conversation.messages.length) {
+        return null;
+      }
+
+      const sourceMessages = conversation.messages.slice(0, inclusiveIndex + 1);
+      const selectedMessage = sourceMessages[sourceMessages.length - 1];
+      const visibleText = typeof visibleMessageText === "string" ? visibleMessageText : "";
+
+      // While an AI reply is still streaming, the DOM contains the currently
+      // visible text before the conversation model is finalized. Preserve that
+      // exact visible portion so the selected message is never omitted.
+      if (selectedMessage && visibleText.trim()) {
+        sourceMessages[sourceMessages.length - 1] = Object.assign({}, selectedMessage, { text: visibleText });
+      }
+
+      return createShareablePayload(conversation, sourceMessages);
     }
 
     function buildShareLink(payload) {
@@ -6646,8 +7016,22 @@ html.privacy-shield-active .privacy-shield-overlay {
       shareStatus.style.color = isError ? "#ffb4b4" : "#a9cfff";
     }
 
-    function openSharePopover(link) {
+    function openSharePopover(link, options) {
       if (!sharePopover || !shareLinkInput) return;
+
+      const isMessageShare = Boolean(options && options.mode === "message");
+      sharePopover.classList.toggle("is-message-share", isMessageShare);
+      sharePopoverTrigger = options && options.trigger ? options.trigger : shareChatButton;
+
+      if (shareTitle) {
+        shareTitle.textContent = isMessageShare ? "Share up to this message" : "Share chat";
+      }
+      if (shareDescription) {
+        shareDescription.textContent = isMessageShare
+          ? "Everything from the beginning of this conversation through this message will be shared. Messages after it will not be included."
+          : "Anyone with this link can view this conversation only. It is read-only and does not include your other chats or profile settings.";
+      }
+      shareLinkInput.setAttribute("aria-label", isMessageShare ? "Shareable link for this message and earlier conversation" : "Shareable chat link");
 
       shareLinkInput.value = link || "";
       sharePopover.classList.add("open");
@@ -6664,9 +7048,13 @@ html.privacy-shield-active .privacy-shield-overlay {
     function closeSharePopover() {
       if (!sharePopover) return;
 
-      sharePopover.classList.remove("open");
+      const focusTarget = sharePopoverTrigger;
+      sharePopoverTrigger = null;
+      sharePopover.classList.remove("open", "is-message-share");
       sharePopover.setAttribute("aria-hidden", "true");
-      if (shareChatButton && !document.documentElement.classList.contains("shared-chat-mode")) {
+      if (focusTarget && document.contains(focusTarget) && !document.documentElement.classList.contains("shared-chat-mode")) {
+        focusTarget.focus();
+      } else if (shareChatButton && !document.documentElement.classList.contains("shared-chat-mode")) {
         shareChatButton.focus();
       }
     }
@@ -6691,6 +7079,50 @@ html.privacy-shield-active .privacy-shield-overlay {
       } catch (error) {
         return Promise.resolve(false);
       }
+    }
+
+    function copyMessageTextToClipboard(text) {
+      const copyWithFallback = () => {
+        const fallbackField = document.createElement("textarea");
+        fallbackField.value = text;
+        fallbackField.setAttribute("readonly", "");
+        fallbackField.setAttribute("aria-hidden", "true");
+        fallbackField.style.cssText = "position:fixed;top:0;left:-9999px;opacity:0;pointer-events:none;";
+        document.body.appendChild(fallbackField);
+        fallbackField.focus();
+        fallbackField.select();
+
+        try {
+          return document.execCommand("copy");
+        } catch (error) {
+          return false;
+        } finally {
+          fallbackField.remove();
+        }
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          return navigator.clipboard.writeText(text).then(() => true).catch(copyWithFallback);
+        } catch (error) {
+          return Promise.resolve(copyWithFallback());
+        }
+      }
+
+      return Promise.resolve(copyWithFallback());
+    }
+
+    function flashMessageCopySuccess(button) {
+      if (!button) return;
+
+      button.classList.add("is-copied");
+      button.setAttribute("aria-label", "Copied");
+
+      window.clearTimeout(button._messageCopyResetTimer);
+      button._messageCopyResetTimer = window.setTimeout(() => {
+        button.classList.remove("is-copied");
+        button.setAttribute("aria-label", "Copy text");
+      }, 1300);
     }
 
     function flashShareCopiedState() {
@@ -7325,8 +7757,9 @@ html.privacy-shield-active .privacy-shield-overlay {
         currentChatIndex = -1;
         isSwitching = false;
         startScreenDraft = "";
-        const input = document.querySelector(".composer-row input");
+        const input = document.querySelector(".composer-input");
         if (input) input.value = "";
+        autosizeComposerInput(input);
         renderSidebarList();
         setActiveChat(-1);
         renderStartScreen();
@@ -7788,7 +8221,7 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
 
     function saveDraft() {
-      const val = document.querySelector(".composer-row input").value;
+      const val = document.querySelector(".composer-input").value;
       if (currentChatIndex === -1) {
         startScreenDraft = val;
       } else if (conversations[currentChatIndex]) {
@@ -7797,12 +8230,13 @@ html.privacy-shield-active .privacy-shield-overlay {
     }
 
     function loadDraft(index) {
-      const input = document.querySelector(".composer-row input");
+      const input = document.querySelector(".composer-input");
       if (index === -1) {
         input.value = startScreenDraft || "";
       } else if (conversations[index]) {
         input.value = conversations[index].draft || "";
       }
+      autosizeComposerInput(input);
     }
 
     // Revokes this tab's temporary "unlocked for viewing" grant for the
@@ -7827,7 +8261,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       animateTo(nextIndex, enterClass, () => renderConversation(nextIndex));
       
       loadDraft(nextIndex);
-      if (!mobileQuery.matches) document.querySelector(".composer-row input").focus();
+      if (!mobileQuery.matches) document.querySelector(".composer-input").focus();
     }
 
     function showNewChat() {
@@ -7840,7 +8274,7 @@ html.privacy-shield-active .privacy-shield-overlay {
       animateTo(-1, "enter-from-top", renderStartScreen);
       
       loadDraft(-1);
-      if (!mobileQuery.matches) document.querySelector(".composer-row input").focus();
+      if (!mobileQuery.matches) document.querySelector(".composer-input").focus();
     }
 
     bindSidebarChatItems();
@@ -8903,8 +9337,102 @@ applyChatSectionState("pinned");
 applyChatSectionState("recent");
 
 // --- Chat Interaction Logic ---
-const chatInput = document.querySelector(".composer-row input");
+const chatInput = document.querySelector(".composer-input");
 const sendBtn = document.querySelector(".send-button");
+
+// Grows the composer textarea to fit its content (up to the desktop/mobile
+// cap defined by --composer-max-height), then scrolls internally past that.
+// Called on every keystroke plus everywhere the input's value is set
+// programmatically (sending, clearing, restoring a draft) so the box always
+// matches its current text — including shrinking back down when text is
+// deleted, since height is recalculated from scratch each time rather than
+// only ever growing.
+
+// Cached "one line" height of the composer for the current breakpoint, used
+// to figure out how far it has grown past that resting state. Measured with
+// a hidden clone (rather than estimated from font metrics) so it's exact,
+// and only re-measured when the breakpoint actually changes.
+let composerRestingHeight = null;
+
+function measureComposerRestingHeight() {
+  const clone = document.createElement("textarea");
+  clone.className = chatInput.className;
+  clone.setAttribute("rows", "1");
+  clone.style.position = "absolute";
+  clone.style.visibility = "hidden";
+  clone.style.pointerEvents = "none";
+  clone.style.height = "auto";
+  document.body.appendChild(clone);
+  const resting = clone.scrollHeight;
+  document.body.removeChild(clone);
+  return resting;
+}
+
+// Re-measures the resting height for whichever breakpoint is currently
+// active, and — from that — the exact bottom margin that centers the send
+// button vertically at rest (half of the leftover space between the row's
+// resting height and the button's own height). Because this is computed
+// fresh per breakpoint rather than hardcoded, top/bottom stay equal at rest
+// everywhere (desktop, tablet, phone, landscape) without per-breakpoint
+// tuning, and — since it's only ever recalculated here, not on every
+// keystroke — it stays fixed as the box grows, so the button holds its
+// bottom-right position instead of re-centering.
+function syncComposerRestingMetrics() {
+  composerRestingHeight = measureComposerRestingHeight();
+  if (sendBtn) {
+    const slack = composerRestingHeight - sendBtn.offsetHeight;
+    const marginBottom = Math.max(0, slack / 2);
+    document.documentElement.style.setProperty("--send-button-margin-bottom", marginBottom + "px");
+  }
+}
+
+function autosizeComposerInput(el) {
+  const target = el || chatInput;
+  if (!target) return;
+
+  const wasNearBottom = isMessagesNearBottom();
+
+  target.style.height = "auto"; // collapse first so shrinking is detected, not just growth
+  const maxHeight = parseFloat(getComputedStyle(target).maxHeight) || 200;
+  const nextHeight = Math.min(target.scrollHeight, maxHeight);
+  target.style.height = nextHeight + "px";
+  target.style.overflowY = target.scrollHeight > maxHeight + 1 ? "auto" : "hidden";
+
+  // Push the jump-to-bottom / search-navigator buttons up by however far the
+  // composer has grown past a single line, so a tall composer never covers them.
+  if (composerRestingHeight === null) {
+    syncComposerRestingMetrics();
+  }
+  const grownBy = Math.max(0, nextHeight - composerRestingHeight);
+  document.documentElement.style.setProperty("--composer-grow-offset", grownBy + "px");
+
+  // If the conversation was already scrolled to the bottom, keep the latest
+  // message in view as the composer grows upward over it.
+  if (wasNearBottom) {
+    scrollMessagesToBottom("auto");
+  }
+}
+
+chatInput.addEventListener("input", () => autosizeComposerInput(chatInput));
+
+// Re-clamp if the viewport crosses the desktop/mobile breakpoint (the
+// max-height cap changes from 200px to 160px there) while the box is expanded.
+// The composer's resting height — and the send button's centering margin —
+// also change at that breakpoint (different padding/font-size/button size),
+// so both are re-measured too.
+if (mobileQuery.addEventListener) {
+  mobileQuery.addEventListener("change", () => {
+    composerRestingHeight = null;
+    autosizeComposerInput(chatInput);
+  });
+} else {
+  mobileQuery.addListener(() => {
+    composerRestingHeight = null;
+    autosizeComposerInput(chatInput);
+  });
+}
+
+autosizeComposerInput(chatInput); // correct initial height in case a draft is already present
 
 function appendMessage(messageObj, shouldScroll = true) {
   if (messages.classList.contains("start-mode")) {
@@ -9074,6 +9602,7 @@ function handleSendMessage() {
 
   setSendingState(true);
   chatInput.value = "";
+  autosizeComposerInput(chatInput);
 
   if (currentChatIndex === -1) {
     startScreenDraft = "";
@@ -10043,7 +10572,7 @@ function closeModal() {
   modalOverlay.classList.remove('active');
   setTimeout(() => {
     modalOverlay.style.display = 'none';
-    const chatInput = document.querySelector(".composer-row input");
+    const chatInput = document.querySelector(".composer-input");
     if (chatInput && !mobileQuery.matches) {
       chatInput.focus();
     }
